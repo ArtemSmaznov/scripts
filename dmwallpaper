@@ -2,15 +2,24 @@
 #
 # Script name: dmwallpaper
 # Description: set a random wallpapers
-# Dependencies: nitrogen, xrandr
+# Dependencies: rofi -dmenu, xrandr, nitrogen
 
 
-# path to wallpapers directory
+# ░█▀▀░█▀▀░▀█▀░█░█░█▀█
+# ░▀▀█░█▀▀░░█░░█░█░█▀▀
+# ░▀▀▀░▀▀▀░░▀░░▀▀▀░▀░░
+
+# Specifying a directory with wallpapers and make sure it exists
 wall_dir=~/Pictures/wallpapers
+mkdir -p "${wall_dir}"
 
 # get the number of connected screens
 screens=$(xrandr | grep -e "\sconnected" | wc -l)
 
+
+# ░█▄█░█▀█░▀█▀░█▀█░░░█▀▀░█░█░█▀█░█▀▀░▀█▀░▀█▀░█▀█░█▀█
+# ░█░█░█▀█░░█░░█░█░░░█▀▀░█░█░█░█░█░░░░█░░░█░░█░█░█░█
+# ░▀░▀░▀░▀░▀▀▀░▀░▀░░░▀░░░▀▀▀░▀░▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀░▀
 
 setRandomWallpaper(){
   if [ ! -z "$1" ]; then
@@ -21,11 +30,27 @@ setRandomWallpaper(){
 }
 
 
-if [ $# -eq 0 ]; then
-  # Piping the wallpaper subfolders into rofi -dmenu.
-  choice=$(\ls $wall_dir --hide="*.*" | rofi -dmenu -i -p 'Wallpaper Category')
-  setRandomWallpaper $choice
-else
+# ░█▀▄░█▄█░█▀▀░█▀█░█░█
+# ░█░█░█░█░█▀▀░█░█░█░█
+# ░▀▀░░▀░▀░▀▀▀░▀░▀░▀▀▀
+
+dmenu_prompt="Wallpaper Category"
+
+
+# ░█▀▀░▀█▀░█▀█░█▀▄░▀█▀
+# ░▀▀█░░█░░█▀█░█▀▄░░█░
+# ░▀▀▀░░▀░░▀░▀░▀░▀░░▀░
+
+if [ ! $# -eq 0 ]; then
+  # if an argument was passed to the script, use it insted of triggering dmenu
   setRandomWallpaper $1
+
+else
+  # show dmenu if script was executed bare
+
+  # Piping the wallpaper subfolders into rofi -dmenu.
+  choice=$(\ls $wall_dir --hide="*.*" | rofi -dmenu -i -p "${dmenu_prompt}")
+  setRandomWallpaper $choice
+
 fi
 

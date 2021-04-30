@@ -5,6 +5,10 @@
 # Dependencies: rofi -dmenu, systemd, xscreensaver, notify-send
 
 
+# ░█▀▀░█▀▀░▀█▀░█░█░█▀█
+# ░▀▀█░█▀▀░░█░░█░█░█▀▀
+# ░▀▀▀░▀▀▀░░▀░░▀▀▀░▀░░
+
 # Define LOCKER in .xprofile to set to different LOCKER program
 # LOCKER="${LOCKER:-lock}"
 LOCKER="xscreensaver-command -lock"
@@ -15,6 +19,11 @@ if [[ ${TERM} == 'dumb' ]]; then
   OUTPUT="notify-send"
 fi
 
+yesno(){
+  # shellcheck disable=SC2005
+  echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
+}
+
 declare -a MANAGERS=(
 "awesome"
 "bspwm"
@@ -24,7 +33,13 @@ declare -a MANAGERS=(
 "qtile"
 )
 
-# An array of options to choose.
+
+# ░█▀▄░█▄█░█▀▀░█▀█░█░█
+# ░█░█░█░█░█▀▀░█░█░█░█
+# ░▀▀░░▀░▀░▀▀▀░▀░▀░▀▀▀
+
+dmenu_prompt="Shutdown menu"
+
 declare -a options=(
 "Suspend"
 "Reboot"
@@ -36,14 +51,18 @@ declare -a options=(
 )
 
 
-yesno(){
-  # shellcheck disable=SC2005
-  echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
-}
+# ░█▄█░█▀█░▀█▀░█▀█░░░█▀▀░█░█░█▀█░█▀▀░▀█▀░▀█▀░█▀█░█▀█
+# ░█░█░█▀█░░█░░█░█░░░█▀▀░█░█░█░█░█░░░░█░░░█░░█░█░█░█
+# ░▀░▀░▀░▀░▀▀▀░▀░▀░░░▀░░░▀▀▀░▀░▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀░▀
+
+
+# ░█▀▀░▀█▀░█▀█░█▀▄░▀█▀
+# ░▀▀█░░█░░█▀█░█▀▄░░█░
+# ░▀▀▀░░▀░░▀░▀░▀░▀░░▀░
 
 # Piping the above array into rofi -dmenu.
 # We use "printf '%s\n'" to format the array one item to a line.
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p 'Shutdown menu')
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
 
 # What to do when/if we choose one of the options.
 case $choice in
