@@ -65,7 +65,15 @@ takeScreenshot(){
       echo ${DISPLAY_MODE["DVI-D-0"]}
 
     else
-      echo 'Only the following arguments are accepted: full, area, window'
+      echo  "
+Invalid Argument!
+Only the following arguments are accepted:
+
+  full   - Take a screenshot of the whole Workspace containing All Displays
+  screen - Take a screenshot of the whole Active Screen
+  window - Take a screenshot of the currently Active Window
+  area   - Turn cursor into a crosshair to select an Area of the screen to screenshot
+"
     fi
   fi
 
