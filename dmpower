@@ -87,7 +87,7 @@ case $choice in
     ;;
   'Reboot to Windows')
     if [[ $(yesno "Reboot?") == "Yes" ]]; then
-      winreboot
+      grub-reboot "Windows 10" && systemctl reboot
     else
       ${OUTPUT} "User chose not to reboot." && exit 0
     fi
