@@ -22,11 +22,13 @@ screens=$(xrandr | grep -e "\sconnected" | wc -l)
 # ░▀░▀░▀░▀░▀▀▀░▀░▀░░░▀░░░▀▀▀░▀░▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀░▀
 
 setRandomWallpaper(){
-  if [ ! -z "$1" ]; then
-    for (( i = 0; i < $screens; i++ )); do
-      nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
-    done
+  if [ -z "$1" ]; then
+    return
   fi
+
+  for (( i = 0; i < $screens; i++ )); do
+    nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
+  done
 }
 
 
