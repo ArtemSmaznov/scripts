@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
 #
-# Script name: dmpower
 # Description: Logout, shutdown, reboot or lock screen.
 # Dependencies: rofi -dmenu, systemd, xscreensaver, notify-send
-
-
-# ░█▀▀░█▀▀░▀█▀░█░█░█▀█
-# ░▀▀█░█▀▀░░█░░█░█░█▀▀
-# ░▀▀▀░▀▀▀░░▀░░▀▀▀░▀░░
 
 # Define LOCKER in .xprofile to set to different LOCKER program
 # LOCKER="${LOCKER:-lock}"
@@ -34,9 +28,6 @@ declare -a MANAGERS=(
 )
 
 
-# ░█▀▄░█▄█░█▀▀░█▀█░█░█
-# ░█░█░█░█░█▀▀░█░█░█░█
-# ░▀▀░░▀░▀░▀▀▀░▀░▀░▀▀▀
 
 dmenu_prompt="Shutdown menu"
 
@@ -49,16 +40,6 @@ declare -a options=(
 "Reboot to Windows"
 "Quit"
 )
-
-
-# ░█▄█░█▀█░▀█▀░█▀█░░░█▀▀░█░█░█▀█░█▀▀░▀█▀░▀█▀░█▀█░█▀█
-# ░█░█░█▀█░░█░░█░█░░░█▀▀░█░█░█░█░█░░░░█░░░█░░█░█░█░█
-# ░▀░▀░▀░▀░▀▀▀░▀░▀░░░▀░░░▀▀▀░▀░▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀░▀
-
-
-# ░█▀▀░▀█▀░█▀█░█▀▄░▀█▀
-# ░▀▀█░░█░░█▀█░█▀▄░░█░
-# ░▀▀▀░░▀░░▀░▀░▀░▀░░▀░
 
 # Piping the above array into rofi -dmenu.
 # We use "printf '%s\n'" to format the array one item to a line.

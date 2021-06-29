@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
 #
-# Script name: dmwallpaper
 # Description: set a random wallpapers
 # Dependencies: rofi -dmenu, xrandr, nitrogen
-
-
-# ░█▀▀░█▀▀░▀█▀░█░█░█▀█
-# ░▀▀█░█▀▀░░█░░█░█░█▀▀
-# ░▀▀▀░▀▀▀░░▀░░▀▀▀░▀░░
 
 # Specifying a directory with wallpapers and make sure it exists
 wall_dir=~/Pictures/wallpapers
@@ -15,11 +9,6 @@ mkdir -p "${wall_dir}"
 
 # get the number of connected screens
 screens=$(xrandr | grep -e "\sconnected" | wc -l)
-
-
-# ░█▄█░█▀█░▀█▀░█▀█░░░█▀▀░█░█░█▀█░█▀▀░▀█▀░▀█▀░█▀█░█▀█
-# ░█░█░█▀█░░█░░█░█░░░█▀▀░█░█░█░█░█░░░░█░░░█░░█░█░█░█
-# ░▀░▀░▀░▀░▀▀▀░▀░▀░░░▀░░░▀▀▀░▀░▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀░▀
 
 setRandomWallpaper(){
   if [ -z "$1" ]; then
@@ -31,17 +20,7 @@ setRandomWallpaper(){
   done
 }
 
-
-# ░█▀▄░█▄█░█▀▀░█▀█░█░█
-# ░█░█░█░█░█▀▀░█░█░█░█
-# ░▀▀░░▀░▀░▀▀▀░▀░▀░▀▀▀
-
 dmenu_prompt="Wallpaper Category"
-
-
-# ░█▀▀░▀█▀░█▀█░█▀▄░▀█▀
-# ░▀▀█░░█░░█▀█░█▀▄░░█░
-# ░▀▀▀░░▀░░▀░▀░▀░▀░░▀░
 
 if [ ! $# -eq 0 ]; then
   # if an argument was passed to the script, use it insted of triggering dmenu
@@ -55,4 +34,3 @@ else
   setRandomWallpaper $choice
 
 fi
-

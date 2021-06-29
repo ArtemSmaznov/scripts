@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
 #
-# Script name: dmscreenshot
 # Description: take a screenshot
 # Dependencies: rofi -dmenu, xrandr, maim
-
-
-# ░█▀▀░█▀▀░▀█▀░█░█░█▀█
-# ░▀▀█░█▀▀░░█░░█░█░█▀▀
-# ░▀▀▀░▀▀▀░░▀░░▀▀▀░▀░░
 
 # Set with the flags "-e", "-u","-o pipefail" cause the script to fail
 # if certain things happen, which is a good thing.  Otherwise, we can
@@ -39,13 +33,8 @@ for d in ${DISPLAYS}; do
 done
 unset IFS
 
-
-# ░█▄█░█▀█░▀█▀░█▀█░░░█▀▀░█░█░█▀█░█▀▀░▀█▀░▀█▀░█▀█░█▀█
-# ░█░█░█▀█░░█░░█░█░░░█▀▀░█░█░█░█░█░░░░█░░░█░░█░█░█░█
-# ░▀░▀░▀░▀░▀▀▀░▀░▀░░░▀░░░▀▀▀░▀░▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀░▀
-
 takeScreenshot(){
-    
+
   if [[ $1 == 'full' ]]; then
     MAIM_ARGS="-u -m 1"
 
@@ -84,11 +73,6 @@ Only the following arguments are accepted:
 
 }
 
-
-# ░█▀▄░█▄█░█▀▀░█▀█░█░█
-# ░█░█░█░█░█▀▀░█░█░█░█
-# ░▀▀░░▀░▀░▀▀▀░▀░▀░▀▀▀
-
 dmenu_prompt="Select what to screenshot"
 
 declare -a options=(
@@ -98,18 +82,13 @@ declare -a options=(
 "area"
 )
 
-
-# ░█▀▀░▀█▀░█▀█░█▀▄░▀█▀
-# ░▀▀█░░█░░█▀█░█▀▄░░█░
-# ░▀▀▀░░▀░░▀░▀░▀░▀░░▀░
-
 if [ ! $# -eq 0 ]; then
   # if an argument was passed to the script, use it insted of triggering dmenu
-  takeScreenshot $1 
+  takeScreenshot $1
 
 else
   # show dmenu if script was executed bare
-  
+
   # Piping the above array into rofi -dmenu.
   # We use "printf '%s\n'" to format the array one item to a line.
   choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
@@ -117,4 +96,3 @@ else
   takeScreenshot $choice
 
 fi
-
