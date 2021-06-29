@@ -14,7 +14,7 @@ mkdir -p "${SCREENSHOT_DIR}"
 
 # Filename Time Stamp Format
 getTimeStamp() {
-  date '+%Y-%m-%d_%T'
+    date '+%Y-%m-%d_%T'
 }
 
 EXECUTE=true
@@ -27,34 +27,34 @@ DISPLAYS=$(xrandr --listactivemonitors | grep '+' | awk '{print $4, $3}' | awk -
 IFS=$'\n'
 declare -A DISPLAY_MODE
 for d in ${DISPLAYS}; do
-  name=$(echo "${d}" | awk '{print $1}')
-  area="$(echo "${d}" | awk '{print $2}')"
-  DISPLAY_MODE[${name}]="${area}"
+    name=$(echo "${d}" | awk '{print $1}')
+    area="$(echo "${d}" | awk '{print $2}')"
+    DISPLAY_MODE[${name}]="${area}"
 done
 unset IFS
 
 takeScreenshot(){
 
-  if [[ $1 == 'full' ]]; then
-    MAIM_ARGS="-u -m 1"
+    if [[ $1 == 'full' ]]; then
+        MAIM_ARGS="-u -m 1"
 
-  elif [[ $1 == 'screen' ]]; then
-    MAIM_ARGS="-u -g ${DISPLAY_MODE['DVI-D-0']} -m 1"
+    elif [[ $1 == 'screen' ]]; then
+        MAIM_ARGS="-u -g ${DISPLAY_MODE['DVI-D-0']} -m 1"
 
-  elif [[ $1 == 'window' ]]; then
-    active_window=$(xdotool getactivewindow)
-    MAIM_ARGS="-u -B -i ${active_window} -m 1"
+    elif [[ $1 == 'window' ]]; then
+        active_window=$(xdotool getactivewindow)
+        MAIM_ARGS="-u -B -i ${active_window} -m 1"
 
-  elif [[ $1 == 'area' ]]; then
-    MAIM_ARGS="-u -B -s -n -m 1"
-
-  else
-    EXECUTE=false
-    if [[ $1 == 'debug' ]]; then
-      echo ${DISPLAY_MODE["DVI-D-0"]}
+    elif [[ $1 == 'area' ]]; then
+        MAIM_ARGS="-u -B -s -n -m 1"
 
     else
-      echo  "
+        EXECUTE=false
+        if [[ $1 == 'debug' ]]; then
+            echo ${DISPLAY_MODE["DVI-D-0"]}
+
+        else
+            echo  "
 Invalid Argument!
 Only the following arguments are accepted:
 
@@ -63,36 +63,36 @@ Only the following arguments are accepted:
   window - Take a screenshot of the currently Active Window
   area   - Turn cursor into a crosshair to select an Area of the screen to screenshot
 "
+        fi
     fi
-  fi
 
 
-  if $EXECUTE; then
-    maim ${MAIM_ARGS} "${SCREENSHOT_DIR}/$(getTimeStamp).png"
-  fi
+    if $EXECUTE; then
+        maim ${MAIM_ARGS} "${SCREENSHOT_DIR}/$(getTimeStamp).png"
+    fi
 
 }
 
 dmenu_prompt="Select what to screenshot"
 
 declare -a options=(
-"full"
-"screen"
-"window"
-"area"
+    "full"
+    "screen"
+    "window"
+    "area"
 )
 
 if [ ! $# -eq 0 ]; then
-  # if an argument was passed to the script, use it insted of triggering dmenu
-  takeScreenshot $1
+    # if an argument was passed to the script, use it insted of triggering dmenu
+    takeScreenshot $1
 
 else
-  # show dmenu if script was executed bare
+    # show dmenu if script was executed bare
 
-  # Piping the above array into rofi -dmenu.
-  # We use "printf '%s\n'" to format the array one item to a line.
-  choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+    # Piping the above array into rofi -dmenu.
+    # We use "printf '%s\n'" to format the array one item to a line.
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
 
-  takeScreenshot $choice
+    takeScreenshot $choice
 
 fi

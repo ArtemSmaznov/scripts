@@ -11,26 +11,26 @@ mkdir -p "${wall_dir}"
 screens=$(xrandr | grep -e "\sconnected" | wc -l)
 
 setRandomWallpaper(){
-  if [ -z "$1" ]; then
-    return
-  fi
+    if [ -z "$1" ]; then
+        return
+    fi
 
-  for (( i = 0; i < $screens; i++ )); do
-    nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
-  done
+    for (( i = 0; i < $screens; i++ )); do
+        nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
+    done
 }
 
 dmenu_prompt="Wallpaper Category"
 
 if [ ! $# -eq 0 ]; then
-  # if an argument was passed to the script, use it insted of triggering dmenu
-  setRandomWallpaper $1
+    # if an argument was passed to the script, use it insted of triggering dmenu
+    setRandomWallpaper $1
 
 else
-  # show dmenu if script was executed bare
+    # show dmenu if script was executed bare
 
-  # Piping the wallpaper subfolders into rofi -dmenu.
-  choice=$(\ls $wall_dir --hide="*.*" | rofi -dmenu -i -p "${dmenu_prompt}")
-  setRandomWallpaper $choice
+    # Piping the wallpaper subfolders into rofi -dmenu.
+    choice=$(\ls $wall_dir --hide="*.*" | rofi -dmenu -i -p "${dmenu_prompt}")
+    setRandomWallpaper $choice
 
 fi

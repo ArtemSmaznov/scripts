@@ -9,25 +9,184 @@
 #+begin_src shell :tangle dmnotify :shebang #!/usr/bin/env bash
 #
 # Description: manage dunst notifications
-# Dependencies: dunst
+# Dependencies: rofi -dmenu, dunst
+#+end_src
+
+** Setup
+Get the number of notifications
+
+#+begin_src shell :tangle dmnotify
+NOTIF_COUNT_DISPLAYED=$(dunstctl count displayed)
+NOTIF_COUNT_HISTORY=$(dunstctl count history)
+NOTIF_COUNT_WAIT=$(dunstctl count waiting)
+#+end_src
+
+** Main Function
+
+#+begin_src shell :tangle dmnotify
+#+end_src
+
+** DMenu
+
+#+begin_src shell :tangle dmnotify
+dmenu_prompt="Notifications"
+
+declare -a options=(
+    "Show recent"
+    "Close"
+    "Close all"
+    "Context menu"
+)
+#+end_src
+
+** Start
+Piping the above array into `rofi -dmenu`.
+We use `printf '%s\n'` to format the array one item to a line.
+
+#+begin_src shell :tangle dmnotify
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+#+end_src
+
+What to do when/if we choose one of the options.
+
+#+begin_src shell :tangle dmnotify
+case $choice in
+    'Show recent')
+        for ((i = 1; i <= $NOTIF_COUNT_HISTORY; i++));
+        do
+            dunstctl history-pop
+        done
+        ;;
+    'Close')
+        dunstctl close
+        ;;
+    'Close all')
+        dunstctl close-all
+        ;;
+    'Context menu')
+        dunstctl context
+        ;;
+esac
+#+end_src
+
+* Power
+** Description
+
+#+begin_src shell :tangle dmpower :shebang #!/usr/bin/env bash
+#
+# Description: Logout, shutdown, reboot or lock screen.
+# Dependencies: rofi -dmenu, systemd, xscreensaver, notify-send
 #+end_src
 
 ** Setup
 
-#+begin_src shell :tangle dmnotify
-NOTIFICATION_COUNT=$(dunstctl count history)
+#+begin_src shell :tangle dmpower
+# Define LOCKER in .xprofile to set to different LOCKER program
+# LOCKER="${LOCKER:-lock}"
+LOCKER="xscreensaver-command -lock"
+
+# use notify-send if run in dumb term
+OUTPUT="echo"
+if [[ ${TERM} == 'dumb' ]]; then
+    OUTPUT="notify-send"
+fi
+
+yesno(){
+    # shellcheck disable=SC2005
+    echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
+}
+
+declare -a MANAGERS=(
+    "awesome"
+    "bspwm"
+    "dwm"
+    "spectrwm"
+    "xmonad"
+    "qtile"
+)
 #+end_src
 
 ** Main Function
+
+#+begin_src shell :tangle dmpower
+#+end_src
+
 ** DMenu
+
+#+begin_src shell :tangle dmpower
+dmenu_prompt="Shutdown menu"
+
+declare -a options=(
+    "Suspend"
+    "Reboot"
+    "Shutdown"
+    "Logout"
+    "Lock screen"
+    "Reboot to Windows"
+    "Quit"
+)
+#+end_src
+
 ** Start
 
-#+begin_src shell :tangle dmnotify
-for ((i = 1; i <= $NOTIFICATION_COUNT; i++));
-do
-    dunstctl history-pop
-done
+#+begin_src shell :tangle dmpower
+# Piping the above array into rofi -dmenu.
+# We use "printf '%s\n'" to format the array one item to a line.
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+
+# What to do when/if we choose one of the options.
+case $choice in
+    'Logout')
+        if [[ $(yesno "Logout?") == "Yes" ]]; then
+            for manager in "${MANAGERS[@]}"; do
+                killall "${manager}" || ${OUTPUT} "Process ${manager} was not running."
+            done
+        else
+            ${OUTPUT} "User chose not to logout." && exit 1
+        fi
+        ;;
+    'Lock screen')
+        ${LOCKER}
+        ;;
+    'Reboot')
+        if [[ $(yesno "Reboot?") == "Yes" ]]; then
+            systemctl reboot
+        else
+            ${OUTPUT} "User chose not to reboot." && exit 0
+        fi
+        ;;
+    'Reboot to Windows')
+        if [[ $(yesno "Reboot?") == "Yes" ]]; then
+            grub-reboot "Windows 10" && systemctl reboot
+        else
+            ${OUTPUT} "User chose not to reboot." && exit 0
+        fi
+        ;;
+    'Shutdown')
+        if [[ $(yesno "Shutdown?") == "Yes" ]]; then
+            systemctl poweroff
+        else
+            ${OUTPUT} "User chose not to shutdown." && exit 0
+        fi
+        ;;
+    'Suspend')
+        if [[ $(yesno "Suspend?") == "Yes" ]]; then
+            systemctl suspend
+        else
+            ${OUTPUT} "User chose not to suspend." && exit 0
+        fi
+        ;;
+    'Quit')
+        ${OUTPUT} "Program terminated." && exit 0
+        ;;
+    # It is a common practice to use the wildcard asterisk symbol (*) as a final
+    # pattern to define the default case. This pattern will always match.
+    ,*)
+        exit 0
+        ;;
+esac
 #+end_src
+
 * Screenshot
 ** Description
 
@@ -51,7 +210,7 @@ mkdir -p "${SCREENSHOT_DIR}"
 
 # Filename Time Stamp Format
 getTimeStamp() {
-  date '+%Y-%m-%d_%T'
+    date '+%Y-%m-%d_%T'
 }
 
 EXECUTE=true
@@ -64,9 +223,9 @@ DISPLAYS=$(xrandr --listactivemonitors | grep '+' | awk '{print $4, $3}' | awk -
 IFS=$'\n'
 declare -A DISPLAY_MODE
 for d in ${DISPLAYS}; do
-  name=$(echo "${d}" | awk '{print $1}')
-  area="$(echo "${d}" | awk '{print $2}')"
-  DISPLAY_MODE[${name}]="${area}"
+    name=$(echo "${d}" | awk '{print $1}')
+    area="$(echo "${d}" | awk '{print $2}')"
+    DISPLAY_MODE[${name}]="${area}"
 done
 unset IFS
 #+end_src
@@ -76,26 +235,26 @@ unset IFS
 #+begin_src shell :tangle dmscreenshot
 takeScreenshot(){
 
-  if [[ $1 == 'full' ]]; then
-    MAIM_ARGS="-u -m 1"
+    if [[ $1 == 'full' ]]; then
+        MAIM_ARGS="-u -m 1"
 
-  elif [[ $1 == 'screen' ]]; then
-    MAIM_ARGS="-u -g ${DISPLAY_MODE['DVI-D-0']} -m 1"
+    elif [[ $1 == 'screen' ]]; then
+        MAIM_ARGS="-u -g ${DISPLAY_MODE['DVI-D-0']} -m 1"
 
-  elif [[ $1 == 'window' ]]; then
-    active_window=$(xdotool getactivewindow)
-    MAIM_ARGS="-u -B -i ${active_window} -m 1"
+    elif [[ $1 == 'window' ]]; then
+        active_window=$(xdotool getactivewindow)
+        MAIM_ARGS="-u -B -i ${active_window} -m 1"
 
-  elif [[ $1 == 'area' ]]; then
-    MAIM_ARGS="-u -B -s -n -m 1"
-
-  else
-    EXECUTE=false
-    if [[ $1 == 'debug' ]]; then
-      echo ${DISPLAY_MODE["DVI-D-0"]}
+    elif [[ $1 == 'area' ]]; then
+        MAIM_ARGS="-u -B -s -n -m 1"
 
     else
-      echo  "
+        EXECUTE=false
+        if [[ $1 == 'debug' ]]; then
+            echo ${DISPLAY_MODE["DVI-D-0"]}
+
+        else
+            echo  "
 Invalid Argument!
 Only the following arguments are accepted:
 
@@ -104,13 +263,13 @@ Only the following arguments are accepted:
   window - Take a screenshot of the currently Active Window
   area   - Turn cursor into a crosshair to select an Area of the screen to screenshot
 "
+        fi
     fi
-  fi
 
 
-  if $EXECUTE; then
-    maim ${MAIM_ARGS} "${SCREENSHOT_DIR}/$(getTimeStamp).png"
-  fi
+    if $EXECUTE; then
+        maim ${MAIM_ARGS} "${SCREENSHOT_DIR}/$(getTimeStamp).png"
+    fi
 
 }
 #+end_src
@@ -121,10 +280,10 @@ Only the following arguments are accepted:
 dmenu_prompt="Select what to screenshot"
 
 declare -a options=(
-"full"
-"screen"
-"window"
-"area"
+    "full"
+    "screen"
+    "window"
+    "area"
 )
 #+end_src
 
@@ -132,137 +291,19 @@ declare -a options=(
 
 #+begin_src shell :tangle dmscreenshot
 if [ ! $# -eq 0 ]; then
-  # if an argument was passed to the script, use it insted of triggering dmenu
-  takeScreenshot $1
+    # if an argument was passed to the script, use it insted of triggering dmenu
+    takeScreenshot $1
 
 else
-  # show dmenu if script was executed bare
+    # show dmenu if script was executed bare
 
-  # Piping the above array into rofi -dmenu.
-  # We use "printf '%s\n'" to format the array one item to a line.
-  choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+    # Piping the above array into rofi -dmenu.
+    # We use "printf '%s\n'" to format the array one item to a line.
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
 
-  takeScreenshot $choice
+    takeScreenshot $choice
 
 fi
-#+end_src
-
-* Power
-** Description
-
-#+begin_src shell :tangle dmpower :shebang #!/usr/bin/env bash
-#
-# Description: Logout, shutdown, reboot or lock screen.
-# Dependencies: rofi -dmenu, systemd, xscreensaver, notify-send
-#+end_src
-
-** Setup
-
-#+begin_src shell :tangle dmpower
-# Define LOCKER in .xprofile to set to different LOCKER program
-# LOCKER="${LOCKER:-lock}"
-LOCKER="xscreensaver-command -lock"
-
-# use notify-send if run in dumb term
-OUTPUT="echo"
-if [[ ${TERM} == 'dumb' ]]; then
-  OUTPUT="notify-send"
-fi
-
-yesno(){
-  # shellcheck disable=SC2005
-  echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
-}
-
-declare -a MANAGERS=(
-"awesome"
-"bspwm"
-"dwm"
-"spectrwm"
-"xmonad"
-"qtile"
-)
-#+end_src
-
-** Main Function
-
-#+begin_src shell :tangle dmpower
-#+end_src
-
-** DMenu
-
-#+begin_src shell :tangle dmpower
-dmenu_prompt="Shutdown menu"
-
-declare -a options=(
-"Suspend"
-"Reboot"
-"Shutdown"
-"Logout"
-"Lock screen"
-"Reboot to Windows"
-"Quit"
-)
-#+end_src
-
-** Start
-
-#+begin_src shell :tangle dmpower
-# Piping the above array into rofi -dmenu.
-# We use "printf '%s\n'" to format the array one item to a line.
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
-
-# What to do when/if we choose one of the options.
-case $choice in
-  'Logout')
-    if [[ $(yesno "Logout?") == "Yes" ]]; then
-      for manager in "${MANAGERS[@]}"; do 
-        killall "${manager}" || ${OUTPUT} "Process ${manager} was not running."
-      done
-    else
-      ${OUTPUT} "User chose not to logout." && exit 1
-    fi
-    ;;
-  'Lock screen')
-    ${LOCKER}
-    ;;
-  'Reboot')
-    if [[ $(yesno "Reboot?") == "Yes" ]]; then
-      systemctl reboot
-    else
-      ${OUTPUT} "User chose not to reboot." && exit 0
-    fi
-    ;;
-  'Reboot to Windows')
-    if [[ $(yesno "Reboot?") == "Yes" ]]; then
-      grub-reboot "Windows 10" && systemctl reboot
-    else
-      ${OUTPUT} "User chose not to reboot." && exit 0
-    fi
-    ;;
-  'Shutdown')
-    if [[ $(yesno "Shutdown?") == "Yes" ]]; then
-      systemctl poweroff
-    else
-      ${OUTPUT} "User chose not to shutdown." && exit 0
-    fi
-    ;;
-  'Suspend')
-    if [[ $(yesno "Suspend?") == "Yes" ]]; then
-      systemctl suspend
-    else
-      ${OUTPUT} "User chose not to suspend." && exit 0
-    fi
-    ;;
-  'Quit')
-    ${OUTPUT} "Program terminated." && exit 0
-    ;;
-    # It is a common practice to use the wildcard asterisk symbol (*) as a final
-    # pattern to define the default case. This pattern will always match.
-    *)
-    exit 0
-    ;;
-esac
 #+end_src
 
 * Wallpaper
@@ -289,13 +330,13 @@ screens=$(xrandr | grep -e "\sconnected" | wc -l)
 
 #+begin_src shell :tangle dmwallpaper
 setRandomWallpaper(){
-  if [ -z "$1" ]; then
-    return
-  fi
+    if [ -z "$1" ]; then
+        return
+    fi
 
-  for (( i = 0; i < $screens; i++ )); do
-    nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
-  done
+    for (( i = 0; i < $screens; i++ )); do
+        nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
+    done
 }
 #+end_src
 
@@ -309,15 +350,15 @@ dmenu_prompt="Wallpaper Category"
 
 #+begin_src shell :tangle dmwallpaper
 if [ ! $# -eq 0 ]; then
-  # if an argument was passed to the script, use it insted of triggering dmenu
-  setRandomWallpaper $1
+    # if an argument was passed to the script, use it insted of triggering dmenu
+    setRandomWallpaper $1
 
 else
-  # show dmenu if script was executed bare
+    # show dmenu if script was executed bare
 
-  # Piping the wallpaper subfolders into rofi -dmenu.
-  choice=$(\ls $wall_dir --hide="*.*" | rofi -dmenu -i -p "${dmenu_prompt}")
-  setRandomWallpaper $choice
+    # Piping the wallpaper subfolders into rofi -dmenu.
+    choice=$(\ls $wall_dir --hide="*.*" | rofi -dmenu -i -p "${dmenu_prompt}")
+    setRandomWallpaper $choice
 
 fi
 #+end_src

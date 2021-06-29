@@ -10,21 +10,21 @@ LOCKER="xscreensaver-command -lock"
 # use notify-send if run in dumb term
 OUTPUT="echo"
 if [[ ${TERM} == 'dumb' ]]; then
-  OUTPUT="notify-send"
+    OUTPUT="notify-send"
 fi
 
 yesno(){
-  # shellcheck disable=SC2005
-  echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
+    # shellcheck disable=SC2005
+    echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
 }
 
 declare -a MANAGERS=(
-"awesome"
-"bspwm"
-"dwm"
-"spectrwm"
-"xmonad"
-"qtile"
+    "awesome"
+    "bspwm"
+    "dwm"
+    "spectrwm"
+    "xmonad"
+    "qtile"
 )
 
 
@@ -32,13 +32,13 @@ declare -a MANAGERS=(
 dmenu_prompt="Shutdown menu"
 
 declare -a options=(
-"Suspend"
-"Reboot"
-"Shutdown"
-"Logout"
-"Lock screen"
-"Reboot to Windows"
-"Quit"
+    "Suspend"
+    "Reboot"
+    "Shutdown"
+    "Logout"
+    "Lock screen"
+    "Reboot to Windows"
+    "Quit"
 )
 
 # Piping the above array into rofi -dmenu.
@@ -47,52 +47,52 @@ choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
 
 # What to do when/if we choose one of the options.
 case $choice in
-  'Logout')
-    if [[ $(yesno "Logout?") == "Yes" ]]; then
-      for manager in "${MANAGERS[@]}"; do 
-        killall "${manager}" || ${OUTPUT} "Process ${manager} was not running."
-      done
-    else
-      ${OUTPUT} "User chose not to logout." && exit 1
-    fi
-    ;;
-  'Lock screen')
-    ${LOCKER}
-    ;;
-  'Reboot')
-    if [[ $(yesno "Reboot?") == "Yes" ]]; then
-      systemctl reboot
-    else
-      ${OUTPUT} "User chose not to reboot." && exit 0
-    fi
-    ;;
-  'Reboot to Windows')
-    if [[ $(yesno "Reboot?") == "Yes" ]]; then
-      grub-reboot "Windows 10" && systemctl reboot
-    else
-      ${OUTPUT} "User chose not to reboot." && exit 0
-    fi
-    ;;
-  'Shutdown')
-    if [[ $(yesno "Shutdown?") == "Yes" ]]; then
-      systemctl poweroff
-    else
-      ${OUTPUT} "User chose not to shutdown." && exit 0
-    fi
-    ;;
-  'Suspend')
-    if [[ $(yesno "Suspend?") == "Yes" ]]; then
-      systemctl suspend
-    else
-      ${OUTPUT} "User chose not to suspend." && exit 0
-    fi
-    ;;
-  'Quit')
-    ${OUTPUT} "Program terminated." && exit 0
-    ;;
+    'Logout')
+        if [[ $(yesno "Logout?") == "Yes" ]]; then
+            for manager in "${MANAGERS[@]}"; do
+                killall "${manager}" || ${OUTPUT} "Process ${manager} was not running."
+            done
+        else
+            ${OUTPUT} "User chose not to logout." && exit 1
+        fi
+        ;;
+    'Lock screen')
+        ${LOCKER}
+        ;;
+    'Reboot')
+        if [[ $(yesno "Reboot?") == "Yes" ]]; then
+            systemctl reboot
+        else
+            ${OUTPUT} "User chose not to reboot." && exit 0
+        fi
+        ;;
+    'Reboot to Windows')
+        if [[ $(yesno "Reboot?") == "Yes" ]]; then
+            grub-reboot "Windows 10" && systemctl reboot
+        else
+            ${OUTPUT} "User chose not to reboot." && exit 0
+        fi
+        ;;
+    'Shutdown')
+        if [[ $(yesno "Shutdown?") == "Yes" ]]; then
+            systemctl poweroff
+        else
+            ${OUTPUT} "User chose not to shutdown." && exit 0
+        fi
+        ;;
+    'Suspend')
+        if [[ $(yesno "Suspend?") == "Yes" ]]; then
+            systemctl suspend
+        else
+            ${OUTPUT} "User chose not to suspend." && exit 0
+        fi
+        ;;
+    'Quit')
+        ${OUTPUT} "Program terminated." && exit 0
+        ;;
     # It is a common practice to use the wildcard asterisk symbol (*) as a final
     # pattern to define the default case. This pattern will always match.
     *)
-    exit 0
-    ;;
+        exit 0
+        ;;
 esac
