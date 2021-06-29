@@ -4,18 +4,18 @@
 #+STARTUP: overview
 
 * Notify
-** Description
+Manage notifications
+** Dependencies
 
-#+begin_src shell :tangle dmnotify :shebang #!/usr/bin/env bash
-#
-# Description: manage dunst notifications
-# Dependencies: rofi -dmenu, dunst
-#+end_src
+| App           | Comment             |
+|---------------+---------------------|
+| `rofi -dmenu` | Triggers dmenu      |
+| `dunst`       | Notification server |
 
 ** Setup
 Get the number of notifications
 
-#+begin_src shell :tangle dmnotify
+#+begin_src shell :tangle dmnotify :shebang #!/usr/bin/env bash
 NOTIF_COUNT_DISPLAYED=$(dunstctl count displayed)
 NOTIF_COUNT_HISTORY=$(dunstctl count history)
 NOTIF_COUNT_WAIT=$(dunstctl count waiting)
@@ -24,6 +24,18 @@ NOTIF_COUNT_WAIT=$(dunstctl count waiting)
 ** Main Function
 
 #+begin_src shell :tangle dmnotify
+execute_choice () {
+    if [[ $1 == 'recents' ]]; then
+        for ((i = 1; i <= $NOTIF_COUNT_HISTORY; i++));
+        do
+            dunstctl history-pop
+        done
+
+    elif [[ $1 == 'close' ]]; then dunstctl close
+    elif [[ $1 == 'clear' ]]; then dunstctl close-all
+    else dunstctl context
+    fi
+}
 #+end_src
 
 ** DMenu
@@ -40,47 +52,43 @@ declare -a options=(
 #+end_src
 
 ** Start
-Piping the above array into `rofi -dmenu`.
-We use `printf '%s\n'` to format the array one item to a line.
+
+Allow to pass arguments to the script to avoid triggering dmenu
 
 #+begin_src shell :tangle dmnotify
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+if [ ! $# -eq 0 ]; then execute_choice $1
+else
+    # Piping the above array into rofi -dmenu.
+    # We use "printf '%s\n'" to format the array one item to a line.
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+fi
 #+end_src
 
 What to do when/if we choose one of the options.
 
 #+begin_src shell :tangle dmnotify
 case $choice in
-    'Show recent')
-        for ((i = 1; i <= $NOTIF_COUNT_HISTORY; i++));
-        do
-            dunstctl history-pop
-        done
-        ;;
-    'Close')
-        dunstctl close
-        ;;
-    'Close all')
-        dunstctl close-all
-        ;;
-    'Context menu')
-        dunstctl context
-        ;;
+    'Show recent') execute_choice recents ;;
+    'Close') execute_choice close ;;
+    'Close all') execute_choice close-all ;;
+    'Context menu') execute_choice context ;;
 esac
 #+end_src
 
 * Power
-** Description
+Logout, shutdown, reboot or lock screen
+** Dependencies
 
-#+begin_src shell :tangle dmpower :shebang #!/usr/bin/env bash
-#
-# Description: Logout, shutdown, reboot or lock screen.
-# Dependencies: rofi -dmenu, systemd, xscreensaver, notify-send
-#+end_src
+| App            | Comment                 |
+|----------------+-------------------------|
+| `rofi -dmenu`  | Triggers dmenu          |
+| `systemd`      | System management       |
+| `xscreensaver` | Toggle screensaver      |
+| `notify-send`  | Trigger a notifications |
 
 ** Setup
 
-#+begin_src shell :tangle dmpower
+#+begin_src shell :tangle dmpower :shebang #!/usr/bin/env bash
 # Define LOCKER in .xprofile to set to different LOCKER program
 # LOCKER="${LOCKER:-lock}"
 LOCKER="xscreensaver-command -lock"
@@ -188,17 +196,18 @@ esac
 #+end_src
 
 * Screenshot
-** Description
+Take a screenshot
+** Dependencies
 
-#+begin_src shell :tangle dmscreenshot :shebang #!/usr/bin/env bash
-#
-# Description: take a screenshot
-# Dependencies: rofi -dmenu, xrandr, maim
-#+end_src
+| App           | Comment                 |
+|---------------+-------------------------|
+| `rofi -dmenu` | Triggers dmenu          |
+| `xrandr`      | Screen management       |
+| `main`        | Screenshot tool         |
 
 ** Setup
 
-#+begin_src shell :tangle dmscreenshot
+#+begin_src shell :tangle dmscreenshot :shebang #!/usr/bin/env bash
 # Set with the flags "-e", "-u","-o pipefail" cause the script to fail
 # if certain things happen, which is a good thing.  Otherwise, we can
 # get hidden bugs that are hard to discover.
@@ -307,17 +316,18 @@ fi
 #+end_src
 
 * Wallpaper
-** Description
+Set a random wallpapers
+** Dependencies
 
-#+begin_src shell :tangle dmwallpaper :shebang #!/usr/bin/env bash
-#
-# Description: set a random wallpapers
-# Dependencies: rofi -dmenu, xrandr, nitrogen
-#+end_src
+| App           | Comment              |
+|---------------+----------------------|
+| `rofi -dmenu` | Triggers dmenu       |
+| `xrandr`      | Screen management    |
+| `nitrogen`    | Wallpaper management |
 
 ** Setup
 
-#+begin_src shell :tangle dmwallpaper
+#+begin_src shell :tangle dmwallpaper :shebang #!/usr/bin/env bash
 # Specifying a directory with wallpapers and make sure it exists
 wall_dir=~/Pictures/wallpapers
 mkdir -p "${wall_dir}"

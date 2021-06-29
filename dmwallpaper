@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-#
-# Description: set a random wallpapers
-# Dependencies: rofi -dmenu, xrandr, nitrogen
-
 # Specifying a directory with wallpapers and make sure it exists
 wall_dir=~/Pictures/wallpapers
 mkdir -p "${wall_dir}"

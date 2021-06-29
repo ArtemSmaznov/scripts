@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-#
-# Description: Logout, shutdown, reboot or lock screen.
-# Dependencies: rofi -dmenu, systemd, xscreensaver, notify-send
-
 # Define LOCKER in .xprofile to set to different LOCKER program
 # LOCKER="${LOCKER:-lock}"
 LOCKER="xscreensaver-command -lock"

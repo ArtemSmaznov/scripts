@@ -1,13 +1,20 @@
 #!/usr/bin/env bash
-#
-# Description: manage dunst notifications
-# Dependencies: rofi -dmenu, dunst
-
 NOTIF_COUNT_DISPLAYED=$(dunstctl count displayed)
 NOTIF_COUNT_HISTORY=$(dunstctl count history)
 NOTIF_COUNT_WAIT=$(dunstctl count waiting)
 
+execute_choice () {
+    if [[ $1 == 'recents' ]]; then
+        for ((i = 1; i <= $NOTIF_COUNT_HISTORY; i++));
+        do
+            dunstctl history-pop
+        done
 
+    elif [[ $1 == 'close' ]]; then dunstctl close
+    elif [[ $1 == 'clear' ]]; then dunstctl close-all
+    else dunstctl context
+    fi
+}
 
 dmenu_prompt="Notifications"
 
@@ -18,22 +25,16 @@ declare -a options=(
     "Context menu"
 )
 
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+if [ ! $# -eq 0 ]; then execute_choice $1
+else
+    # Piping the above array into rofi -dmenu.
+    # We use "printf '%s\n'" to format the array one item to a line.
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+fi
 
 case $choice in
-    'Show recent')
-        for ((i = 1; i <= $NOTIF_COUNT_HISTORY; i++));
-        do
-            dunstctl history-pop
-        done
-        ;;
-    'Close')
-        dunstctl close
-        ;;
-    'Close all')
-        dunstctl close-all
-        ;;
-    'Context menu')
-        dunstctl context
-        ;;
+    'Show recent') execute_choice recents ;;
+    'Close') execute_choice close ;;
+    'Close all') execute_choice close-all ;;
+    'Context menu') execute_choice context ;;
 esac
