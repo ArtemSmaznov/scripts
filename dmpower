@@ -23,8 +23,6 @@ declare -a MANAGERS=(
     "qtile"
 )
 
-
-
 dmenu_prompt="Shutdown menu"
 
 declare -a options=(
@@ -37,11 +35,8 @@ declare -a options=(
     "Quit"
 )
 
-# Piping the above array into rofi -dmenu.
-# We use "printf '%s\n'" to format the array one item to a line.
 choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
 
-# What to do when/if we choose one of the options.
 case $choice in
     'Logout')
         if [[ $(yesno "Logout?") == "Yes" ]]; then

@@ -13,12 +13,26 @@ Manage notifications
 | `dunst`       | Notification server |
 
 ** Setup
+
 Get the number of notifications
 
 #+begin_src shell :tangle dmnotify :shebang #!/usr/bin/env bash
 NOTIF_COUNT_DISPLAYED=$(dunstctl count displayed)
 NOTIF_COUNT_HISTORY=$(dunstctl count history)
 NOTIF_COUNT_WAIT=$(dunstctl count waiting)
+#+end_src
+
+** DMenu
+
+#+begin_src shell :tangle dmnotify
+dmenu_prompt="Notifications"
+
+declare -a options=(
+    "Show recent"
+    "Close"
+    "Close all"
+    "Context menu"
+)
 #+end_src
 
 ** Main Function
@@ -38,28 +52,19 @@ execute_choice () {
 }
 #+end_src
 
-** DMenu
+** Handling Input
 
-#+begin_src shell :tangle dmnotify
-dmenu_prompt="Notifications"
-
-declare -a options=(
-    "Show recent"
-    "Close"
-    "Close all"
-    "Context menu"
-)
-#+end_src
-
-** Start
-
-Allow to pass arguments to the script to avoid triggering dmenu
+Check if any arguments were passed to the script to avoid triggering dmenu
 
 #+begin_src shell :tangle dmnotify
 if [ ! $# -eq 0 ]; then execute_choice $1
+#+end_src
+
+If no arguments were passed, present dmenu to user with options defined in the [[#dmenu][DMenu]] section
+We use "printf '%s\n'" to format the array one item to a line
+
+#+begin_src shell :tangle dmnotify
 else
-    # Piping the above array into rofi -dmenu.
-    # We use "printf '%s\n'" to format the array one item to a line.
     choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
 fi
 #+end_src
@@ -114,11 +119,6 @@ declare -a MANAGERS=(
 )
 #+end_src
 
-** Main Function
-
-#+begin_src shell :tangle dmpower
-#+end_src
-
 ** DMenu
 
 #+begin_src shell :tangle dmpower
@@ -135,14 +135,18 @@ declare -a options=(
 )
 #+end_src
 
-** Start
+** Handling Input
+
+If no arguments were passed, present dmenu to user with options defined in the [[#dmenu-1][DMenu]] section
+We use "printf '%s\n'" to format the array one item to a line
 
 #+begin_src shell :tangle dmpower
-# Piping the above array into rofi -dmenu.
-# We use "printf '%s\n'" to format the array one item to a line.
 choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+#+end_src
 
-# What to do when/if we choose one of the options.
+What to do when/if we choose one of the options.
+
+#+begin_src shell :tangle dmpower
 case $choice in
     'Logout')
         if [[ $(yesno "Logout?") == "Yes" ]]; then
@@ -239,6 +243,19 @@ done
 unset IFS
 #+end_src
 
+** DMenu
+
+#+begin_src shell :tangle dmscreenshot
+dmenu_prompt="Select what to screenshot"
+
+declare -a options=(
+    "full"
+    "screen"
+    "window"
+    "area"
+)
+#+end_src
+
 ** Main Function
 
 #+begin_src shell :tangle dmscreenshot
@@ -283,35 +300,21 @@ Only the following arguments are accepted:
 }
 #+end_src
 
-** DMenu
+** Handling Input
+
+Check if any arguments were passed to the script to avoid triggering dmenu
 
 #+begin_src shell :tangle dmscreenshot
-dmenu_prompt="Select what to screenshot"
-
-declare -a options=(
-    "full"
-    "screen"
-    "window"
-    "area"
-)
+if [ ! $# -eq 0 ]; then takeScreenshot $1
 #+end_src
 
-** Start
+If no arguments were passed, present dmenu to user with options defined in the [[#dmenu-2][DMenu]] section
+We use "printf '%s\n'" to format the array one item to a line
 
 #+begin_src shell :tangle dmscreenshot
-if [ ! $# -eq 0 ]; then
-    # if an argument was passed to the script, use it insted of triggering dmenu
-    takeScreenshot $1
-
 else
-    # show dmenu if script was executed bare
-
-    # Piping the above array into rofi -dmenu.
-    # We use "printf '%s\n'" to format the array one item to a line.
     choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
-
     takeScreenshot $choice
-
 fi
 #+end_src
 
@@ -336,6 +339,12 @@ mkdir -p "${wall_dir}"
 screens=$(xrandr | grep -e "\sconnected" | wc -l)
 #+end_src
 
+** DMenu
+
+#+begin_src shell :tangle dmwallpaper
+dmenu_prompt="Wallpaper Category"
+#+end_src
+
 ** Main Function
 
 #+begin_src shell :tangle dmwallpaper
@@ -350,26 +359,20 @@ setRandomWallpaper(){
 }
 #+end_src
 
-** DMenu
+** Handling Input
+
+Check if any arguments were passed to the script to avoid triggering dmenu
 
 #+begin_src shell :tangle dmwallpaper
-dmenu_prompt="Wallpaper Category"
+if [ ! $# -eq 0 ]; then setRandomWallpaper $1
 #+end_src
 
-** Start
+If no arguments were passed, present dmenu to user with options based on the available sub-directories in $wall_dir
+We use "printf '%s\n'" to format the array one item to a line
 
 #+begin_src shell :tangle dmwallpaper
-if [ ! $# -eq 0 ]; then
-    # if an argument was passed to the script, use it insted of triggering dmenu
-    setRandomWallpaper $1
-
 else
-    # show dmenu if script was executed bare
-
-    # Piping the wallpaper subfolders into rofi -dmenu.
     choice=$(\ls $wall_dir --hide="*.*" | rofi -dmenu -i -p "${dmenu_prompt}")
     setRandomWallpaper $choice
-
 fi
 #+end_src
-

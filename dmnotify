@@ -3,6 +3,15 @@ NOTIF_COUNT_DISPLAYED=$(dunstctl count displayed)
 NOTIF_COUNT_HISTORY=$(dunstctl count history)
 NOTIF_COUNT_WAIT=$(dunstctl count waiting)
 
+dmenu_prompt="Notifications"
+
+declare -a options=(
+    "Show recent"
+    "Close"
+    "Close all"
+    "Context menu"
+)
+
 execute_choice () {
     if [[ $1 == 'recents' ]]; then
         for ((i = 1; i <= $NOTIF_COUNT_HISTORY; i++));
@@ -16,19 +25,9 @@ execute_choice () {
     fi
 }
 
-dmenu_prompt="Notifications"
-
-declare -a options=(
-    "Show recent"
-    "Close"
-    "Close all"
-    "Context menu"
-)
-
 if [ ! $# -eq 0 ]; then execute_choice $1
+
 else
-    # Piping the above array into rofi -dmenu.
-    # We use "printf '%s\n'" to format the array one item to a line.
     choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
 fi
 

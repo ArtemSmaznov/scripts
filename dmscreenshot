@@ -29,6 +29,15 @@ for d in ${DISPLAYS}; do
 done
 unset IFS
 
+dmenu_prompt="Select what to screenshot"
+
+declare -a options=(
+    "full"
+    "screen"
+    "window"
+    "area"
+)
+
 takeScreenshot(){
 
     if [[ $1 == 'full' ]]; then
@@ -69,26 +78,9 @@ Only the following arguments are accepted:
 
 }
 
-dmenu_prompt="Select what to screenshot"
-
-declare -a options=(
-    "full"
-    "screen"
-    "window"
-    "area"
-)
-
-if [ ! $# -eq 0 ]; then
-    # if an argument was passed to the script, use it insted of triggering dmenu
-    takeScreenshot $1
+if [ ! $# -eq 0 ]; then takeScreenshot $1
 
 else
-    # show dmenu if script was executed bare
-
-    # Piping the above array into rofi -dmenu.
-    # We use "printf '%s\n'" to format the array one item to a line.
     choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
-
     takeScreenshot $choice
-
 fi
