@@ -35,7 +35,22 @@ declare -a options=(
     "Quit"
 )
 
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+execute_choice () {
+    if [[ $1 == 'lock' ]]; then ${LOCKER}
+    elif [[ $1 == 'reboot' ]]; then systemctl reboot
+    elif [[ $1 == 'windows' ]]; then sudo $HOME/.local/bin/winreboot
+    elif [[ $1 == 'poweroff' ]]; then systemctl poweroff
+    elif [[ $1 == 'suspend' ]]; then systemctl suspend
+    elif [[ $1 == 'quit' ]]; then ${OUTPUT} "Program terminated." && exit 0
+    else ${OUTPUT} "Program terminated." && exit 0
+    fi
+}
+
+if [ ! $# -eq 0 ]; then execute_choice $1
+
+else
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+fi
 
 case $choice in
     'Logout')
@@ -47,40 +62,36 @@ case $choice in
             ${OUTPUT} "User chose not to logout." && exit 1
         fi
         ;;
-    'Lock screen')
-        ${LOCKER}
-        ;;
+    'Lock screen') execute_choice lock ;;
     'Reboot')
         if [[ $(yesno "Reboot?") == "Yes" ]]; then
-            systemctl reboot
+            execute_choice reboot
         else
             ${OUTPUT} "User chose not to reboot." && exit 0
         fi
         ;;
     'Reboot to Windows')
         if [[ $(yesno "Reboot?") == "Yes" ]]; then
-            grub-reboot "Windows 10" && systemctl reboot
+            execute_choice windows
         else
             ${OUTPUT} "User chose not to reboot." && exit 0
         fi
         ;;
     'Shutdown')
         if [[ $(yesno "Shutdown?") == "Yes" ]]; then
-            systemctl poweroff
+            execute_choice poweroff
         else
             ${OUTPUT} "User chose not to shutdown." && exit 0
         fi
         ;;
     'Suspend')
         if [[ $(yesno "Suspend?") == "Yes" ]]; then
-            systemctl suspend
+            execute_choice suspend
         else
             ${OUTPUT} "User chose not to suspend." && exit 0
         fi
         ;;
-    'Quit')
-        ${OUTPUT} "Program terminated." && exit 0
-        ;;
+    'Quit') execute_choice quit ;;
     # It is a common practice to use the wildcard asterisk symbol (*) as a final
     # pattern to define the default case. This pattern will always match.
     *)

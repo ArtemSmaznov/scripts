@@ -3,6 +3,24 @@
 #+DESCRIPTION: A collection of dmscripts
 #+STARTUP: overview
 
+* GRUB Reboot to Windows
+To reboot to windows without having to interact with grub during boot time create an executable shell script that will switch grub next 1 boot to a named entry, in my case it is a custom entry "*Windows 10*", but by default it be something like "*Windows boot manager*" as created by `os-prober`.
+- Needs to be run as `sudo`
+
+/home/user/.local/bin/winreboot
+#+begin_src shell
+#!/usr/bin/env bash
+grub-reboot "Windows 10" && systemctl reboot
+#+end_src
+
+If you want to call this from the Desktop Environment you may need to allow the script to be run without the `sudo` password. This can be achieved by adding it to your sudoers list as per below.
+- It is recommended that you change the owner of the file to root and remove write permissions for other users so it cannot be changed without the root password as this can become a security vulnerability (anything in the script will be executed as `sudo` without a password prompt after all)
+
+/etc/sudoers.d/00-windows-reboot
+#+begin_src conf
+user ALL=(ALL) NOPASSWD: /home/user/.local/bin/winreboot
+#+end_src
+
 * Notify
 Manage notifications
 ** Dependencies
@@ -135,13 +153,36 @@ declare -a options=(
 )
 #+end_src
 
+** Main Function
+
+#+begin_src shell :tangle dmpower
+execute_choice () {
+    if [[ $1 == 'lock' ]]; then ${LOCKER}
+    elif [[ $1 == 'reboot' ]]; then systemctl reboot
+    elif [[ $1 == 'windows' ]]; then sudo $HOME/.local/bin/winreboot
+    elif [[ $1 == 'poweroff' ]]; then systemctl poweroff
+    elif [[ $1 == 'suspend' ]]; then systemctl suspend
+    elif [[ $1 == 'quit' ]]; then ${OUTPUT} "Program terminated." && exit 0
+    else ${OUTPUT} "Program terminated." && exit 0
+    fi
+}
+#+end_src
+
 ** Handling Input
+
+Check if any arguments were passed to the script to avoid triggering dmenu
+
+#+begin_src shell :tangle dmpower
+if [ ! $# -eq 0 ]; then execute_choice $1
+#+end_src
 
 If no arguments were passed, present dmenu to user with options defined in the [[#dmenu-1][DMenu]] section
 We use "printf '%s\n'" to format the array one item to a line
 
 #+begin_src shell :tangle dmpower
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+else
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+fi
 #+end_src
 
 What to do when/if we choose one of the options.
@@ -157,40 +198,36 @@ case $choice in
             ${OUTPUT} "User chose not to logout." && exit 1
         fi
         ;;
-    'Lock screen')
-        ${LOCKER}
-        ;;
+    'Lock screen') execute_choice lock ;;
     'Reboot')
         if [[ $(yesno "Reboot?") == "Yes" ]]; then
-            systemctl reboot
+            execute_choice reboot
         else
             ${OUTPUT} "User chose not to reboot." && exit 0
         fi
         ;;
     'Reboot to Windows')
         if [[ $(yesno "Reboot?") == "Yes" ]]; then
-            grub-reboot "Windows 10" && systemctl reboot
+            execute_choice windows
         else
             ${OUTPUT} "User chose not to reboot." && exit 0
         fi
         ;;
     'Shutdown')
         if [[ $(yesno "Shutdown?") == "Yes" ]]; then
-            systemctl poweroff
+            execute_choice poweroff
         else
             ${OUTPUT} "User chose not to shutdown." && exit 0
         fi
         ;;
     'Suspend')
         if [[ $(yesno "Suspend?") == "Yes" ]]; then
-            systemctl suspend
+            execute_choice suspend
         else
             ${OUTPUT} "User chose not to suspend." && exit 0
         fi
         ;;
-    'Quit')
-        ${OUTPUT} "Program terminated." && exit 0
-        ;;
+    'Quit') execute_choice quit ;;
     # It is a common practice to use the wildcard asterisk symbol (*) as a final
     # pattern to define the default case. This pattern will always match.
     ,*)
