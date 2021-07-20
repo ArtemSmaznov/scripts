@@ -4,21 +4,23 @@
 #+STARTUP: overview
 
 * GRUB Reboot to Windows
-To reboot to windows without having to interact with grub during boot time create an executable shell script that will switch grub next 1 boot to a named entry, in my case it is a custom entry "*Windows 10*", but by default it be something like "*Windows boot manager*" as created by `os-prober`.
-- Needs to be run as `sudo`
+To reboot to windows without having to interact with grub during boot time create an executable shell script that will switch grub next 1 boot to a named entry, in my case it is a custom entry "*Windows 10*", but by default it be something like "*Windows boot manager*" as created by =os-prober=.
+- Needs to be run as =sudo=
 
-/home/user/.local/bin/winreboot
 #+begin_src shell
+# /home/user/.local/bin/winreboot
+
 #!/usr/bin/env bash
 grub-reboot "Windows 10" && systemctl reboot
 #+end_src
 
-If you want to call this from the Desktop Environment you may need to allow the script to be run without the `sudo` password. This can be achieved by adding it to your sudoers list as per below.
-- It is recommended that you change the owner of the file to root and remove write permissions for other users so it cannot be changed without the root password as this can become a security vulnerability (anything in the script will be executed as `sudo` without a password prompt after all)
-- This script is actually called in the [[#power][dmpower]] script with `sudo` to make use of this
+If you want to call this from the Desktop Environment you may need to allow the script to be run without the =sudo= password. This can be achieved by adding it to your =sudoers= list as per below.
+- It is recommended that you change the owner of the file to root and remove write permissions for other users so it cannot be changed without the root password as this can become a security vulnerability (anything in the script will be executed as =sudo= without a password prompt after all)
+- This script is actually called in the [[#power][dmpower]] script with =sudo= to make use of this
 
-/etc/sudoers.d/00-windows-reboot
 #+begin_src conf
+# /etc/sudoers.d/00-windows-reboot
+
 user ALL=(ALL) NOPASSWD: /home/user/.local/bin/winreboot
 #+end_src
 
@@ -26,10 +28,10 @@ user ALL=(ALL) NOPASSWD: /home/user/.local/bin/winreboot
 Manage notifications
 ** Dependencies
 
-| App           | Comment             |
-|---------------+---------------------|
-| `rofi -dmenu` | Triggers dmenu      |
-| `dunst`       | Notification server |
+| App         | Comment             |
+|-------------+---------------------|
+| =rofi -dmenu= | Triggers dmenu      |
+| =dunst=       | Notification server |
 
 ** Setup
 
@@ -105,10 +107,10 @@ Logout, shutdown, reboot or lock screen
 
 | App            | Comment                 |
 |----------------+-------------------------|
-| `rofi -dmenu`  | Triggers dmenu          |
-| `systemd`      | System management       |
-| `xscreensaver` | Toggle screensaver      |
-| `notify-send`  | Trigger a notifications |
+| =rofi -dmenu=  | Triggers dmenu          |
+| =systemd=      | System management       |
+| =xscreensaver= | Toggle screensaver      |
+| =notify-send=  | Trigger a notifications |
 
 ** Setup
 
@@ -155,7 +157,7 @@ declare -a options=(
 #+end_src
 
 ** Main Function
-Check [[#grub-reboot-to-windows][GRUB Reboot to Windows]] for the `winreboot` script setup
+Check [[#grub-reboot-to-windows][GRUB Reboot to Windows]] for the =winreboot= script setup
 
 #+begin_src shell :tangle dmpower
 execute_choice () {
@@ -244,9 +246,9 @@ Take a screenshot
 
 | App           | Comment                 |
 |---------------+-------------------------|
-| `rofi -dmenu` | Triggers dmenu          |
-| `xrandr`      | Screen management       |
-| `main`        | Screenshot tool         |
+| =rofi -dmenu= | Triggers dmenu          |
+| =xrandr=      | Screen management       |
+| =main=        | Screenshot tool         |
 
 ** Setup
 
@@ -361,11 +363,11 @@ fi
 Set a random wallpapers
 ** Dependencies
 
-| App           | Comment              |
-|---------------+----------------------|
-| `rofi -dmenu` | Triggers dmenu       |
-| `xrandr`      | Screen management    |
-| `nitrogen`    | Wallpaper management |
+| App         | Comment              |
+|-------------+----------------------|
+| =rofi -dmenu= | Triggers dmenu       |
+| =xrandr=      | Screen management    |
+| =nitrogen=    | Wallpaper management |
 
 ** Setup
 
