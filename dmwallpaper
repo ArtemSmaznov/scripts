@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 # Specifying a directory with wallpapers and make sure it exists
-wall_dir=~/Pictures/wallpapers
+wall_dir="$HOME/Pictures/wallpapers"
 mkdir -p "${wall_dir}"
 
 # get the number of connected screens
 screens=$(xrandr | grep -e "\sconnected" | wc -l)
+
+autostart_script="$HOME/.config/autostart-scripts/autostart.sh"
+
+updateAutostart(){
+    sed -i "s/\(.*dmwallpaper\).*$/\1 $1 \&/" $autostart_script
+}
 
 dmenu_prompt="Wallpaper Category"
 
@@ -16,6 +22,9 @@ setRandomWallpaper(){
     for (( i = 0; i < $screens; i++ )); do
         nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
     done
+
+    # Comment out this line if you don't use an autostart script to set random wallpapers using this dmscript
+    updateAutostart "$1"
 }
 
 if [ ! $# -eq 0 ]; then setRandomWallpaper $1
