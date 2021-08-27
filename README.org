@@ -3,6 +3,33 @@
 #+DESCRIPTION: A collection of dmscripts
 #+STARTUP: overview
 
+* Table of Contents :toc:
+- [[#grub-reboot-to-windows][GRUB Reboot to Windows]]
+- [[#notify][Notify]]
+  - [[#dependencies][Dependencies]]
+  - [[#setup][Setup]]
+  - [[#dmenu][DMenu]]
+  - [[#main-function][Main Function]]
+  - [[#handling-input][Handling Input]]
+- [[#power][Power]]
+  - [[#dependencies-1][Dependencies]]
+  - [[#setup-1][Setup]]
+  - [[#dmenu-1][DMenu]]
+  - [[#main-function-1][Main Function]]
+  - [[#handling-input-1][Handling Input]]
+- [[#screenshot][Screenshot]]
+  - [[#dependencies-2][Dependencies]]
+  - [[#setup-2][Setup]]
+  - [[#dmenu-2][DMenu]]
+  - [[#main-function-2][Main Function]]
+  - [[#handling-input-2][Handling Input]]
+- [[#wallpaper][Wallpaper]]
+  - [[#dependencies-3][Dependencies]]
+  - [[#setup-3][Setup]]
+  - [[#dmenu-3][DMenu]]
+  - [[#main-function-3][Main Function]]
+  - [[#handling-input-3][Handling Input]]
+
 * GRUB Reboot to Windows
 To reboot to windows without having to interact with grub during boot time create an executable shell script that will switch grub next 1 boot to a named entry, in my case it is a custom entry "*Windows 10*", but by default it be something like "*Windows boot manager*" as created by =os-prober=.
 - Needs to be run as =sudo=
