@@ -7,9 +7,11 @@ mkdir -p "${wall_dir}"
 screens=$(xrandr | grep -e "\sconnected" | wc -l)
 
 autostart_script="$HOME/.config/autostart-scripts/autostart.sh"
+autostart_script_org="$HOME/.config/README.org"
 
 updateAutostart(){
     sed -i "s/\(.*dmwallpaper\).*$/\1 $1 \&/" $autostart_script
+    sed -i "s/\(.*dmwallpaper\).*$/\1 $1 \&/" $autostart_script_org
 }
 
 dmenu_prompt="Wallpaper Category"

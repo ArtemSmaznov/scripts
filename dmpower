@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Define LOCKER in .xprofile to set to different LOCKER program
 # LOCKER="${LOCKER:-lock}"
-LOCKER="xscreensaver-command -lock"
+LOCKER="$HOME/.local/bin/dmscripts/dmlock"
+# LOCKER="xscreensaver-command -lock"
 
 # use notify-send if run in dumb term
 OUTPUT="echo"

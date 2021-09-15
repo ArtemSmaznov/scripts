@@ -1,33 +1,38 @@
 #+TITLE: dmscripts
 #+AUTHOR: Artem Smaznov
-#+DESCRIPTION: A collection of dmscripts
+#+DESCRIPTION: A collection of dmenu scripts
 #+STARTUP: overview
 
 * Table of Contents :toc:
 - [[#grub-reboot-to-windows][GRUB Reboot to Windows]]
-- [[#notify][Notify]]
+- [[#dmnotify][dmnotify]]
   - [[#dependencies][Dependencies]]
   - [[#setup][Setup]]
   - [[#dmenu][DMenu]]
   - [[#main-function][Main Function]]
   - [[#handling-input][Handling Input]]
-- [[#power][Power]]
+- [[#dmlock][dmlock]]
   - [[#dependencies-1][Dependencies]]
   - [[#setup-1][Setup]]
-  - [[#dmenu-1][DMenu]]
   - [[#main-function-1][Main Function]]
-  - [[#handling-input-1][Handling Input]]
-- [[#screenshot][Screenshot]]
+- [[#dmpower][dmpower]]
   - [[#dependencies-2][Dependencies]]
   - [[#setup-2][Setup]]
-  - [[#dmenu-2][DMenu]]
+  - [[#dmenu-1][DMenu]]
   - [[#main-function-2][Main Function]]
-  - [[#handling-input-2][Handling Input]]
-- [[#wallpaper][Wallpaper]]
+  - [[#handling-input-1][Handling Input]]
+- [[#dmscreenshot][dmscreenshot]]
   - [[#dependencies-3][Dependencies]]
   - [[#setup-3][Setup]]
-  - [[#dmenu-3][DMenu]]
+  - [[#dmenu-2][DMenu]]
   - [[#main-function-3][Main Function]]
+  - [[#handling-input-2][Handling Input]]
+- [[#dmwallpaper][dmwallpaper]]
+  - [[#dependencies-4][Dependencies]]
+  - [[#setup-4][Setup]]
+  - [[#update-auto-start][Update auto-start]]
+  - [[#dmenu-3][DMenu]]
+  - [[#main-function-4][Main Function]]
   - [[#handling-input-3][Handling Input]]
 
 * GRUB Reboot to Windows
@@ -49,7 +54,7 @@ If you want to call this from the Desktop Environment you may need to allow the 
 user ALL=(ALL) NOPASSWD: /home/user/.local/bin/winreboot
 #+end_src
 
-* Notify
+* dmnotify
 Manage notifications
 ** Dependencies
 |-------------+---------------------|
@@ -119,7 +124,59 @@ case $choice in
 esac
 #+end_src
 
-* Power
+* dmlock
+Trigger lock-screen/screen-saver
+** Dependencies
+|--------------+---------|
+| App          | Comment |
+|--------------+---------|
+| i3lock-color |         |
+|--------------+---------|
+
+** Setup
+#+begin_src shell :tangle dmlock :shebang #!/bin/sh
+TIME_FORMAT='%l:%M %p'
+DATE_FORMAT='%d %b, %Y'
+
+BLANK='#28282855'
+TEXT='#ebdbb2'
+DARK='#282828'
+DEFAULT='#fabd2fcc'
+WRONG='#fb4934bb'
+VERIFYING='#b8bb26cb'
+TYPE='#d65d0e'
+DELETE='#cc241d'
+#+end_src
+
+** Main Function
+For debugging purposes add =--no-verif=
+#+begin_src shell :tangle dmlock
+i3lock \
+    --clock \
+    --screen 1 \
+    --ignore-empty-password \
+    --pass-media-keys --pass-screen-keys --pass-volume-keys \
+    \
+    --time-str="$TIME_FORMAT" --date-str="$DATE_FORMAT" \
+    --greeter-text="Type password to unlock..." \
+    --time-pos="w-w/2:y+200" --date-pos="tx:ty+50" \
+    --layout-pos="ix:iy+100" \
+    \
+    --radius=200 --ring-width=10 \
+    --time-size=120 --date-size=32 --layout-size=22 \
+    --keylayout=2 \
+    \
+    --color=$BLANK \
+    --time-color=$TEXT --date-color=$TEXT --greeter-color=$TEXT --layout-color=$TEXT --modif-color=$TEXT         \
+    \
+    --separator-color=$DEFAULT --line-color=$BLANK \
+    --keyhl-color=$TYPE --bshl-color=$DELETE \
+    --ring-color=$DEFAULT      --inside-color=$BLANK        \
+    --ringver-color=$VERIFYING --insidever-color=$VERIFYING --verif-color=$DARK          \
+    --ringwrong-color=$WRONG   --insidewrong-color=$WRONG   --wrong-color=$DARK          \
+#+end_src
+
+* dmpower
 Logout, shutdown, reboot or lock screen
 ** Dependencies
 |--------------+-------------------------|
@@ -130,12 +187,12 @@ Logout, shutdown, reboot or lock screen
 | =xscreensaver= | Toggle screensaver      |
 | =notify-send=  | Trigger a notifications |
 |--------------+-------------------------|
-
 ** Setup
 #+begin_src shell :tangle dmpower :shebang #!/usr/bin/env bash
 # Define LOCKER in .xprofile to set to different LOCKER program
 # LOCKER="${LOCKER:-lock}"
-LOCKER="xscreensaver-command -lock"
+LOCKER="$HOME/.local/bin/dmscripts/dmlock"
+# LOCKER="xscreensaver-command -lock"
 
 # use notify-send if run in dumb term
 OUTPUT="echo"
@@ -252,7 +309,7 @@ case $choice in
 esac
 #+end_src
 
-* Screenshot
+* dmscreenshot
 Take a screenshot
 ** Dependencies
 |-------------+-------------------|
@@ -366,7 +423,7 @@ else
 fi
 #+end_src
 
-* Wallpaper
+* dmwallpaper
 Set random wallpapers
 ** Dependencies
 |-------------+----------------------|
@@ -387,19 +444,22 @@ mkdir -p "${wall_dir}"
 screens=$(xrandr | grep -e "\sconnected" | wc -l)
 #+end_src
 
-*** Update auto-start
-I am using a shell script to call =dmwallpaper= to set random wallpapers from set sub-directory, which is being called on WM start. This section updates the directory in that script every time I call =dmwallpaper= to set a different sub-directory.
-As long as you specify the correct path to the dmscript there and the dmscript is named =dmwallpaper= it will update it automatically. All you really need to do is set =autostart_script= variable to the correct path to the auto-start script.
-#+begin_example shell
-~/.local/bin/dmscripts/dmwallpaper flat &
-#+end_example
+** Update auto-start
+I am using a shell script to call =dmwallpaper= to set random wallpapers from set sub-directory, which is being called on WM start.
+- [[file:~/.config/README.org::*Auto-start][Auto-start]] ([[https://github.com/ArtemSmaznov/Dotfiles/tree/master/.config][repo]])
 
-The function is agnostic to the path to =dmwallpaper=, so as long as the dmscript is named =dmwallpaper=, it will update it automatically. All you really need to do is set =autostart_script= variable to the correct path to the auto-start script.
+This section updates the directory in that script every time I call =dmwallpaper= to set a different sub-directory.
+
+As long as you specify the correct path to the dmscript there and the dmscript is named =dmwallpaper= it will update it automatically. All you really need to do is set =autostart_script= variable to the correct path to the auto-start script.
+
+The function is agnostic to the path to =dmwallpaper=, so as long as the dmscript is named =dmwallpaper=, it will be updated automatically. All you really need to do is set =autostart_script= variable to the correct path to the auto-start script.
 #+begin_src shell :tangle dmwallpaper
 autostart_script="$HOME/.config/autostart-scripts/autostart.sh"
+autostart_script_org="$HOME/.config/README.org"
 
 updateAutostart(){
     sed -i "s/\(.*dmwallpaper\).*$/\1 $1 \&/" $autostart_script
+    sed -i "s/\(.*dmwallpaper\).*$/\1 $1 \&/" $autostart_script_org
 }
 #+end_src
 
