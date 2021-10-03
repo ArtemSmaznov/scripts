@@ -5,34 +5,29 @@
 
 * Table of Contents :toc:
 - [[#grub-reboot-to-windows][GRUB Reboot to Windows]]
-- [[#dmnotify][dmnotify]]
+- [[#dm-notify][dm-notify]]
   - [[#dependencies][Dependencies]]
   - [[#setup][Setup]]
-  - [[#dmenu][DMenu]]
-  - [[#main-function][Main Function]]
+  - [[#functions][Functions]]
   - [[#handling-input][Handling Input]]
-- [[#dmlock][dmlock]]
+- [[#dm-lock][dm-lock]]
   - [[#dependencies-1][Dependencies]]
   - [[#setup-1][Setup]]
-  - [[#main-function-1][Main Function]]
-- [[#dmpower][dmpower]]
+  - [[#functions-1][Functions]]
+- [[#dm-power][dm-power]]
   - [[#dependencies-2][Dependencies]]
   - [[#setup-2][Setup]]
-  - [[#dmenu-1][DMenu]]
-  - [[#main-function-2][Main Function]]
+  - [[#functions-2][Functions]]
   - [[#handling-input-1][Handling Input]]
-- [[#dmscreenshot][dmscreenshot]]
+- [[#dm-screenshot][dm-screenshot]]
   - [[#dependencies-3][Dependencies]]
   - [[#setup-3][Setup]]
-  - [[#dmenu-2][DMenu]]
-  - [[#main-function-3][Main Function]]
+  - [[#functions-3][Functions]]
   - [[#handling-input-2][Handling Input]]
-- [[#dmwallpaper][dmwallpaper]]
+- [[#dm-wallpaper][dm-wallpaper]]
   - [[#dependencies-4][Dependencies]]
   - [[#setup-4][Setup]]
-  - [[#update-auto-start][Update auto-start]]
-  - [[#dmenu-3][DMenu]]
-  - [[#main-function-4][Main Function]]
+  - [[#functions-4][Functions]]
   - [[#handling-input-3][Handling Input]]
 
 * GRUB Reboot to Windows
@@ -54,7 +49,7 @@ If you want to call this from the Desktop Environment you may need to allow the 
 user ALL=(ALL) NOPASSWD: /home/user/.local/bin/winreboot
 #+end_src
 
-* dmnotify
+* dm-notify
 Manage notifications
 ** Dependencies
 |-------------+---------------------|
@@ -66,17 +61,14 @@ Manage notifications
 
 ** Setup
 Get the number of notifications
-#+begin_src shell :tangle dmnotify :shebang #!/usr/bin/env bash
-NOTIF_COUNT_DISPLAYED=$(dunstctl count displayed)
-NOTIF_COUNT_HISTORY=$(dunstctl count history)
-NOTIF_COUNT_WAIT=$(dunstctl count waiting)
+#+begin_src shell :tangle dm-notify :shebang #!/usr/bin/env bash
+declare -a options
 #+end_src
 
-** DMenu
-#+begin_src shell :tangle dmnotify
+DMenu
+#+begin_src shell :tangle dm-notify
 dmenu_prompt="Notifications"
-
-declare -a options=(
+options=(
     "Show recent"
     "Close"
     "Close all"
@@ -84,38 +76,41 @@ declare -a options=(
 )
 #+end_src
 
-** Main Function
-#+begin_src shell :tangle dmnotify
-execute_choice () {
-    if [[ $1 == 'recents' ]]; then
-        for ((i = 1; i <= $NOTIF_COUNT_HISTORY; i++));
-        do
-            dunstctl history-pop
-        done
+** Functions
+#+begin_src shell :tangle dm-notify
+notif_count_history=$(dunstctl count history)
+notif_count_displayed=$(dunstctl count displayed)
+notif_count_wait=$(dunstctl count waiting)
 
-    elif [[ $1 == 'close' ]]; then dunstctl close
-    elif [[ $1 == 'clear' ]]; then dunstctl close-all
-    else dunstctl context
-    fi
+execute_choice() {
+    case $1 in
+        close) dunstctl close;;
+        clear) dunstctl close-all;;
+        recents)
+            for ((i = 1; i <= $notif_count_history; i++));
+            do
+                dunstctl history-pop
+            done
+            ;;
+        ,*) dunstctl context;;
+    esac
 }
 #+end_src
 
 ** Handling Input
-Check if any arguments were passed to the script to avoid triggering dmenu
-#+begin_src shell :tangle dmnotify
-if [ ! $# -eq 0 ]; then execute_choice $1
+Execute script without presenting dmenu to the user if any argument was passed
+#+begin_src shell :tangle dm-notify
+[ ! $# -eq 0 ] && execute_choice $1 && exit
 #+end_src
 
-If no arguments were passed, present dmenu to user with options defined in the [[#dmenu][DMenu]] section
-We use "printf '%s\n'" to format the array one item to a line
-#+begin_src shell :tangle dmnotify
-else
-    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
-fi
+Present dmenu to user with options defined in the [[#dmenu][DMenu]] section
+=printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
+#+begin_src shell :tangle dm-notify
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
 #+end_src
 
 What to do when/if we choose one of the options.
-#+begin_src shell :tangle dmnotify
+#+begin_src shell :tangle dm-notify
 case $choice in
     'Show recent') execute_choice recents ;;
     'Close') execute_choice close ;;
@@ -124,7 +119,7 @@ case $choice in
 esac
 #+end_src
 
-* dmlock
+* dm-lock
 Trigger lock-screen/screen-saver
 ** Dependencies
 |--------------+---------|
@@ -134,30 +129,30 @@ Trigger lock-screen/screen-saver
 |--------------+---------|
 
 ** Setup
-#+begin_src shell :tangle dmlock :shebang #!/bin/sh
-TIME_FORMAT='%l:%M %p'
-DATE_FORMAT='%d %b, %Y'
+#+begin_src shell :tangle dm-lock :shebang #!/bin/sh
+time_format='%l:%M %p'
+date_format='%d %b, %Y'
 
-BLANK='#28282855'
-TEXT='#ebdbb2'
-DARK='#282828'
-DEFAULT='#fabd2fcc'
-WRONG='#fb4934bb'
-VERIFYING='#b8bb26cb'
-TYPE='#d65d0e'
-DELETE='#cc241d'
+blank='#28282855'
+text='#ebdbb2'
+dark='#282828'
+default='#fabd2fcc'
+wrong='#fb4934bb'
+verifying='#b8bb26cb'
+type='#d65d0e'
+delete='#cc241d'
 #+end_src
 
-** Main Function
+** Functions
 For debugging purposes add =--no-verif=
-#+begin_src shell :tangle dmlock
+#+begin_src shell :tangle dm-lock
 i3lock \
     --clock \
     --screen 1 \
     --ignore-empty-password \
     --pass-media-keys --pass-screen-keys --pass-volume-keys \
     \
-    --time-str="$TIME_FORMAT" --date-str="$DATE_FORMAT" \
+    --time-str="$time_format" --date-str="$date_format" \
     --greeter-text="Type password to unlock..." \
     --time-pos="w-w/2:y+200" --date-pos="tx:ty+50" \
     --layout-pos="ix:iy+100" \
@@ -166,17 +161,17 @@ i3lock \
     --time-size=120 --date-size=32 --layout-size=22 \
     --keylayout=2 \
     \
-    --color=$BLANK \
-    --time-color=$TEXT --date-color=$TEXT --greeter-color=$TEXT --layout-color=$TEXT --modif-color=$TEXT         \
+    --color=$blank \
+    --time-color=$text --date-color=$text --greeter-color=$text --layout-color=$text --modif-color=$text         \
     \
-    --separator-color=$DEFAULT --line-color=$BLANK \
-    --keyhl-color=$TYPE --bshl-color=$DELETE \
-    --ring-color=$DEFAULT      --inside-color=$BLANK        \
-    --ringver-color=$VERIFYING --insidever-color=$VERIFYING --verif-color=$DARK          \
-    --ringwrong-color=$WRONG   --insidewrong-color=$WRONG   --wrong-color=$DARK          \
+    --separator-color=$default --line-color=$blank \
+    --keyhl-color=$type --bshl-color=$delete \
+    --ring-color=$default      --inside-color=$blank        \
+    --ringver-color=$verifying --insidever-color=$verifying --verif-color=$dark          \
+    --ringwrong-color=$wrong   --insidewrong-color=$wrong   --wrong-color=$dark          \
 #+end_src
 
-* dmpower
+* dm-power
 Logout, shutdown, reboot or lock screen
 ** Dependencies
 |--------------+-------------------------|
@@ -188,24 +183,28 @@ Logout, shutdown, reboot or lock screen
 | =notify-send=  | Trigger a notifications |
 |--------------+-------------------------|
 ** Setup
-#+begin_src shell :tangle dmpower :shebang #!/usr/bin/env bash
-# Define LOCKER in .xprofile to set to different LOCKER program
+#+begin_src shell :tangle dm-power :shebang #!/usr/bin/env bash
+declare -a dmenu_options
+#+end_src
+
+Define =LOCKER= in =.xprofile= to set to different locker program
+#+begin_src shell :tangle dm-power
 # LOCKER="${LOCKER:-lock}"
-LOCKER="$HOME/.local/bin/dmscripts/dmlock"
+LOCKER="$HOME/.local/bin/dmscripts/dm-lock"
 # LOCKER="xscreensaver-command -lock"
 
 # use notify-send if run in dumb term
-OUTPUT="echo"
+output="echo"
 if [[ ${TERM} == 'dumb' ]]; then
-    OUTPUT="notify-send"
+    output="notify-send"
 fi
 
-yesno(){
+yesno() {
     # shellcheck disable=SC2005
     echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
 }
 
-declare -a MANAGERS=(
+declare -a managers=(
     "awesome"
     "bspwm"
     "dwm"
@@ -215,10 +214,9 @@ declare -a MANAGERS=(
 )
 #+end_src
 
-** DMenu
-#+begin_src shell :tangle dmpower
+DMenu
+#+begin_src shell :tangle dm-power
 dmenu_prompt="Shutdown menu"
-
 declare -a options=(
     "Suspend"
     "Reboot"
@@ -230,45 +228,44 @@ declare -a options=(
 )
 #+end_src
 
-** Main Function
+** Functions
 Check [[#grub-reboot-to-windows][GRUB Reboot to Windows]] for the =winreboot= script setup
-#+begin_src shell :tangle dmpower
-execute_choice () {
+#+begin_src shell :tangle dm-power
+execute_choice() {
     if [[ $1 == 'lock' ]]; then ${LOCKER}
     elif [[ $1 == 'reboot' ]]; then systemctl reboot
     elif [[ $1 == 'windows' ]]; then sudo $HOME/.local/bin/winreboot
     elif [[ $1 == 'poweroff' ]]; then systemctl poweroff
     elif [[ $1 == 'suspend' ]]; then systemctl suspend
-    elif [[ $1 == 'quit' ]]; then ${OUTPUT} "Program terminated." && exit 0
-    else ${OUTPUT} "Program terminated." && exit 0
+    elif [[ $1 == 'quit' ]]; then ${output} "Program terminated." && exit 0
+    else ${output} "Program terminated." && exit 0
     fi
 }
 #+end_src
 
 ** Handling Input
-Check if any arguments were passed to the script to avoid triggering dmenu
-#+begin_src shell :tangle dmpower
-if [ ! $# -eq 0 ]; then execute_choice $1
+Execute script without presenting dmenu to the user if any argument was passed
+#+begin_src shell :tangle dm-power
+[ ! $# -eq 0 ] && execute_choice $1 && exit
 #+end_src
 
-If no arguments were passed, present dmenu to user with options defined in the [[#dmenu-1][DMenu]] section
-We use "printf '%s\n'" to format the array one item to a line
-#+begin_src shell :tangle dmpower
-else
-    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
-fi
+Present dmenu to user with options defined in the [[#dmenu-1][DMenu]] section
+=printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
+#+begin_src shell :tangle dm-power
+# Prompt the user
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
 #+end_src
 
 What to do when/if we choose one of the options.
-#+begin_src shell :tangle dmpower
+#+begin_src shell :tangle dm-power
 case $choice in
     'Logout')
         if [[ $(yesno "Logout?") == "Yes" ]]; then
-            for manager in "${MANAGERS[@]}"; do
-                killall "${manager}" || ${OUTPUT} "Process ${manager} was not running."
+            for manager in "${managers[@]}"; do
+                killall "${manager}" || ${output} "Process ${manager} was not running."
             done
         else
-            ${OUTPUT} "User chose not to logout." && exit 1
+            ${output} "User chose not to logout." && exit 1
         fi
         ;;
     'Lock screen') execute_choice lock ;;
@@ -276,28 +273,28 @@ case $choice in
         if [[ $(yesno "Reboot?") == "Yes" ]]; then
             execute_choice reboot
         else
-            ${OUTPUT} "User chose not to reboot." && exit 0
+            ${output} "User chose not to reboot." && exit 0
         fi
         ;;
     'Reboot to Windows')
         if [[ $(yesno "Reboot?") == "Yes" ]]; then
             execute_choice windows
         else
-            ${OUTPUT} "User chose not to reboot." && exit 0
+            ${output} "User chose not to reboot." && exit 0
         fi
         ;;
     'Shutdown')
         if [[ $(yesno "Shutdown?") == "Yes" ]]; then
             execute_choice poweroff
         else
-            ${OUTPUT} "User chose not to shutdown." && exit 0
+            ${output} "User chose not to shutdown." && exit 0
         fi
         ;;
     'Suspend')
         if [[ $(yesno "Suspend?") == "Yes" ]]; then
             execute_choice suspend
         else
-            ${OUTPUT} "User chose not to suspend." && exit 0
+            ${output} "User chose not to suspend." && exit 0
         fi
         ;;
     'Quit') execute_choice quit ;;
@@ -309,7 +306,7 @@ case $choice in
 esac
 #+end_src
 
-* dmscreenshot
+* dm-screenshot
 Take a screenshot
 ** Dependencies
 |-------------+-------------------|
@@ -318,46 +315,53 @@ Take a screenshot
 | =rofi -dmenu= | Triggers dmenu    |
 | =xrandr=      | Screen management |
 | =main=        | Screenshot tool   |
+| =xdotool=     | Get active window |
 |-------------+-------------------|
 
 ** Setup
-#+begin_src shell :tangle dmscreenshot :shebang #!/usr/bin/env bash
+#+begin_src shell :tangle dm-screenshot :shebang #!/usr/bin/env bash
 # Set with the flags "-e", "-u","-o pipefail" cause the script to fail
 # if certain things happen, which is a good thing.  Otherwise, we can
 # get hidden bugs that are hard to discover.
 set -euo pipefail
 
-# Specifying a directory to save our screenshots and make sure it exists
-SCREENSHOT_DIR="$HOME/Pictures/Screenshots"
-mkdir -p "${SCREENSHOT_DIR}"
+declare -a dmenu_options
+#+end_src
 
-# Filename Time Stamp Format
-getTimeStamp() {
-    date '+%Y-%m-%d_%T'
-}
+Specifying a directory to save our screenshots and make sure it exists
+#+begin_src shell :tangle dm-screenshot
+screen_dir="$(xdg-user-dir PICTURES)/screenshots"
+mkdir -p "${screen_dir}"
+#+end_src
 
-EXECUTE=true
-MAIM_ARGS=""
+Filename Time Stamp Format
+#+begin_src shell :tangle dm-screenshot
+timestamp='+%Y-%m-%d_%T'
+#+end_src
 
-# Get monitors and their settings for maim
-DISPLAYS=$(xrandr --listactivemonitors | grep '+' | awk '{print $4, $3}' | awk -F'[x/+* ]' '{print $1,$2"x"$4"+"$6"+"$7}')
+Get monitors and their settings for maim
+#+begin_src shell :tangle dm-screenshot
+displays=$(xrandr --listactivemonitors | grep '+' | awk '{print $4, $3}' | awk -F'[x/+* ]' '{print $1,$2"x"$4"+"$6"+"$7}')
+#+end_src
 
-# Add monitor data
+Add monitor data
+#+begin_src shell :tangle dm-screenshot
 IFS=$'\n'
-declare -A DISPLAY_MODE
-for d in ${DISPLAYS}; do
+declare -A display_mode
+
+for d in ${displays}; do
     name=$(echo "${d}" | awk '{print $1}')
     area="$(echo "${d}" | awk '{print $2}')"
-    DISPLAY_MODE[${name}]="${area}"
+    display_mode[${name}]="${area}"
 done
+
 unset IFS
 #+end_src
 
-** DMenu
-#+begin_src shell :tangle dmscreenshot
-dmenu_prompt="Select what to screenshot"
-
-declare -a options=(
+DMenu
+#+begin_src shell :tangle dm-screenshot
+prompt="Select what to screenshot"
+options=(
     "full"
     "screen"
     "window"
@@ -365,65 +369,45 @@ declare -a options=(
 )
 #+end_src
 
-** Main Function
-#+begin_src shell :tangle dmscreenshot
-takeScreenshot(){
+** Functions
+#+begin_src shell :tangle dm-screenshot
+main_args=""
 
-    if [[ $1 == 'full' ]]; then
-        MAIM_ARGS="-u -m 1"
+takeScreenshot() {
+    case $1 in
+        full) main_args="-u -m 1";;
+        screen) main_args="-u -g ${display_mode['DVI-D-0']} -m 1";;
+        window) main_args="-u -B -i $(xdotool getactivewindow) -m 1" ;;
+        area) main_args="-u -B -s -n -m 1";;
+        ,*)
+            echo -e "Only the following arguments are accepted:\n"
+            printf '%s\n' "${options[@]}"
+            ;;
+    esac
 
-    elif [[ $1 == 'screen' ]]; then
-        MAIM_ARGS="-u -g ${DISPLAY_MODE['DVI-D-0']} -m 1"
-
-    elif [[ $1 == 'window' ]]; then
-        active_window=$(xdotool getactivewindow)
-        MAIM_ARGS="-u -B -i ${active_window} -m 1"
-
-    elif [[ $1 == 'area' ]]; then
-        MAIM_ARGS="-u -B -s -n -m 1"
-
-    else
-        EXECUTE=false
-        if [[ $1 == 'debug' ]]; then
-            echo ${DISPLAY_MODE["DVI-D-0"]}
-
-        else
-            echo  "
-Invalid Argument!
-Only the following arguments are accepted:
-
-  full   - Take a screenshot of the whole Workspace containing All Displays
-  screen - Take a screenshot of the whole Active Screen
-  window - Take a screenshot of the currently Active Window
-  area   - Turn cursor into a crosshair to select an Area of the screen to screenshot
-"
-        fi
-    fi
-
-
-    if $EXECUTE; then
-        maim ${MAIM_ARGS} "${SCREENSHOT_DIR}/$(getTimeStamp).png"
-    fi
-
+    if [[ $main_args == "" ]]; then return; fi
+    
+    maim ${main_args} "${screen_dir}/$(date $timestamp).png" || exit
 }
 #+end_src
 
 ** Handling Input
-Check if any arguments were passed to the script to avoid triggering dmenu
-#+begin_src shell :tangle dmscreenshot
-if [ ! $# -eq 0 ]; then takeScreenshot $1
+Execute script without presenting dmenu to the user if any argument was passed
+#+begin_src shell :tangle dm-screenshot
+[ ! $# -eq 0 ] && takeScreenshot $1 && exit
 #+end_src
 
-If no arguments were passed, present dmenu to user with options defined in the [[#dmenu-2][DMenu]] section
-We use "printf '%s\n'" to format the array one item to a line
-#+begin_src shell :tangle dmscreenshot
-else
-    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
-    takeScreenshot $choice
-fi
+Present dmenu to user with options defined in the [[#dmenu-2][DMenu]] section
+=printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
+#+begin_src shell :tangle dm-screenshot
+# Prompt the user
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+
+# Act on user selection
+[ $choice ] && takeScreenshot $choice
 #+end_src
 
-* dmwallpaper
+* dm-wallpaper
 Set random wallpapers
 ** Dependencies
 |-------------+----------------------|
@@ -435,46 +419,50 @@ Set random wallpapers
 |-------------+----------------------|
 
 ** Setup
-#+begin_src shell :tangle dmwallpaper :shebang #!/usr/bin/env bash
-# Specifying a directory with wallpapers and make sure it exists
+#+begin_src shell :tangle dm-wallpaper :shebang #!/usr/bin/env bash
+declare -a dmenu_options
+#+end_src
+
+Specifying a directory with wallpapers and make sure it exists
+#+begin_src shell :tangle dm-wallpaper
 wall_dir="$HOME/Pictures/wallpapers"
 mkdir -p "${wall_dir}"
+#+end_src
 
-# get the number of connected screens
+Path to script that calls =dmwallpaper= on startup
+#+begin_src shell :tangle dm-wallpaper
+autostart_script="$HOME/.config/autostart-scripts/autostart.sh"
+autostart_script_org="$HOME/.config/README.org"
+#+end_src
+
+Get the number of connected screens
+#+begin_src shell :tangle dm-wallpaper
 screens=$(xrandr | grep -e "\sconnected" | wc -l)
 #+end_src
 
-** Update auto-start
-I am using a shell script to call =dmwallpaper= to set random wallpapers from set sub-directory, which is being called on WM start.
+DMenu
+#+begin_src shell :tangle dm-wallpaper
+prompt="Wallpaper Category"
+options=($(ls $wall_dir --hide="*.*"))
+#+end_src
+
+** Functions
+I am using a shell script to call =dm-wallpaper= to set random wallpapers from a set sub-directory, which is being called on WM start.
 - [[file:~/.config/README.org::*Auto-start][Auto-start]] ([[https://github.com/ArtemSmaznov/Dotfiles/tree/master/.config][repo]])
 
-This section updates the directory in that script every time I call =dmwallpaper= to set a different sub-directory.
+=updateAutostart= updates the directory in that script every time I call =dm-wallpaper= to set a different sub-directory.
 
-As long as you specify the correct path to the dmscript there and the dmscript is named =dmwallpaper= it will update it automatically. All you really need to do is set =autostart_script= variable to the correct path to the auto-start script.
+As long as you specify the correct path to the dmscript there and the dmscript is named =dm-wallpaper= it will update it automatically. All you really need to do is set =autostart_script= variable to the correct path to the auto-start script.
 
-The function is agnostic to the path to =dmwallpaper=, so as long as the dmscript is named =dmwallpaper=, it will be updated automatically. All you really need to do is set =autostart_script= variable to the correct path to the auto-start script.
-#+begin_src shell :tangle dmwallpaper
-autostart_script="$HOME/.config/autostart-scripts/autostart.sh"
-autostart_script_org="$HOME/.config/README.org"
+The function is agnostic to the path to =dm-wallpaper=, so as long as the dmscript is named =dm-wallpaper=, it will be updated automatically. All you really need to do is set =autostart_script= variable to the correct path to the auto-start script.
 
-updateAutostart(){
-    sed -i "s/\(.*dmwallpaper\).*$/\1 $1 \&/" $autostart_script
-    sed -i "s/\(.*dmwallpaper\).*$/\1 $1 \&/" $autostart_script_org
+#+begin_src shell :tangle dm-wallpaper
+updateAutostart() {
+    sed -i "s/\(.*dm-wallpaper\).*$/\1 $1 \&/" $autostart_script
+    sed -i "s/\(.*dm-wallpaper\).*$/\1 $1 \&/" $autostart_script_org
 }
-#+end_src
 
-** DMenu
-#+begin_src shell :tangle dmwallpaper
-dmenu_prompt="Wallpaper Category"
-#+end_src
-
-** Main Function
-#+begin_src shell :tangle dmwallpaper
-setRandomWallpaper(){
-    if [ -z "$1" ]; then
-        return
-    fi
-
+setRandomWallpaper() {
     for (( i = 0; i < $screens; i++ )); do
         nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
     done
@@ -485,16 +473,17 @@ setRandomWallpaper(){
 #+end_src
 
 ** Handling Input
-Check if any arguments were passed to the script to avoid triggering dmenu
-#+begin_src shell :tangle dmwallpaper
-if [ ! $# -eq 0 ]; then setRandomWallpaper $1
+Execute script without presenting dmenu to the user if any argument was passed
+#+begin_src shell :tangle dm-wallpaper
+[ ! $# -eq 0 ] && setRandomWallpaper $1 && exit
 #+end_src
 
-If no arguments were passed, present dmenu to user with options based on the available sub-directories in $wall_dir
-We use "printf '%s\n'" to format the array one item to a line
-#+begin_src shell :tangle dmwallpaper
-else
-    choice=$(\ls $wall_dir --hide="*.*" | rofi -dmenu -i -p "${dmenu_prompt}")
-    setRandomWallpaper $choice
-fi
+Present dmenu to user with options based on the available sub-directories in =$wall_dir=
+=printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
+#+begin_src shell :tangle dm-wallpaper
+# Prompt the user
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+
+# Act on user selection
+[ $choice ] && setRandomWallpaper $choice
 #+end_src

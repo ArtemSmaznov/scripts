@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+declare -a dmenu_options
+
+wall_dir="$HOME/Pictures/wallpapers"
+mkdir -p "${wall_dir}"
+
+autostart_script="$HOME/.config/autostart-scripts/autostart.sh"
+autostart_script_org="$HOME/.config/README.org"
+
+screens=$(xrandr | grep -e "\sconnected" | wc -l)
+
+prompt="Wallpaper Category"
+options=($(ls $wall_dir --hide="*.*"))
+
+updateAutostart() {
+    sed -i "s/\(.*dm-wallpaper\).*$/\1 $1 \&/" $autostart_script
+    sed -i "s/\(.*dm-wallpaper\).*$/\1 $1 \&/" $autostart_script_org
+}
+
+setRandomWallpaper() {
+    for (( i = 0; i < $screens; i++ )); do
+        nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
+    done
+
+    # Comment out this line if you don't use an autostart script to set random wallpapers using this dmscript
+    updateAutostart "$1"
+}
+
+[ ! $# -eq 0 ] && setRandomWallpaper $1 && exit
+
+# Prompt the user
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+
+# Act on user selection
+[ $choice ] && setRandomWallpaper $choice

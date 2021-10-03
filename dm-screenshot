@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Set with the flags "-e", "-u","-o pipefail" cause the script to fail
+# if certain things happen, which is a good thing.  Otherwise, we can
+# get hidden bugs that are hard to discover.
+set -euo pipefail
+
+declare -a dmenu_options
+
+screen_dir="$(xdg-user-dir PICTURES)/screenshots"
+mkdir -p "${screen_dir}"
+
+timestamp='+%Y-%m-%d_%T'
+
+displays=$(xrandr --listactivemonitors | grep '+' | awk '{print $4, $3}' | awk -F'[x/+* ]' '{print $1,$2"x"$4"+"$6"+"$7}')
+
+IFS=$'\n'
+declare -A display_mode
+
+for d in ${displays}; do
+    name=$(echo "${d}" | awk '{print $1}')
+    area="$(echo "${d}" | awk '{print $2}')"
+    display_mode[${name}]="${area}"
+done
+
+unset IFS
+
+prompt="Select what to screenshot"
+options=(
+    "full"
+    "screen"
+    "window"
+    "area"
+)
+
+main_args=""
+
+takeScreenshot() {
+    case $1 in
+        full) main_args="-u -m 1";;
+        screen) main_args="-u -g ${display_mode['DVI-D-0']} -m 1";;
+        window) main_args="-u -B -i $(xdotool getactivewindow) -m 1" ;;
+        area) main_args="-u -B -s -n -m 1";;
+        *)
+            echo -e "Only the following arguments are accepted:\n"
+            printf '%s\n' "${options[@]}"
+            ;;
+    esac
+
+    if [[ $main_args == "" ]]; then return; fi
+    
+    maim ${main_args} "${screen_dir}/$(date $timestamp).png" || exit
+}
+
+[ ! $# -eq 0 ] && takeScreenshot $1 && exit
+
+# Prompt the user
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+
+# Act on user selection
+[ $choice ] && takeScreenshot $choice

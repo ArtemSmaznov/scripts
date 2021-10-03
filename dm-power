@@ -1,21 +1,22 @@
 #!/usr/bin/env bash
-# Define LOCKER in .xprofile to set to different LOCKER program
+declare -a dmenu_options
+
 # LOCKER="${LOCKER:-lock}"
-LOCKER="$HOME/.local/bin/dmscripts/dmlock"
+LOCKER="$HOME/.local/bin/dmscripts/dm-lock"
 # LOCKER="xscreensaver-command -lock"
 
 # use notify-send if run in dumb term
-OUTPUT="echo"
+output="echo"
 if [[ ${TERM} == 'dumb' ]]; then
-    OUTPUT="notify-send"
+    output="notify-send"
 fi
 
-yesno(){
+yesno() {
     # shellcheck disable=SC2005
     echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
 }
 
-declare -a MANAGERS=(
+declare -a managers=(
     "awesome"
     "bspwm"
     "dwm"
@@ -25,7 +26,6 @@ declare -a MANAGERS=(
 )
 
 dmenu_prompt="Shutdown menu"
-
 declare -a options=(
     "Suspend"
     "Reboot"
@@ -36,31 +36,30 @@ declare -a options=(
     "Quit"
 )
 
-execute_choice () {
+execute_choice() {
     if [[ $1 == 'lock' ]]; then ${LOCKER}
     elif [[ $1 == 'reboot' ]]; then systemctl reboot
     elif [[ $1 == 'windows' ]]; then sudo $HOME/.local/bin/winreboot
     elif [[ $1 == 'poweroff' ]]; then systemctl poweroff
     elif [[ $1 == 'suspend' ]]; then systemctl suspend
-    elif [[ $1 == 'quit' ]]; then ${OUTPUT} "Program terminated." && exit 0
-    else ${OUTPUT} "Program terminated." && exit 0
+    elif [[ $1 == 'quit' ]]; then ${output} "Program terminated." && exit 0
+    else ${output} "Program terminated." && exit 0
     fi
 }
 
-if [ ! $# -eq 0 ]; then execute_choice $1
+[ ! $# -eq 0 ] && execute_choice $1 && exit
 
-else
-    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
-fi
+# Prompt the user
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
 
 case $choice in
     'Logout')
         if [[ $(yesno "Logout?") == "Yes" ]]; then
-            for manager in "${MANAGERS[@]}"; do
-                killall "${manager}" || ${OUTPUT} "Process ${manager} was not running."
+            for manager in "${managers[@]}"; do
+                killall "${manager}" || ${output} "Process ${manager} was not running."
             done
         else
-            ${OUTPUT} "User chose not to logout." && exit 1
+            ${output} "User chose not to logout." && exit 1
         fi
         ;;
     'Lock screen') execute_choice lock ;;
@@ -68,28 +67,28 @@ case $choice in
         if [[ $(yesno "Reboot?") == "Yes" ]]; then
             execute_choice reboot
         else
-            ${OUTPUT} "User chose not to reboot." && exit 0
+            ${output} "User chose not to reboot." && exit 0
         fi
         ;;
     'Reboot to Windows')
         if [[ $(yesno "Reboot?") == "Yes" ]]; then
             execute_choice windows
         else
-            ${OUTPUT} "User chose not to reboot." && exit 0
+            ${output} "User chose not to reboot." && exit 0
         fi
         ;;
     'Shutdown')
         if [[ $(yesno "Shutdown?") == "Yes" ]]; then
             execute_choice poweroff
         else
-            ${OUTPUT} "User chose not to shutdown." && exit 0
+            ${output} "User chose not to shutdown." && exit 0
         fi
         ;;
     'Suspend')
         if [[ $(yesno "Suspend?") == "Yes" ]]; then
             execute_choice suspend
         else
-            ${OUTPUT} "User chose not to suspend." && exit 0
+            ${output} "User chose not to suspend." && exit 0
         fi
         ;;
     'Quit') execute_choice quit ;;

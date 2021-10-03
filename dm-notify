@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+declare -a options
+
+dmenu_prompt="Notifications"
+options=(
+    "Show recent"
+    "Close"
+    "Close all"
+    "Context menu"
+)
+
+notif_count_history=$(dunstctl count history)
+notif_count_displayed=$(dunstctl count displayed)
+notif_count_wait=$(dunstctl count waiting)
+
+execute_choice() {
+    case $1 in
+        close) dunstctl close;;
+        clear) dunstctl close-all;;
+        recents)
+            for ((i = 1; i <= $notif_count_history; i++));
+            do
+                dunstctl history-pop
+            done
+            ;;
+        *) dunstctl context;;
+    esac
+}
+
+[ ! $# -eq 0 ] && execute_choice $1 && exit
+
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+
+case $choice in
+    'Show recent') execute_choice recents ;;
+    'Close') execute_choice close ;;
+    'Close all') execute_choice close-all ;;
+    'Context menu') execute_choice context ;;
+esac
