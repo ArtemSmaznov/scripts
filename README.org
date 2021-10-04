@@ -24,11 +24,16 @@
   - [[#setup-3][Setup]]
   - [[#functions-3][Functions]]
   - [[#handling-input-2][Handling Input]]
-- [[#dm-wallpaper][dm-wallpaper]]
+- [[#dm-record][dm-record]]
   - [[#dependencies-4][Dependencies]]
   - [[#setup-4][Setup]]
   - [[#functions-4][Functions]]
   - [[#handling-input-3][Handling Input]]
+- [[#dm-wallpaper][dm-wallpaper]]
+  - [[#dependencies-5][Dependencies]]
+  - [[#setup-5][Setup]]
+  - [[#functions-5][Functions]]
+  - [[#handling-input-4][Handling Input]]
 
 * GRUB Reboot to Windows
 To reboot to windows without having to interact with grub during boot time create an executable shell script that will switch grub next 1 boot to a named entry, in my case it is a custom entry "*Windows 10*", but by default it be something like "*Windows boot manager*" as created by =os-prober=.
@@ -405,6 +410,109 @@ choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
 # Act on user selection
 [ $choice ] && takeScreenshot $choice
+#+end_src
+
+* dm-record
+Record video/audio
+** Dependencies
+|-------------+--------------------------|
+| App         | Comment                  |
+|-------------+--------------------------|
+| =rofi -dmenu= | Triggers dmenu           |
+| =ffmpeg=      | Video converter/recorder |
+| =slop=        | Window selector          |
+|-------------+--------------------------|
+
+** Setup
+#+begin_src shell :tangle dm-record :shebang #!/usr/bin/env bash
+record_dir="$(xdg-user-dir VIDEOS)/recordings"
+resolution='1920x1080'
+timestamp='+%Y-%m-%d_%T'
+fps='30'
+#+end_src
+
+Tracking process
+#+begin_src shell :tangle dm-record
+rec_proc="/tmp/recordingpid"
+#+end_src
+
+DMenu
+#+begin_src shell :tangle dm-record
+prompt="Record"
+options=(
+    "Screen"
+    "Audio"
+    "Camera"
+)
+#+end_src
+
+** Functions
+#+begin_src shell :tangle dm-record
+yesno() {
+    echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
+}
+
+start_recording() {
+    case "$1" in
+        Screen) screen_capture;;
+        Audio) echo audio;;
+        Camera) echo camera;;
+        *) echo Invalid input;;
+    esac
+}
+
+stop_recording() {
+    rec_pid="$(cat $rec_proc)"
+
+    # kill with SIGTERM, allowing finishing touches.
+    kill -15 "$rec_pid"
+    rm -f $rec_proc
+
+    # even after SIGTERM, ffmpeg may still run, so SIGKILL it.
+    sleep 3
+    kill -9 "$rec_pid"
+    exit
+}
+
+screen_capture() {
+    ffmpeg \
+        -f x11grab \
+        -video_size $resolution \
+        -framerate $fps \
+        -i "$DISPLAY" \
+        -c:v libx264 \
+        $record_dir/dm-$(date $timestamp).mkv &
+    echo $! > $rec_proc
+}
+#+end_src
+
+** Handling Input
+Check if there is an active recordings and prompt user to stop it
+#+begin_src shell :tangle dm-record
+if [ -f $rec_proc ]
+then [ $(yesno "Stop Active Recording?") = "Yes" ] && stop_recording || exit
+#+end_src
+
+Check if any arguments were passed to the script to avoid triggering dmenu
+#+begin_src shell :tangle dm-record
+elif [ ! $# -eq 0 ]
+#+end_src
+
+Execute script without presenting dmenu to the user if an argument was passed
+#+begin_src shell :tangle dm-record
+then start_recording $1
+#+end_src
+
+If no arguments were passed, present dmenu to user
+=printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
+#+begin_src shell :tangle dm-record
+else
+    # Prompt the user
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+
+    # Act on user selection
+    [ $choice ] && start_recording $choice
+fi
 #+end_src
 
 * dm-wallpaper

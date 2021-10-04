@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+record_dir="$(xdg-user-dir VIDEOS)/recordings"
+resolution='1920x1080'
+timestamp='+%Y-%m-%d_%T'
+fps='30'
+
+rec_proc="/tmp/recordingpid"
+
+prompt="Record"
+options=(
+    "Screen"
+    "Audio"
+    "Camera"
+)
+
+yesno() {
+    echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
+}
+
+start_recording() {
+    case "$1" in
+        Screen) screen_capture;;
+        Audio) echo audio;;
+        Camera) echo camera;;
+        *) echo Invalid input;;
+    esac
+}
+
+stop_recording() {
+    rec_pid="$(cat $rec_proc)"
+
+    # kill with SIGTERM, allowing finishing touches.
+    kill -15 "$rec_pid"
+    rm -f $rec_proc
+
+    # even after SIGTERM, ffmpeg may still run, so SIGKILL it.
+    sleep 3
+    kill -9 "$rec_pid"
+    exit
+}
+
+screen_capture() {
+    ffmpeg \
+        -f x11grab \
+        -video_size $resolution \
+        -framerate $fps \
+        -i "$DISPLAY" \
+        -c:v libx264 \
+        $record_dir/dm-$(date $timestamp).mkv &
+    echo $! > $rec_proc
+}
+
+if [ -f $rec_proc ]
+then [ $(yesno "Stop Active Recording?") = "Yes" ] && stop_recording || exit
+
+elif [ ! $# -eq 0 ]
+
+then start_recording $1
+
+else
+    # Prompt the user
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+
+    # Act on user selection
+    [ $choice ] && start_recording $choice
+fi
