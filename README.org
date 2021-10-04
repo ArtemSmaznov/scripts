@@ -5,35 +5,38 @@
 
 * Table of Contents :toc:
 - [[#grub-reboot-to-windows][GRUB Reboot to Windows]]
+- [[#dm-master][dm-master]]
+  - [[#setup][Setup]]
+  - [[#handling-input][Handling Input]]
 - [[#dm-notify][dm-notify]]
   - [[#dependencies][Dependencies]]
-  - [[#setup][Setup]]
+  - [[#setup-1][Setup]]
   - [[#functions][Functions]]
-  - [[#handling-input][Handling Input]]
+  - [[#handling-input-1][Handling Input]]
 - [[#dm-lock][dm-lock]]
   - [[#dependencies-1][Dependencies]]
-  - [[#setup-1][Setup]]
+  - [[#setup-2][Setup]]
   - [[#functions-1][Functions]]
 - [[#dm-power][dm-power]]
   - [[#dependencies-2][Dependencies]]
-  - [[#setup-2][Setup]]
+  - [[#setup-3][Setup]]
   - [[#functions-2][Functions]]
-  - [[#handling-input-1][Handling Input]]
+  - [[#handling-input-2][Handling Input]]
 - [[#dm-screenshot][dm-screenshot]]
   - [[#dependencies-3][Dependencies]]
-  - [[#setup-3][Setup]]
+  - [[#setup-4][Setup]]
   - [[#functions-3][Functions]]
-  - [[#handling-input-2][Handling Input]]
+  - [[#handling-input-3][Handling Input]]
 - [[#dm-record][dm-record]]
   - [[#dependencies-4][Dependencies]]
-  - [[#setup-4][Setup]]
+  - [[#setup-5][Setup]]
   - [[#functions-4][Functions]]
-  - [[#handling-input-3][Handling Input]]
+  - [[#handling-input-4][Handling Input]]
 - [[#dm-wallpaper][dm-wallpaper]]
   - [[#dependencies-5][Dependencies]]
-  - [[#setup-5][Setup]]
+  - [[#setup-6][Setup]]
   - [[#functions-5][Functions]]
-  - [[#handling-input-4][Handling Input]]
+  - [[#handling-input-5][Handling Input]]
 
 * GRUB Reboot to Windows
 To reboot to windows without having to interact with grub during boot time create an executable shell script that will switch grub next 1 boot to a named entry, in my case it is a custom entry "*Windows 10*", but by default it be something like "*Windows boot manager*" as created by =os-prober=.
@@ -52,6 +55,34 @@ If you want to call this from the Desktop Environment you may need to allow the 
 # /etc/sudoers.d/00-windows-reboot
 
 user ALL=(ALL) NOPASSWD: /home/user/.local/bin/winreboot
+#+end_src
+
+* dm-master
+** Setup
+#+begin_src shell :tangle dm-master :shebang #!/usr/bin/env bash
+declare -a options
+#+end_src
+
+Specify the location of dm-scripts
+#+begin_src shell :tangle dm-master
+dm_dir="$HOME/.local/bin/dmscripts"
+#+end_src
+
+Dmenu
+#+begin_src shell :tangle dm-master
+prompt="dm-script"
+options=($(ls $dm_dir --hide="*.*" --hide="dm-master"))
+#+end_src
+
+** Handling Input
+Present dmenu to user with options based on the available dmenu scripts
+=printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
+#+begin_src shell :tangle dm-master
+# Prompt the user
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+
+# Act on user selection
+[ $choice ] && $choice
 #+end_src
 
 * dm-notify

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+declare -a options
+
+dm_dir="$HOME/.local/bin/dmscripts"
+
+prompt="dm-script"
+options=($(ls $dm_dir --hide="*.*" --hide="dm-master"))
+
+# Prompt the user
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+
+# Act on user selection
+[ $choice ] && $choice
