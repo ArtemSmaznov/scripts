@@ -37,6 +37,11 @@
   - [[#setup-6][Setup]]
   - [[#functions-5][Functions]]
   - [[#handling-input-5][Handling Input]]
+- [[#dm-theme][dm-theme]]
+  - [[#setup-7][Setup]]
+  - [[#dmenu][DMenu]]
+  - [[#helper-functions][Helper Functions]]
+  - [[#handling-input-6][Handling Input]]
 
 * GRUB Reboot to Windows
 To reboot to windows without having to interact with grub during boot time create an executable shell script that will switch grub next 1 boot to a named entry, in my case it is a custom entry "*Windows 10*", but by default it be something like "*Windows boot manager*" as created by =os-prober=.
@@ -625,4 +630,159 @@ choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
 # Act on user selection
 [ $choice ] && setRandomWallpaper $choice
+#+end_src
+
+* dm-theme
+Changes the color scheme of all applications, configured in the [[#setup-7][Setup]] section,
+for a more unified look of your desktop environment. Each application needs to
+have themes configured/available for it to be affected, so a bit of manual work
+is still required in setting up available themes. Once that is done though,
+switching is effortless.
+
+Scrips does not handle extra steps a particular application might require to
+apply the theme (e.g. WM restart).
+
+** Setup
+#+begin_src shell :tangle dm-theme :shebang #!/usr/bin/env bash
+declare -A config t_path regexp readme
+anyThemeChanged=false
+#+end_src
+
+|---------------------+------------------------------------------------------------------------------------------------------|
+| =readme[]= (optional) | Path to Emacs's Org mode config                                                                      |
+| =config=              | Path to config where theme is set                                                                    |
+| =t_path=              | Path to the Themes/Colors directory                                                                  |
+| =regexp=              | Regex to update the theme name in the main config. Requires grouping before and after the theme name |
+|---------------------+------------------------------------------------------------------------------------------------------|
+
+*** Alacritty
+#+begin_src shell :tangle dm-theme
+config_path="$HOME/.config/alacritty"
+readme["alacritty"]="$config_path/README.org"
+config["alacritty"]="$config_path/alacritty.yml"
+t_path["alacritty"]="$config_path/themes"
+regexp["alacritty"]="\(- \~\/\.config\/alacritty\/themes\/\)\w\+\(\.yml\)"
+#+end_src
+
+*** Rofi
+#+begin_src shell :tangle dm-theme
+config_path="$HOME/.config/rofi"
+readme["rofi"]="$config_path/README.org"
+config["rofi"]="$config_path/config.rasi"
+t_path["rofi"]="$config_path/themes"
+regexp["rofi"]="\(\@import \"themes\/\)\w\+\(\.rasi\)"
+#+end_src
+
+*** Vimiv
+#+begin_src shell :tangle dm-theme
+config_path="$HOME/.config/vimiv"
+readme["vimiv"]="$config_path/README.org"
+config["vimiv"]="$config_path/vimiv.conf"
+t_path["vimiv"]="$config_path/styles"
+regexp["vimiv"]="\(style = \)\w\+\(\.conf\)"
+#+end_src
+
+*** qTile
+#+begin_src shell :tangle dm-theme
+config_path="$HOME/.config/qtile"
+config["qtile"]="$config_path/theme/default.py"
+t_path["qtile"]="$config_path/theme/colors"
+regexp["qtile"]="\(import theme\.colors\.\)\w\+\( as color\)"
+#+end_src
+
+*** QuteBrowser
+#+begin_src shell :tangle dm-theme
+config_path="$HOME/.config/qutebrowser"
+readme["qutebrowser"]="$config_path/README.org"
+config["qutebrowser"]="$config_path/config.py"
+t_path["qutebrowser"]="$config_path/colors"
+regexp["qutebrowser"]="\(import colors\.\)\w\+\( as theme\)"
+#+end_src
+
+*** STRT Xresources
+*** STRT ViFM
+*** TODO Vim
+*** TODO Emacs
+*** TODO GRUB
+** DMenu
+Options presented in DMenu are taken and combined from all the theme directories
+of target applications. This required all applications to have a separate
+directory with all the themes/color schemes. There is no need for a particular
+color scheme to be available for all the applications, as the script will check
+each one and skip any that don't have the selecting theme available.
+
+It is recommended to have the same color scheme files be named the same
+(excluding extensions) across applications. Otherwise, you will need to trigger
+the scrip multiple times to update all of your applications to the same color
+scheme.
+
+=grep= expression is excluding some of the the files that might exist in such
+folders (e.g. Python's =__pycache__=). Additionally, avoid having special
+characters in the names as well as (at least in my case) so of the applications
+use imports for selecting themes, which does not play nicely with non-plain file
+names.
+=awk= expression removed file extensions so avoid having extra dots in the file
+names of individual color schemes as it can break this script
+
+#+begin_src shell :tangle dm-theme
+prompt="Color Scheme"
+options=($(ls ${t_path[*]} | grep -v -e{"__",":$","^$"} | awk -F'.' '{print $1}' | sort -u))
+#+end_src
+
+** Helper Functions
+Checks if a particular application has the selected theme available so that the
+next function doesn't change any configs to non-existent themes.
+#+begin_src shell :tangle dm-theme
+themeIsAvailable() {
+    if [ ! $(ls -d ${t_path[$1]}/*$2* 2>/dev/null) ]; then
+        echo Warning: $2 color scheme not found in \[$1\] - theme not changed!
+        return 1; fi
+
+    return 0
+}
+#+end_src
+
+If an application has the selected theme available, this will change the defined
+config file (and optionally the Org mode config) to point to the new theme file.
+#+begin_src shell :tangle dm-theme
+change_app_theme() {
+    # Check first if the selected colorscheme exests for the particula app before changing the config
+    if ! themeIsAvailable $1 $2; then return; fi
+    sed -i "s/${regexp[$1]}/\1$2\2/" "${config[$1]}"
+    anyThemeChanged=true
+
+    # Check if README file was defined before attempting to change it
+    if [ ! $(echo "${readme[$1]}") ]; then return; fi
+    sed -i "s/${regexp[$1]}/\1$2\2/" "${readme[$1]}"
+}
+#+end_src
+
+Main function that is called by the script. It triggers theme switching and
+reports if none were updated.
+#+begin_src shell :tangle dm-theme
+set_global_theme() {
+    for app in ${!config[@]}; do change_app_theme ${app} $1; done
+    if ! $anyThemeChanged; then 
+        echo Error: $1 color scheme was not found in any of the apps - no themes were updated! 
+        exit 1
+    fi
+}
+#+end_src
+
+** Handling Input
+Check if any arguments were passed to the script to avoid triggering dmenu
+#+begin_src shell :tangle dm-theme
+if [ ! $# -eq 0 ]; then
+    set_global_theme $1
+#+end_src
+
+If no arguments were passed, present dmenu to user with options defined in the [[#dmenu-2][DMenu]] section
+#+begin_src shell :tangle dm-theme
+else
+    # Prompt the user
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+
+    # Act on user selection
+    if [ $choice ]; then set_global_theme $choice; fi
+fi
 #+end_src

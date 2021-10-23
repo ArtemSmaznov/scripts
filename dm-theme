@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+declare -A config t_path regexp readme
+anyThemeChanged=false
+
+config_path="$HOME/.config/alacritty"
+readme["alacritty"]="$config_path/README.org"
+config["alacritty"]="$config_path/alacritty.yml"
+t_path["alacritty"]="$config_path/themes"
+regexp["alacritty"]="\(- \~\/\.config\/alacritty\/themes\/\)\w\+\(\.yml\)"
+
+config_path="$HOME/.config/rofi"
+readme["rofi"]="$config_path/README.org"
+config["rofi"]="$config_path/config.rasi"
+t_path["rofi"]="$config_path/themes"
+regexp["rofi"]="\(\@import \"themes\/\)\w\+\(\.rasi\)"
+
+config_path="$HOME/.config/vimiv"
+readme["vimiv"]="$config_path/README.org"
+config["vimiv"]="$config_path/vimiv.conf"
+t_path["vimiv"]="$config_path/styles"
+regexp["vimiv"]="\(style = \)\w\+\(\.conf\)"
+
+config_path="$HOME/.config/qtile"
+config["qtile"]="$config_path/theme/default.py"
+t_path["qtile"]="$config_path/theme/colors"
+regexp["qtile"]="\(import theme\.colors\.\)\w\+\( as color\)"
+
+config_path="$HOME/.config/qutebrowser"
+readme["qutebrowser"]="$config_path/README.org"
+config["qutebrowser"]="$config_path/config.py"
+t_path["qutebrowser"]="$config_path/colors"
+regexp["qutebrowser"]="\(import colors\.\)\w\+\( as theme\)"
+
+prompt="Color Scheme"
+options=($(ls ${t_path[*]} | grep -v -e{"__",":$","^$"} | awk -F'.' '{print $1}' | sort -u))
+
+themeIsAvailable() {
+    if [ ! $(ls -d ${t_path[$1]}/*$2* 2>/dev/null) ]; then
+        echo Warning: $2 color scheme not found in \[$1\] - theme not changed!
+        return 1; fi
+
+    return 0
+}
+
+change_app_theme() {
+    # Check first if the selected colorscheme exests for the particula app before changing the config
+    if ! themeIsAvailable $1 $2; then return; fi
+    sed -i "s/${regexp[$1]}/\1$2\2/" "${config[$1]}"
+    anyThemeChanged=true
+
+    # Check if README file was defined before attempting to change it
+    if [ ! $(echo "${readme[$1]}") ]; then return; fi
+    sed -i "s/${regexp[$1]}/\1$2\2/" "${readme[$1]}"
+}
+
+set_global_theme() {
+    for app in ${!config[@]}; do change_app_theme ${app} $1; done
+    if ! $anyThemeChanged; then 
+        echo Error: $1 color scheme was not found in any of the apps - no themes were updated! 
+        exit 1
+    fi
+}
+
+if [ ! $# -eq 0 ]; then
+    set_global_theme $1
+
+else
+    # Prompt the user
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+
+    # Act on user selection
+    if [ $choice ]; then set_global_theme $choice; fi
+fi
