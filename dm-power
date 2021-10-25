@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-declare -a dmenu_options
+declare -a options
 
 # LOCKER="${LOCKER:-lock}"
 LOCKER="$HOME/.local/bin/dmscripts/dm-lock"
@@ -25,7 +25,7 @@ declare -a managers=(
     "qtile"
 )
 
-dmenu_prompt="Shutdown menu"
+prompt="Shutdown menu"
 declare -a options=(
     "Suspend"
     "Reboot"
@@ -50,7 +50,7 @@ execute_choice() {
 [ ! $# -eq 0 ] && execute_choice $1 && exit
 
 # Prompt the user
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
 case $choice in
     'Logout')

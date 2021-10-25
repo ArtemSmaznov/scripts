@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 declare -a options
 
-dmenu_prompt="Notifications"
+prompt="Notifications"
 options=(
     "Show recent"
     "Close"
@@ -29,7 +29,7 @@ execute_choice() {
 
 [ ! $# -eq 0 ] && execute_choice $1 && exit
 
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
 case $choice in
     'Show recent') execute_choice recents ;;

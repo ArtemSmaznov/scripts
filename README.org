@@ -7,10 +7,12 @@
 - [[#grub-reboot-to-windows][GRUB Reboot to Windows]]
 - [[#dm-master][dm-master]]
   - [[#setup][Setup]]
+  - [[#dmenu][Dmenu]]
   - [[#handling-input][Handling Input]]
 - [[#dm-notify][dm-notify]]
   - [[#dependencies][Dependencies]]
   - [[#setup-1][Setup]]
+  - [[#dmenu-1][DMenu]]
   - [[#functions][Functions]]
   - [[#handling-input-1][Handling Input]]
 - [[#dm-lock][dm-lock]]
@@ -20,26 +22,30 @@
 - [[#dm-power][dm-power]]
   - [[#dependencies-2][Dependencies]]
   - [[#setup-3][Setup]]
+  - [[#dmenu-2][DMenu]]
   - [[#functions-2][Functions]]
   - [[#handling-input-2][Handling Input]]
 - [[#dm-screenshot][dm-screenshot]]
   - [[#dependencies-3][Dependencies]]
   - [[#setup-4][Setup]]
+  - [[#dmenu-3][DMenu]]
   - [[#functions-3][Functions]]
   - [[#handling-input-3][Handling Input]]
 - [[#dm-record][dm-record]]
   - [[#dependencies-4][Dependencies]]
   - [[#setup-5][Setup]]
+  - [[#dmenu-4][DMenu]]
   - [[#functions-4][Functions]]
   - [[#handling-input-4][Handling Input]]
 - [[#dm-wallpaper][dm-wallpaper]]
   - [[#dependencies-5][Dependencies]]
   - [[#setup-6][Setup]]
+  - [[#dmenu-5][DMenu]]
   - [[#functions-5][Functions]]
   - [[#handling-input-5][Handling Input]]
 - [[#dm-theme][dm-theme]]
   - [[#setup-7][Setup]]
-  - [[#dmenu][DMenu]]
+  - [[#dmenu-6][DMenu]]
   - [[#helper-functions][Helper Functions]]
   - [[#handling-input-6][Handling Input]]
 
@@ -62,7 +68,9 @@ If you want to call this from the Desktop Environment you may need to allow the 
 user ALL=(ALL) NOPASSWD: /home/user/.local/bin/winreboot
 #+end_src
 
-* dm-master
+* TODO dm-master
+Not Working Yet!
+Trigger any dm-script
 ** Setup
 #+begin_src shell :tangle dm-master :shebang #!/usr/bin/env bash
 declare -a options
@@ -73,7 +81,7 @@ Specify the location of dm-scripts
 dm_dir="$HOME/.local/bin/dmscripts"
 #+end_src
 
-Dmenu
+** Dmenu
 #+begin_src shell :tangle dm-master
 prompt="dm-script"
 options=($(ls $dm_dir --hide="*.*" --hide="dm-master"))
@@ -106,9 +114,9 @@ Get the number of notifications
 declare -a options
 #+end_src
 
-DMenu
+** DMenu
 #+begin_src shell :tangle dm-notify
-dmenu_prompt="Notifications"
+prompt="Notifications"
 options=(
     "Show recent"
     "Close"
@@ -147,7 +155,7 @@ Execute script without presenting dmenu to the user if any argument was passed
 Present dmenu to user with options defined in the [[#dmenu][DMenu]] section
 =printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
 #+begin_src shell :tangle dm-notify
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 #+end_src
 
 What to do when/if we choose one of the options.
@@ -161,7 +169,7 @@ esac
 #+end_src
 
 * dm-lock
-Trigger lock-screen/screen-saver
+Trigger lock screen / screen saver
 ** Dependencies
 |--------------+---------|
 | App          | Comment |
@@ -213,7 +221,7 @@ i3lock \
 #+end_src
 
 * dm-power
-Logout, shutdown, reboot or lock screen
+Power controls (Suspend, Reboot, Shutdown, etc.)
 ** Dependencies
 |--------------+-------------------------|
 | App          | Comment                 |
@@ -225,7 +233,7 @@ Logout, shutdown, reboot or lock screen
 |--------------+-------------------------|
 ** Setup
 #+begin_src shell :tangle dm-power :shebang #!/usr/bin/env bash
-declare -a dmenu_options
+declare -a options
 #+end_src
 
 Define =LOCKER= in =.xprofile= to set to different locker program
@@ -255,9 +263,9 @@ declare -a managers=(
 )
 #+end_src
 
-DMenu
+** DMenu
 #+begin_src shell :tangle dm-power
-dmenu_prompt="Shutdown menu"
+prompt="Shutdown menu"
 declare -a options=(
     "Suspend"
     "Reboot"
@@ -294,7 +302,7 @@ Present dmenu to user with options defined in the [[#dmenu-1][DMenu]] section
 =printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
 #+begin_src shell :tangle dm-power
 # Prompt the user
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${dmenu_prompt}")
+choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 #+end_src
 
 What to do when/if we choose one of the options.
@@ -348,7 +356,7 @@ esac
 #+end_src
 
 * dm-screenshot
-Take a screenshot
+Take screenshots
 ** Dependencies
 |-------------+-------------------|
 | App         | Comment           |
@@ -366,7 +374,7 @@ Take a screenshot
 # get hidden bugs that are hard to discover.
 set -euo pipefail
 
-declare -a dmenu_options
+declare -a options
 #+end_src
 
 Specifying a directory to save our screenshots and make sure it exists
@@ -399,7 +407,7 @@ done
 unset IFS
 #+end_src
 
-DMenu
+** DMenu
 #+begin_src shell :tangle dm-screenshot
 prompt="Select what to screenshot"
 options=(
@@ -472,7 +480,7 @@ Tracking process
 rec_proc="/tmp/recordingpid"
 #+end_src
 
-DMenu
+** DMenu
 #+begin_src shell :tangle dm-record
 prompt="Record"
 options=(
@@ -564,7 +572,7 @@ Set random wallpapers
 
 ** Setup
 #+begin_src shell :tangle dm-wallpaper :shebang #!/usr/bin/env bash
-declare -a dmenu_options
+declare -a options
 #+end_src
 
 Specifying a directory with wallpapers and make sure it exists
@@ -584,7 +592,7 @@ Get the number of connected screens
 screens=$(xrandr | grep -e "\sconnected" | wc -l)
 #+end_src
 
-DMenu
+** DMenu
 #+begin_src shell :tangle dm-wallpaper
 prompt="Wallpaper Category"
 options=($(ls $wall_dir --hide="*.*"))
@@ -633,10 +641,10 @@ choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 #+end_src
 
 * dm-theme
-Changes the color scheme of all applications, configured in the [[#setup-7][Setup]] section,
-for a more unified look of your desktop environment. Each application needs to
-have themes configured/available for it to be affected, so a bit of manual work
-is still required in setting up available themes. Once that is done though,
+Change color scheme of all applications (configured in the [[#setup-7][Setup]] section) for a
+more unified look of your desktop environment. Each application needs to have
+themes configured/available for it to be affected, so a bit of manual work is
+still required in setting up available themes. Once that is done though,
 switching is effortless.
 
 Scrips does not handle extra steps a particular application might require to
@@ -648,12 +656,14 @@ declare -A config t_path regexp readme
 anyThemeChanged=false
 #+end_src
 
-|---------------------+------------------------------------------------------------------------------------------------------|
-| =readme[]= (optional) | Path to Emacs's Org mode config                                                                      |
-| =config=              | Path to config where theme is set                                                                    |
-| =t_path=              | Path to the Themes/Colors directory                                                                  |
-| =regexp=              | Regex to update the theme name in the main config. Requires grouping before and after the theme name |
-|---------------------+------------------------------------------------------------------------------------------------------|
+|-------------------+------------------------------------------------------------------------------------------------------|
+| Parameter         | Description                                                                                          |
+|-------------------+------------------------------------------------------------------------------------------------------|
+| =readme= (optional) | Path to Emacs's Org mode config                                                                      |
+| =config=            | Path to config where theme is set                                                                    |
+| =t_path=            | Path to the Themes/Colors directory                                                                  |
+| =regexp=            | Regex to update the theme name in the main config. Requires grouping before and after the theme name |
+|-------------------+------------------------------------------------------------------------------------------------------|
 
 *** Alacritty
 #+begin_src shell :tangle dm-theme
@@ -721,7 +731,8 @@ folders (e.g. Python's =__pycache__=). Additionally, avoid having special
 characters in the names as well as (at least in my case) so of the applications
 use imports for selecting themes, which does not play nicely with non-plain file
 names.
-=awk= expression removed file extensions so avoid having extra dots in the file
+
+=awk= expression removes file extensions so avoid having extra dots in the file
 names of individual color schemes as it can break this script
 
 #+begin_src shell :tangle dm-theme

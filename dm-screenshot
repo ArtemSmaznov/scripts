@@ -4,7 +4,7 @@
 # get hidden bugs that are hard to discover.
 set -euo pipefail
 
-declare -a dmenu_options
+declare -a options
 
 screen_dir="$(xdg-user-dir PICTURES)/screenshots"
 mkdir -p "${screen_dir}"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-declare -a dmenu_options
+declare -a options
 
 wall_dir="$HOME/Pictures/wallpapers"
 mkdir -p "${wall_dir}"
