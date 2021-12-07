@@ -726,13 +726,22 @@ t_path["qtile"]="$config_path/theme/colors"
 regexp["qtile"]="\(import theme\.colors\.\)\w\+\( as color\)"
 #+end_src
 
+*** STRT XMonad
+There are some errors in the terminal when selecting Gruvbox ones but not the Dracula color scheme
+#+begin_src shell :tangle dm-theme
+config_path="$HOME/.xmonad"
+readme["xmonad"]="$config_path/README.org"
+config["xmonad"]="$config_path/xmonad.hs"
+t_path["xmonad"]="$config_path/lib/Colors"
+regexp["xmonad"]="\(import Colors\.\)\w\+\(\)"
+#+end_src
+
 *** QuteBrowser
 #+begin_src shell :tangle dm-theme
 config_path="$HOME/.config/qutebrowser"
-readme["qutebrowser"]="$config_path/README.org"
-config["qutebrowser"]="$config_path/config.py"
+config["qutebrowser"]="$config_path/themes/default.py"
 t_path["qutebrowser"]="$config_path/colors"
-regexp["qutebrowser"]="\(import colors\.\)\w\+\( as theme\)"
+regexp["qutebrowser"]="\(import colors\.\)\w\+\( as color\)"
 #+end_src
 
 *** STRT Xresources

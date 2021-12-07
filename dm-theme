@@ -25,11 +25,16 @@ config["qtile"]="$config_path/theme/default.py"
 t_path["qtile"]="$config_path/theme/colors"
 regexp["qtile"]="\(import theme\.colors\.\)\w\+\( as color\)"
 
+config_path="$HOME/.xmonad"
+readme["xmonad"]="$config_path/README.org"
+config["xmonad"]="$config_path/xmonad.hs"
+t_path["xmonad"]="$config_path/lib/Colors"
+regexp["xmonad"]="\(import Colors\.\)\w\+\(\)"
+
 config_path="$HOME/.config/qutebrowser"
-readme["qutebrowser"]="$config_path/README.org"
-config["qutebrowser"]="$config_path/config.py"
+config["qutebrowser"]="$config_path/themes/default.py"
 t_path["qutebrowser"]="$config_path/colors"
-regexp["qutebrowser"]="\(import colors\.\)\w\+\( as theme\)"
+regexp["qutebrowser"]="\(import colors\.\)\w\+\( as color\)"
 
 prompt="Color Scheme"
 options=($(ls ${t_path[*]} | grep -v -e{"__",":$","^$"} | awk -F'.' '{print $1}' | sort -u))
