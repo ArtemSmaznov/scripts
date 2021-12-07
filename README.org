@@ -171,11 +171,28 @@ esac
 * dm-lock
 Trigger lock screen / screen saver
 ** Dependencies
-|--------------+---------|
-| App          | Comment |
-|--------------+---------|
-| i3lock-color |         |
-|--------------+---------|
+|--------------+------------------------------|
+| App          | Comment                      |
+|--------------+------------------------------|
+| =i3lock-color= | Screen Locker                |
+| =xss-lock=     | Auto trigger external locker |
+|--------------+------------------------------|
+
+** Xorg config
+Configure =/etc/X11/xorg.conf.d/10-monitor.conf=
+#+begin_example conf
+Section "Monitor"
+    Identifier     "Monitor0"
+    Option         "DPMS" "true"
+EndSection
+
+Section "ServerFlags"
+    Option "StandbyTime" "20"
+    Option "SuspendTime" "60"
+    Option "OffTime" "0"
+    Option "BlankTime" "0"
+EndSection
+#+end_example
 
 ** Setup
 #+begin_src shell :tangle dm-lock :shebang #!/bin/sh
@@ -190,6 +207,15 @@ wrong='#fb4934bb'
 verifying='#b8bb26cb'
 type='#d65d0e'
 delete='#cc241d'
+#+end_src
+
+** DMenu
+#+begin_src shell :tangle dm-lock
+prompt="Lock Screen"
+options=(
+    "lock"
+    "daemon"
+)
 #+end_src
 
 ** Functions
@@ -217,7 +243,7 @@ i3lock \
     --keyhl-color=$type --bshl-color=$delete \
     --ring-color=$default      --inside-color=$blank        \
     --ringver-color=$verifying --insidever-color=$verifying --verif-color=$dark          \
-    --ringwrong-color=$wrong   --insidewrong-color=$wrong   --wrong-color=$dark          \
+    --ringwrong-color=$wrong   --insidewrong-color=$wrong   --wrong-color=$dark
 #+end_src
 
 * dm-power

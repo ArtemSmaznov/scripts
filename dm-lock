@@ -11,6 +11,12 @@ verifying='#b8bb26cb'
 type='#d65d0e'
 delete='#cc241d'
 
+prompt="Lock Screen"
+options=(
+    "lock"
+    "daemon"
+)
+
 i3lock \
     --clock \
     --screen 1 \
@@ -33,4 +39,4 @@ i3lock \
     --keyhl-color=$type --bshl-color=$delete \
     --ring-color=$default      --inside-color=$blank        \
     --ringver-color=$verifying --insidever-color=$verifying --verif-color=$dark          \
-    --ringwrong-color=$wrong   --insidewrong-color=$wrong   --wrong-color=$dark          \
+    --ringwrong-color=$wrong   --insidewrong-color=$wrong   --wrong-color=$dark
