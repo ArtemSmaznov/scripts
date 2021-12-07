@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+lang=$(setxkbmap -query | awk 'END{print $2}')
+
+next_lang() {
+    case $lang in
+        us) setxkbmap ru;;
+        ru) setxkbmap us;;
+        *) setxkbmap us;;
+    esac
+}
+
+set_lang() {
+    setxkbmap $1
+}
+
+if [ ! $# -eq 0 ]; then
+    set_lang $1
+
+else
+    next_lang
+fi

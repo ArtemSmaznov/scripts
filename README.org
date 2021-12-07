@@ -17,37 +17,44 @@
   - [[#handling-input-1][Handling Input]]
 - [[#dm-lock][dm-lock]]
   - [[#dependencies-1][Dependencies]]
+  - [[#xorg-config][Xorg config]]
   - [[#setup-2][Setup]]
+  - [[#dmenu-2][DMenu]]
   - [[#functions-1][Functions]]
 - [[#dm-power][dm-power]]
   - [[#dependencies-2][Dependencies]]
   - [[#setup-3][Setup]]
-  - [[#dmenu-2][DMenu]]
+  - [[#dmenu-3][DMenu]]
   - [[#functions-2][Functions]]
   - [[#handling-input-2][Handling Input]]
 - [[#dm-screenshot][dm-screenshot]]
   - [[#dependencies-3][Dependencies]]
   - [[#setup-4][Setup]]
-  - [[#dmenu-3][DMenu]]
+  - [[#dmenu-4][DMenu]]
   - [[#functions-3][Functions]]
   - [[#handling-input-3][Handling Input]]
 - [[#dm-record][dm-record]]
   - [[#dependencies-4][Dependencies]]
   - [[#setup-5][Setup]]
-  - [[#dmenu-4][DMenu]]
+  - [[#dmenu-5][DMenu]]
   - [[#functions-4][Functions]]
   - [[#handling-input-4][Handling Input]]
 - [[#dm-wallpaper][dm-wallpaper]]
   - [[#dependencies-5][Dependencies]]
+  - [[#test][Test]]
   - [[#setup-6][Setup]]
-  - [[#dmenu-5][DMenu]]
+  - [[#dmenu-6][DMenu]]
   - [[#functions-5][Functions]]
   - [[#handling-input-5][Handling Input]]
 - [[#dm-theme][dm-theme]]
   - [[#setup-7][Setup]]
-  - [[#dmenu-6][DMenu]]
+  - [[#dmenu-7][DMenu]]
   - [[#helper-functions][Helper Functions]]
   - [[#handling-input-6][Handling Input]]
+- [[#dm-lang][dm-lang]]
+  - [[#setup-8][Setup]]
+  - [[#helper-functions-1][Helper Functions]]
+  - [[#handling-input-7][Handling Input]]
 
 * GRUB Reboot to Windows
 To reboot to windows without having to interact with grub during boot time create an executable shell script that will switch grub next 1 boot to a named entry, in my case it is a custom entry "*Windows 10*", but by default it be something like "*Windows boot manager*" as created by =os-prober=.
@@ -830,5 +837,39 @@ else
 
     # Act on user selection
     if [ $choice ]; then set_global_theme $choice; fi
+fi
+#+end_src
+
+* dm-lang
+** Setup
+#+begin_src shell :tangle dm-lang :shebang #!/usr/bin/env bash
+lang=$(setxkbmap -query | awk 'END{print $2}')
+#+end_src
+
+** Helper Functions
+#+begin_src shell :tangle dm-lang
+next_lang() {
+    case $lang in
+        us) setxkbmap ru;;
+        ru) setxkbmap us;;
+        ,*) setxkbmap us;;
+    esac
+}
+
+set_lang() {
+    setxkbmap $1
+}
+#+end_src
+
+** Handling Input
+Check if any arguments were passed to the script to avoid triggering dmenu
+#+begin_src shell :tangle dm-lang
+if [ ! $# -eq 0 ]; then
+    set_lang $1
+#+end_src
+
+#+begin_src shell :tangle dm-lang
+else
+    next_lang
 fi
 #+end_src
