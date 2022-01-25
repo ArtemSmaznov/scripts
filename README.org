@@ -391,14 +391,16 @@ esac
 * dm-screenshot
 Take screenshots
 ** Dependencies
-|-------------+-------------------|
-| App         | Comment           |
-|-------------+-------------------|
-| =rofi -dmenu= | Triggers dmenu    |
-| =xrandr=      | Screen management |
-| =main=        | Screenshot tool   |
-| =xdotool=     | Get active window |
-|-------------+-------------------|
+|-----------------+--------------------|
+| App             | Comment            |
+|-----------------+--------------------|
+| =rofi -dmenu=     | Triggers dmenu     |
+| =maim=            | Screenshot tool    |
+| =xrandr=          | Screen management  |
+| =xdotool=         | Get active window  |
+| =xclip= / =wl-copy= | Save to clipboard  |
+| =paplay=          | Play shutter sound |
+|-----------------+--------------------|
 
 ** Setup
 #+begin_src shell :tangle dm-screenshot :shebang #!/usr/bin/env bash
@@ -406,7 +408,6 @@ Take screenshots
 # if certain things happen, which is a good thing.  Otherwise, we can
 # get hidden bugs that are hard to discover.
 set -euo pipefail
-
 declare -a options
 #+end_src
 
@@ -421,6 +422,24 @@ Filename Time Stamp Format
 timestamp='+%Y-%m-%d_%T'
 #+end_src
 
+Shutter sound file
+#+begin_src shell :tangle dm-screenshot
+shutter="/usr/share/sounds/freedesktop/stereo/camera-shutter.oga" 
+#+end_src
+
+** DMenu
+#+begin_src shell :tangle dm-screenshot
+prompt="Select what to screenshot"
+options=(
+    "full"
+    "screen"
+    "window"
+    "area"
+)
+#+end_src
+
+** Functions
+*** Monitors
 Get monitors and their settings for maim
 #+begin_src shell :tangle dm-screenshot
 displays=$(xrandr --listactivemonitors | grep '+' | awk '{print $4, $3}' | awk -F'[x/+* ]' '{print $1,$2"x"$4"+"$6"+"$7}')
@@ -440,43 +459,70 @@ done
 unset IFS
 #+end_src
 
-** DMenu
+*** Timestamp
 #+begin_src shell :tangle dm-screenshot
-prompt="Select what to screenshot"
-options=(
-    "full"
-    "screen"
-    "window"
-    "area"
-)
+getTimeStamp() {
+    date "$timestamp"
+}
 #+end_src
 
-** Functions
+*** Active Window
 #+begin_src shell :tangle dm-screenshot
-main_args=""
+getActiveWindow() {
+    xdotool getactivewindow
+}
+#+end_src
 
-takeScreenshot() {
+*** Clipboard
+#+begin_src shell :tangle dm-screenshot
+saveToClipboard() {
+    case "$XDG_SESSION_TYPE" in
+        'x11') xclip -selection clipboard -t image/png;;
+        'wayland') wl-copy -t image/png;;
+        ,*) err "Unknown display server";;
+    esac
+}
+#+end_src
+
+*** Main
+#+begin_src shell :tangle dm-screenshot
+main() {
+    local maim_args=""
+
     case $1 in
-        full) main_args="-u -m 1";;
-        screen) main_args="-u -g ${display_mode['DVI-D-0']} -m 1";;
-        window) main_args="-u -B -i $(xdotool getactivewindow) -m 1" ;;
-        area) main_args="-u -B -s -n -m 1";;
+        full) 
+            message="Full desktop"
+        ;;
+        screen) 
+            maim_args="--geometry=${display_mode['DVI-D-0']}"
+            message="Main monitor"
+        ;;
+        window) 
+            maim_args="--capturebackground -i $(getActiveWindow)" 
+            message="Active window"
+        ;;
+        area) 
+            maim_args="--capturebackground --select -n"
+            message="Area selection"
+        ;;
         ,*)
             echo -e "Only the following arguments are accepted:\n"
             printf '%s\n' "${options[@]}"
-            ;;
+            exit 1
+        ;;
     esac
 
-    if [[ $main_args == "" ]]; then return; fi
-    
-    maim ${main_args} "${screen_dir}/$(date $timestamp).png" || exit
+    file_name="screenshot-$(getTimeStamp).png"
+
+    maim -u ${maim_args} | tee "${screen_dir}/$file_name" | saveToClipboard || exit 1
+    paplay "$shutter" & notify-send "Screenshot saved!" "$message"
 }
 #+end_src
 
 ** Handling Input
 Execute script without presenting dmenu to the user if any argument was passed
 #+begin_src shell :tangle dm-screenshot
-[ ! $# -eq 0 ] && takeScreenshot $1 && exit
+[ ! $# -eq 0 ] && main $1 && exit
 #+end_src
 
 Present dmenu to user with options defined in the [[#dmenu-2][DMenu]] section
@@ -486,7 +532,7 @@ Present dmenu to user with options defined in the [[#dmenu-2][DMenu]] section
 choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
 # Act on user selection
-[ $choice ] && takeScreenshot $choice
+[ $choice ] && main $choice
 #+end_src
 
 * dm-record
@@ -602,6 +648,28 @@ Set random wallpapers
 | =xrandr=      | Screen management    |
 | =nitrogen=    | Wallpaper management |
 |-------------+----------------------|
+
+** Test
+#+begin_src shell :tangle dm-test :shebang #!/usr/bin/env bash
+wall_dir="$HOME/Pictures/wallpapers"
+test_dir="$wall_dir/gruvbox/*"
+
+getWallpaperByTag() {
+    for f in $test_dir; do
+        match=$(exiftool $f | grep Keywords | awk -F': ' '{print $2}' | grep "$1")
+        if [ "$match" ]; then
+            echo $f
+        fi
+    done
+}
+
+whole_list() {
+    exiftool $test_dir | grep -e "File Name" -e Keywords | awk -F': ' '{print $2}'
+}
+
+# getWallpaperByTag Logo
+whole_list
+#+end_src
 
 ** Setup
 #+begin_src shell :tangle dm-wallpaper :shebang #!/usr/bin/env bash
