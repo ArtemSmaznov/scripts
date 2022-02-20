@@ -2,7 +2,7 @@
 declare -a options
 
 # LOCKER="${LOCKER:-lock}"
-LOCKER="$HOME/.local/bin/dmscripts/dm-lock"
+LOCKER="$HOME/.local/bin/dm-scripts/dm-lock"
 # LOCKER="xscreensaver-command -lock"
 
 # use notify-send if run in dumb term

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 declare -a options
 
-dm_dir="$HOME/.local/bin/dmscripts"
+dm_dir="$HOME/.local/bin/dm-scripts"
 
 prompt="dm-script"
 options=($(ls $dm_dir --hide="*.*" --hide="dm-master"))

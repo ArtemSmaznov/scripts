@@ -1,4 +1,4 @@
-#+TITLE: dmscripts
+#+TITLE: dm-scripts
 #+AUTHOR: Artem Smaznov
 #+DESCRIPTION: A collection of dmenu scripts
 #+STARTUP: overview
@@ -85,7 +85,7 @@ declare -a options
 
 Specify the location of dm-scripts
 #+begin_src shell :tangle dm-master
-dm_dir="$HOME/.local/bin/dmscripts"
+dm_dir="$HOME/.local/bin/dm-scripts"
 #+end_src
 
 ** Dmenu
@@ -272,7 +272,7 @@ declare -a options
 Define =LOCKER= in =.xprofile= to set to different locker program
 #+begin_src shell :tangle dm-power
 # LOCKER="${LOCKER:-lock}"
-LOCKER="$HOME/.local/bin/dmscripts/dm-lock"
+LOCKER="$HOME/.local/bin/dm-scripts/dm-lock"
 # LOCKER="xscreensaver-command -lock"
 
 # use notify-send if run in dumb term
@@ -911,13 +911,13 @@ fi
 * dm-lang
 ** Setup
 #+begin_src shell :tangle dm-lang :shebang #!/usr/bin/env bash
-lang=$(setxkbmap -query | awk 'END{print $2}')
+current_lang=$(setxkbmap -query | awk 'END{print $2}')
 #+end_src
 
 ** Helper Functions
 #+begin_src shell :tangle dm-lang
 next_lang() {
-    case $lang in
+    case $current_lang in
         us) setxkbmap ru;;
         ru) setxkbmap us;;
         ,*) setxkbmap us;;

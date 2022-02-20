@@ -76,7 +76,7 @@ main() {
     esac
 
     file_name="screenshot-$(getTimeStamp).png"
-    
+
     maim -u ${maim_args} | tee "${screen_dir}/$file_name" | saveToClipboard || exit 1
     paplay "$shutter" & notify-send "Screenshot saved!" "$message"
 }

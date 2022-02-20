@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-lang=$(setxkbmap -query | awk 'END{print $2}')
+current_lang=$(setxkbmap -query | awk 'END{print $2}')
 
 next_lang() {
-    case $lang in
+    case $current_lang in
         us) setxkbmap ru;;
         ru) setxkbmap us;;
         *) setxkbmap us;;
