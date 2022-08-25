@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
+rec_proc="/tmp/recordingpid"
+
 record_dir="$(xdg-user-dir VIDEOS)/recordings"
-resolution='1920x1080'
 timestamp='+%Y-%m-%d_%T'
+
+resolution='1920x1080'
 fps='30'
 
-rec_proc="/tmp/recordingpid"
+audio_device='alsa_output.usb-Focusrite_Scarlett_2i2_USB_Y86EP6H211E46C-00.analog-stereo.monitor'
 
 prompt="Record"
 options=(
@@ -20,7 +23,7 @@ yesno() {
 start_recording() {
     case "$1" in
         Screen) screen_capture;;
-        Audio) echo audio;;
+        Audio) audio_capture;;
         Camera) echo camera;;
         *) echo Invalid input;;
     esac
@@ -39,12 +42,19 @@ stop_recording() {
     exit
 }
 
-# check audio sources with pactl list sources | grep Name
+audio_capture() {
+    ffmpeg \
+        -f pulse -ac 2 -i $audio_device \
+        -codec:a copy \
+        $record_dir/dm-$(date $timestamp).wav &
+    echo $! > $rec_proc
+}
+
 screen_capture() {
     ffmpeg \
         -video_size $resolution -framerate $fps \
         -f x11grab -i "$DISPLAY" \
-        -f pulse -ac 2 -i alsa_output.usb-Focusrite_Scarlett_2i2_USB_Y86EP6H211E46C-00.analog-stereo.monitor \
+        -f pulse -ac 2 -i $audio_device \
         -codec:v libx264 -preset ultrafast \
         -codec:a copy \
         $record_dir/dm-$(date $timestamp).mkv &
