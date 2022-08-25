@@ -76,20 +76,23 @@ user ALL=(ALL) NOPASSWD: /home/user/.local/bin/winreboot
 #+end_src
 
 * TODO dm-master
+:PROPERTIES:
+:header-args: :tangle dm-master
+:END:
 Not Working Yet!
 Trigger any dm-script
 ** Setup
-#+begin_src shell :tangle dm-master :shebang #!/usr/bin/env bash
+#+begin_src shell :shebang #!/usr/bin/env bash
 declare -a options
 #+end_src
 
 Specify the location of dm-scripts
-#+begin_src shell :tangle dm-master
+#+begin_src shell
 dm_dir="$HOME/.local/bin/dm-scripts"
 #+end_src
 
 ** Dmenu
-#+begin_src shell :tangle dm-master
+#+begin_src shell
 prompt="dm-script"
 options=($(ls $dm_dir --hide="*.*" --hide="dm-master"))
 #+end_src
@@ -97,7 +100,7 @@ options=($(ls $dm_dir --hide="*.*" --hide="dm-master"))
 ** Handling Input
 Present dmenu to user with options based on the available dmenu scripts
 =printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
-#+begin_src shell :tangle dm-master
+#+begin_src shell
 # Prompt the user
 choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
@@ -106,6 +109,9 @@ choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 #+end_src
 
 * dm-notify
+:PROPERTIES:
+:header-args: :tangle dm-notify
+:END:
 Manage notifications
 ** Dependencies
 |-------------+---------------------|
@@ -117,12 +123,12 @@ Manage notifications
 
 ** Setup
 Get the number of notifications
-#+begin_src shell :tangle dm-notify :shebang #!/usr/bin/env bash
+#+begin_src shell :shebang #!/usr/bin/env bash
 declare -a options
 #+end_src
 
 ** DMenu
-#+begin_src shell :tangle dm-notify
+#+begin_src shell
 prompt="Notifications"
 options=(
     "Show recent"
@@ -133,7 +139,7 @@ options=(
 #+end_src
 
 ** Functions
-#+begin_src shell :tangle dm-notify
+#+begin_src shell
 notif_count_history=$(dunstctl count history)
 notif_count_displayed=$(dunstctl count displayed)
 notif_count_wait=$(dunstctl count waiting)
@@ -155,18 +161,18 @@ execute_choice() {
 
 ** Handling Input
 Execute script without presenting dmenu to the user if any argument was passed
-#+begin_src shell :tangle dm-notify
+#+begin_src shell
 [ ! $# -eq 0 ] && execute_choice $1 && exit
 #+end_src
 
 Present dmenu to user with options defined in the [[#dmenu][DMenu]] section
 =printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
-#+begin_src shell :tangle dm-notify
+#+begin_src shell
 choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 #+end_src
 
 What to do when/if we choose one of the options.
-#+begin_src shell :tangle dm-notify
+#+begin_src shell
 case $choice in
     'Show recent') execute_choice recents ;;
     'Close') execute_choice close ;;
@@ -176,6 +182,9 @@ esac
 #+end_src
 
 * dm-lock
+:PROPERTIES:
+:header-args: :tangle dm-lock
+:END:
 Trigger lock screen / screen saver
 ** Dependencies
 |--------------+------------------------------|
@@ -202,7 +211,7 @@ EndSection
 #+end_example
 
 ** Setup
-#+begin_src shell :tangle dm-lock :shebang #!/bin/sh
+#+begin_src shell :shebang #!/bin/sh
 time_format='%l:%M %p'
 date_format='%d %b, %Y'
 
@@ -217,7 +226,7 @@ delete='#cc241d'
 #+end_src
 
 ** DMenu
-#+begin_src shell :tangle dm-lock
+#+begin_src shell
 prompt="Lock Screen"
 options=(
     "lock"
@@ -227,7 +236,7 @@ options=(
 
 ** Functions
 For debugging purposes add =--no-verif=
-#+begin_src shell :tangle dm-lock
+#+begin_src shell
 i3lock \
     --clock \
     --screen 1 \
@@ -254,6 +263,9 @@ i3lock \
 #+end_src
 
 * dm-power
+:PROPERTIES:
+:header-args: :tangle dm-power
+:END:
 Power controls (Suspend, Reboot, Shutdown, etc.)
 ** Dependencies
 |--------------+-------------------------|
@@ -265,12 +277,12 @@ Power controls (Suspend, Reboot, Shutdown, etc.)
 | =notify-send=  | Trigger a notifications |
 |--------------+-------------------------|
 ** Setup
-#+begin_src shell :tangle dm-power :shebang #!/usr/bin/env bash
+#+begin_src shell :shebang #!/usr/bin/env bash
 declare -a options
 #+end_src
 
 Define =LOCKER= in =.xprofile= to set to different locker program
-#+begin_src shell :tangle dm-power
+#+begin_src shell
 # LOCKER="${LOCKER:-lock}"
 LOCKER="$HOME/.local/bin/dm-scripts/dm-lock"
 # LOCKER="xscreensaver-command -lock"
@@ -297,7 +309,7 @@ declare -a managers=(
 #+end_src
 
 ** DMenu
-#+begin_src shell :tangle dm-power
+#+begin_src shell
 prompt="Shutdown menu"
 declare -a options=(
     "Suspend"
@@ -312,7 +324,7 @@ declare -a options=(
 
 ** Functions
 Check [[#grub-reboot-to-windows][GRUB Reboot to Windows]] for the =winreboot= script setup
-#+begin_src shell :tangle dm-power
+#+begin_src shell
 execute_choice() {
     if [[ $1 == 'lock' ]]; then ${LOCKER}
     elif [[ $1 == 'reboot' ]]; then systemctl reboot
@@ -327,19 +339,19 @@ execute_choice() {
 
 ** Handling Input
 Execute script without presenting dmenu to the user if any argument was passed
-#+begin_src shell :tangle dm-power
+#+begin_src shell
 [ ! $# -eq 0 ] && execute_choice $1 && exit
 #+end_src
 
 Present dmenu to user with options defined in the [[#dmenu-1][DMenu]] section
 =printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
-#+begin_src shell :tangle dm-power
+#+begin_src shell
 # Prompt the user
 choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 #+end_src
 
 What to do when/if we choose one of the options.
-#+begin_src shell :tangle dm-power
+#+begin_src shell
 case $choice in
     'Logout')
         if [[ $(yesno "Logout?") == "Yes" ]]; then
@@ -389,6 +401,9 @@ esac
 #+end_src
 
 * dm-screenshot
+:PROPERTIES:
+:header-args: :tangle dm-screenshot
+:END:
 Take screenshots
 ** Dependencies
 |-----------------+--------------------|
@@ -403,7 +418,7 @@ Take screenshots
 |-----------------+--------------------|
 
 ** Setup
-#+begin_src shell :tangle dm-screenshot :shebang #!/usr/bin/env bash
+#+begin_src shell :shebang #!/usr/bin/env bash
 # Set with the flags "-e", "-u","-o pipefail" cause the script to fail
 # if certain things happen, which is a good thing.  Otherwise, we can
 # get hidden bugs that are hard to discover.
@@ -412,23 +427,23 @@ declare -a options
 #+end_src
 
 Specifying a directory to save our screenshots and make sure it exists
-#+begin_src shell :tangle dm-screenshot
+#+begin_src shell
 screen_dir="$(xdg-user-dir PICTURES)/screenshots"
 mkdir -p "${screen_dir}"
 #+end_src
 
 Filename Time Stamp Format
-#+begin_src shell :tangle dm-screenshot
+#+begin_src shell
 timestamp='+%Y-%m-%d_%T'
 #+end_src
 
 Shutter sound file
-#+begin_src shell :tangle dm-screenshot
+#+begin_src shell
 shutter="/usr/share/sounds/freedesktop/stereo/camera-shutter.oga" 
 #+end_src
 
 ** DMenu
-#+begin_src shell :tangle dm-screenshot
+#+begin_src shell
 prompt="Select what to screenshot"
 options=(
     "full"
@@ -441,12 +456,12 @@ options=(
 ** Functions
 *** Monitors
 Get monitors and their settings for maim
-#+begin_src shell :tangle dm-screenshot
+#+begin_src shell
 displays=$(xrandr --listactivemonitors | grep '+' | awk '{print $4, $3}' | awk -F'[x/+* ]' '{print $1,$2"x"$4"+"$6"+"$7}')
 #+end_src
 
 Add monitor data
-#+begin_src shell :tangle dm-screenshot
+#+begin_src shell
 IFS=$'\n'
 declare -A display_mode
 
@@ -460,21 +475,21 @@ unset IFS
 #+end_src
 
 *** Timestamp
-#+begin_src shell :tangle dm-screenshot
+#+begin_src shell
 getTimeStamp() {
     date "$timestamp"
 }
 #+end_src
 
 *** Active Window
-#+begin_src shell :tangle dm-screenshot
+#+begin_src shell
 getActiveWindow() {
     xdotool getactivewindow
 }
 #+end_src
 
 *** Clipboard
-#+begin_src shell :tangle dm-screenshot
+#+begin_src shell
 saveToClipboard() {
     case "$XDG_SESSION_TYPE" in
         'x11') xclip -selection clipboard -t image/png;;
@@ -485,7 +500,7 @@ saveToClipboard() {
 #+end_src
 
 *** Main
-#+begin_src shell :tangle dm-screenshot
+#+begin_src shell
 main() {
     local maim_args=""
 
@@ -521,13 +536,13 @@ main() {
 
 ** Handling Input
 Execute script without presenting dmenu to the user if any argument was passed
-#+begin_src shell :tangle dm-screenshot
+#+begin_src shell
 [ ! $# -eq 0 ] && main $1 && exit
 #+end_src
 
 Present dmenu to user with options defined in the [[#dmenu-2][DMenu]] section
 =printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
-#+begin_src shell :tangle dm-screenshot
+#+begin_src shell
 # Prompt the user
 choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
@@ -536,6 +551,9 @@ choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 #+end_src
 
 * dm-record
+:PROPERTIES:
+:header-args: :tangle dm-record 
+:END:
 Record video/audio
 ** Dependencies
 |-------------+--------------------------|
@@ -547,7 +565,7 @@ Record video/audio
 |-------------+--------------------------|
 
 ** Setup
-#+begin_src shell :tangle dm-record :shebang #!/usr/bin/env bash
+#+begin_src shell :shebang #!/usr/bin/env bash
 record_dir="$(xdg-user-dir VIDEOS)/recordings"
 resolution='1920x1080'
 timestamp='+%Y-%m-%d_%T'
@@ -555,12 +573,12 @@ fps='30'
 #+end_src
 
 Tracking process
-#+begin_src shell :tangle dm-record
+#+begin_src shell
 rec_proc="/tmp/recordingpid"
 #+end_src
 
 ** DMenu
-#+begin_src shell :tangle dm-record
+#+begin_src shell
 prompt="Record"
 options=(
     "Screen"
@@ -570,7 +588,7 @@ options=(
 #+end_src
 
 ** Functions
-#+begin_src shell :tangle dm-record
+#+begin_src shell
 yesno() {
     echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
 }
@@ -612,24 +630,24 @@ screen_capture() {
 
 ** Handling Input
 Check if there is an active recordings and prompt user to stop it
-#+begin_src shell :tangle dm-record
+#+begin_src shell
 if [ -f $rec_proc ]
 then [ $(yesno "Stop Active Recording?") = "Yes" ] && stop_recording || exit
 #+end_src
 
 Check if any arguments were passed to the script to avoid triggering dmenu
-#+begin_src shell :tangle dm-record
+#+begin_src shell
 elif [ ! $# -eq 0 ]
 #+end_src
 
 Execute script without presenting dmenu to the user if an argument was passed
-#+begin_src shell :tangle dm-record
+#+begin_src shell
 then start_recording $1
 #+end_src
 
 If no arguments were passed, present dmenu to user
 =printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
-#+begin_src shell :tangle dm-record
+#+begin_src shell
 else
     # Prompt the user
     choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
@@ -640,6 +658,9 @@ fi
 #+end_src
 
 * dm-wallpaper
+:PROPERTIES:
+:header-args: :tangle dm-wallpaper
+:END:
 Set random wallpapers
 ** Dependencies
 |-------------+----------------------|
@@ -673,29 +694,29 @@ whole_list
 #+end_src
 
 ** Setup
-#+begin_src shell :tangle dm-wallpaper :shebang #!/usr/bin/env bash
+#+begin_src shell :shebang #!/usr/bin/env bash
 declare -a options
 #+end_src
 
 Specifying a directory with wallpapers and make sure it exists
-#+begin_src shell :tangle dm-wallpaper
+#+begin_src shell
 wall_dir="$HOME/Pictures/wallpapers"
 mkdir -p "${wall_dir}"
 #+end_src
 
 Path to script that calls =dmwallpaper= on startup
-#+begin_src shell :tangle dm-wallpaper
+#+begin_src shell
 autostart_script="$HOME/.config/autostart-scripts/autostart.sh"
 autostart_script_org="$HOME/.config/README.org"
 #+end_src
 
 Get the number of connected screens
-#+begin_src shell :tangle dm-wallpaper
+#+begin_src shell
 screens=$(xrandr | grep -e "\sconnected" | wc -l)
 #+end_src
 
 ** DMenu
-#+begin_src shell :tangle dm-wallpaper
+#+begin_src shell
 prompt="Wallpaper Category"
 options=($(ls $wall_dir --hide="*.*"))
 #+end_src
@@ -710,7 +731,7 @@ As long as you specify the correct path to the dmscript there and the dmscript i
 
 The function is agnostic to the path to =dm-wallpaper=, so as long as the dmscript is named =dm-wallpaper=, it will be updated automatically. All you really need to do is set =autostart_script= variable to the correct path to the auto-start script.
 
-#+begin_src shell :tangle dm-wallpaper
+#+begin_src shell
 updateAutostart() {
     sed -i "s/\(.*dm-wallpaper\).*$/\1 $1 \&/" $autostart_script
     sed -i "s/\(.*dm-wallpaper\).*$/\1 $1 \&/" $autostart_script_org
@@ -728,13 +749,13 @@ setRandomWallpaper() {
 
 ** Handling Input
 Execute script without presenting dmenu to the user if any argument was passed
-#+begin_src shell :tangle dm-wallpaper
+#+begin_src shell
 [ ! $# -eq 0 ] && setRandomWallpaper $1 && exit
 #+end_src
 
 Present dmenu to user with options based on the available sub-directories in =$wall_dir=
 =printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
-#+begin_src shell :tangle dm-wallpaper
+#+begin_src shell
 # Prompt the user
 choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
@@ -743,6 +764,9 @@ choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 #+end_src
 
 * dm-theme
+:PROPERTIES:
+:header-args: :tangle dm-theme
+:END:
 Change color scheme of all applications (configured in the [[#setup-7][Setup]] section) for a
 more unified look of your desktop environment. Each application needs to have
 themes configured/available for it to be affected, so a bit of manual work is
@@ -753,7 +777,7 @@ Scrips does not handle extra steps a particular application might require to
 apply the theme (e.g. WM restart).
 
 ** Setup
-#+begin_src shell :tangle dm-theme :shebang #!/usr/bin/env bash
+#+begin_src shell :shebang #!/usr/bin/env bash
 declare -A config t_path regexp readme
 anyThemeChanged=false
 #+end_src
@@ -768,7 +792,7 @@ anyThemeChanged=false
 |-------------------+------------------------------------------------------------------------------------------------------|
 
 *** Alacritty
-#+begin_src shell :tangle dm-theme
+#+begin_src shell
 config_path="$HOME/.config/alacritty"
 readme["alacritty"]="$config_path/README.org"
 config["alacritty"]="$config_path/alacritty.yml"
@@ -777,7 +801,7 @@ regexp["alacritty"]="\(- \~\/\.config\/alacritty\/themes\/\)\w\+\(\.yml\)"
 #+end_src
 
 *** Rofi
-#+begin_src shell :tangle dm-theme
+#+begin_src shell
 config_path="$HOME/.config/rofi"
 readme["rofi"]="$config_path/README.org"
 config["rofi"]="$config_path/config.rasi"
@@ -786,7 +810,7 @@ regexp["rofi"]="\(\@import \"themes\/\)\w\+\(\.rasi\)"
 #+end_src
 
 *** Vimiv
-#+begin_src shell :tangle dm-theme
+#+begin_src shell
 config_path="$HOME/.config/vimiv"
 readme["vimiv"]="$config_path/README.org"
 config["vimiv"]="$config_path/vimiv.conf"
@@ -795,7 +819,7 @@ regexp["vimiv"]="\(style = \)\w\+\(\.conf\)"
 #+end_src
 
 *** qTile
-#+begin_src shell :tangle dm-theme
+#+begin_src shell
 config_path="$HOME/.config/qtile"
 config["qtile"]="$config_path/theme/default.py"
 t_path["qtile"]="$config_path/theme/colors"
@@ -804,7 +828,7 @@ regexp["qtile"]="\(import theme\.colors\.\)\w\+\( as color\)"
 
 *** STRT XMonad
 There are some errors in the terminal when selecting Gruvbox ones but not the Dracula color scheme
-#+begin_src shell :tangle dm-theme
+#+begin_src shell
 config_path="$HOME/.xmonad"
 readme["xmonad"]="$config_path/README.org"
 config["xmonad"]="$config_path/xmonad.hs"
@@ -813,7 +837,7 @@ regexp["xmonad"]="\(import Colors\.\)\w\+\(\)"
 #+end_src
 
 *** QuteBrowser
-#+begin_src shell :tangle dm-theme
+#+begin_src shell
 config_path="$HOME/.config/qutebrowser"
 config["qutebrowser"]="$config_path/themes/default.py"
 t_path["qutebrowser"]="$config_path/colors"
@@ -846,7 +870,7 @@ names.
 =awk= expression removes file extensions so avoid having extra dots in the file
 names of individual color schemes as it can break this script
 
-#+begin_src shell :tangle dm-theme
+#+begin_src shell
 prompt="Color Scheme"
 options=($(ls ${t_path[*]} | grep -v -e{"__",":$","^$"} | awk -F'.' '{print $1}' | sort -u))
 #+end_src
@@ -854,7 +878,7 @@ options=($(ls ${t_path[*]} | grep -v -e{"__",":$","^$"} | awk -F'.' '{print $1}'
 ** Helper Functions
 Checks if a particular application has the selected theme available so that the
 next function doesn't change any configs to non-existent themes.
-#+begin_src shell :tangle dm-theme
+#+begin_src shell
 themeIsAvailable() {
     if [ ! $(ls -d ${t_path[$1]}/*$2* 2>/dev/null) ]; then
         echo Warning: $2 color scheme not found in \[$1\] - theme not changed!
@@ -866,7 +890,7 @@ themeIsAvailable() {
 
 If an application has the selected theme available, this will change the defined
 config file (and optionally the Org mode config) to point to the new theme file.
-#+begin_src shell :tangle dm-theme
+#+begin_src shell
 change_app_theme() {
     # Check first if the selected colorscheme exests for the particula app before changing the config
     if ! themeIsAvailable $1 $2; then return; fi
@@ -881,7 +905,7 @@ change_app_theme() {
 
 Main function that is called by the script. It triggers theme switching and
 reports if none were updated.
-#+begin_src shell :tangle dm-theme
+#+begin_src shell
 set_global_theme() {
     for app in ${!config[@]}; do change_app_theme ${app} $1; done
     if ! $anyThemeChanged; then 
@@ -893,13 +917,13 @@ set_global_theme() {
 
 ** Handling Input
 Check if any arguments were passed to the script to avoid triggering dmenu
-#+begin_src shell :tangle dm-theme
+#+begin_src shell
 if [ ! $# -eq 0 ]; then
     set_global_theme $1
 #+end_src
 
 If no arguments were passed, present dmenu to user with options defined in the [[#dmenu-2][DMenu]] section
-#+begin_src shell :tangle dm-theme
+#+begin_src shell
 else
     # Prompt the user
     choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
@@ -910,13 +934,16 @@ fi
 #+end_src
 
 * dm-lang
+:PROPERTIES:
+:header-args: :tangle dm-lang 
+:END:
 ** Setup
-#+begin_src shell :tangle dm-lang :shebang #!/usr/bin/env bash
+#+begin_src shell :shebang #!/usr/bin/env bash
 current_lang=$(setxkbmap -query | awk 'END{print $2}')
 #+end_src
 
 ** Helper Functions
-#+begin_src shell :tangle dm-lang
+#+begin_src shell
 next_lang() {
     case $current_lang in
         us) setxkbmap ru;;
@@ -932,12 +959,12 @@ set_lang() {
 
 ** Handling Input
 Check if any arguments were passed to the script to avoid triggering dmenu
-#+begin_src shell :tangle dm-lang
+#+begin_src shell
 if [ ! $# -eq 0 ]; then
     set_lang $1
 #+end_src
 
-#+begin_src shell :tangle dm-lang
+#+begin_src shell
 else
     next_lang
 fi
