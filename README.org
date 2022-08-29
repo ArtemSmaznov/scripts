@@ -1001,3 +1001,97 @@ else
     next_lang
 fi
 #+end_src
+
+* dm-keys
+:PROPERTIES:
+:header-args: :tangle dm-keys
+:END:
+Record video/audio
+** Dependencies
+|-----------+------------------------------|
+| App       | Comment                      |
+|-----------+------------------------------|
+| [[https://archlinux.org/packages/?name=screenkey][screenkey]] | Tool to display pressed keys |
+|-----------+------------------------------|
+
+#+begin_example shell
+sudo pacman -S screenkeys
+#+end_example
+
+** Setup
+Tracking process
+#+begin_src shell :shebang #!/usr/bin/env bash
+position='bottom'
+#+end_src
+
+** DMenu
+#+begin_src shell
+prompt="screenkey"
+options=(
+    "toggle"
+    "swap-position"
+)
+#+end_src
+
+** Functions
+*** Grabber Selection
+#+begin_src shell
+key_grabber() {
+    case "$1" in
+        toggle) toggle_grabber;;
+        "swap-position") swap_position;;
+        *) echo Invalid input;;
+    esac
+}
+#+end_src
+
+*** Toggle Grabber
+#+begin_src shell
+toggle_grabber() {
+    if pgrep -x screenkey > /dev/null
+    then killall screenkey
+    else screenkey --position $position
+    fi
+}
+#+end_src
+
+*** Refresh
+#+begin_src shell
+refresh() {
+    if pgrep -x screenkey > /dev/null
+    then killall screenkey && screenkey --position $position
+    else screenkey --position $position
+    fi
+}
+#+end_src
+
+*** Swap Position
+#+begin_src shell
+swap_position() {
+    position='top'
+    refresh
+}
+#+end_src
+
+** Handling Input
+Check if any arguments were passed to the script to avoid triggering dmenu
+#+begin_src shell
+if [ ! $# -eq 0 ]
+#+end_src
+
+Execute script without presenting dmenu to the user if an argument was passed
+#+begin_src shell
+then key_grabber $1
+#+end_src
+
+If no arguments were passed, present dmenu to user
+=printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
+#+begin_src shell
+else
+    # Prompt the user
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+
+    # Act on user selection
+    [ $choice ] && key_grabber $choice
+fi
+#+end_src

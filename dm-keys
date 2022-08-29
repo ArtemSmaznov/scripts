@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+position='bottom'
+
+prompt="screenkey"
+options=(
+    "toggle"
+    "swap-position"
+)
+
+key_grabber() {
+    case "$1" in
+        toggle) toggle_grabber;;
+        "swap-position") swap_position;;
+        *) echo Invalid input;;
+    esac
+}
+
+toggle_grabber() {
+    if pgrep -x screenkey > /dev/null
+    then killall screenkey
+    else screenkey --position $position
+    fi
+}
+
+refresh() {
+    if pgrep -x screenkey > /dev/null
+    then killall screenkey && screenkey --position $position
+    else screenkey --position $position
+    fi
+}
+
+swap_position() {
+    position='top'
+    refresh
+}
+
+if [ ! $# -eq 0 ]
+
+then key_grabber $1
+
+else
+    # Prompt the user
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+
+    # Act on user selection
+    [ $choice ] && key_grabber $choice
+fi
