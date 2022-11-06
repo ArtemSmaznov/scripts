@@ -1,16 +1,33 @@
 #!/usr/bin/env bash
-current_lang=$(setxkbmap -query | awk 'END{print $2}')
+declare current_lang
+
+get_cur_lang() {
+    current_lang=$(setxkbmap -query | awk '$1=="layout:" {print $2}')
+}
 
 next_lang() {
+    get_cur_lang
+
     case $current_lang in
-        us) setxkbmap ru;;
-        ru) setxkbmap us;;
-        *) setxkbmap us;;
+        "us") set_lang "ru";;
+        "ru") set_lang "jp";;
+        "jp") set_lang "us";;
+        *) set_lang us & echo Unexpected;;
     esac
 }
 
 set_lang() {
-    setxkbmap $1
+    setxkbmap -layout $1
+    check_jp $1
+}
+
+check_jp() {
+    if [[ $1 == 'jp' ]]
+    then fcitx5-remote -o # enable japanese
+         echo -o enable
+    else fcitx5-remote -c # disable japanese
+         echo -c disable
+    fi
 }
 
 if [ ! $# -eq 0 ]; then
