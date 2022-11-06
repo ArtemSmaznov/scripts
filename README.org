@@ -438,7 +438,7 @@ declare -a options
 
 Specifying a directory to save our screenshots and make sure it exists
 #+begin_src shell
-screen_dir="$(xdg-user-dir PICTURES)/screenshots"
+screen_dir="$XDG_PICTURES_DIR/screenshots"
 mkdir -p "${screen_dir}"
 #+end_src
 
@@ -582,7 +582,7 @@ rec_proc="/tmp/recordingpid"
 
 Save File
 #+begin_src shell
-record_dir="$(xdg-user-dir VIDEOS)/recordings"
+record_dir="$XDG_VIDEOS_DIR/recordings"
 timestamp='+%Y-%m-%d_%T'
 #+end_src
 
@@ -715,7 +715,7 @@ Set random wallpapers
 
 ** Test
 #+begin_src shell :tangle dm-test :shebang #!/usr/bin/env bash
-wall_dir="$(xdg-user-dir PICTURES)/wallpapers"
+wall_dir="$XDG_PICTURES_DIR/wallpapers"
 test_dir="$wall_dir/gruvbox/*"
 
 getWallpaperByTag() {
@@ -742,7 +742,7 @@ declare -a options
 
 Specifying a directory with wallpapers and make sure it exists
 #+begin_src shell
-wall_dir="$(xdg-user-dir PICTURES)/wallpapers"
+wall_dir="$XDG_PICTURES_DIR/wallpapers"
 mkdir -p "${wall_dir}"
 #+end_src
 

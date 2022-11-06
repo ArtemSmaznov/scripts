@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 rec_proc="/tmp/recordingpid"
 
-record_dir="$(xdg-user-dir VIDEOS)/recordings"
+record_dir="$XDG_VIDEOS_DIR/recordings"
 timestamp='+%Y-%m-%d_%T'
 
 resolution='1920x1080'

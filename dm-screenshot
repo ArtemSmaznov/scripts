@@ -5,7 +5,7 @@
 set -euo pipefail
 declare -a options
 
-screen_dir="$(xdg-user-dir PICTURES)/screenshots"
+screen_dir="$XDG_PICTURES_DIR/screenshots"
 mkdir -p "${screen_dir}"
 
 timestamp='+%Y-%m-%d_%T'
