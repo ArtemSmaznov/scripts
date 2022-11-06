@@ -2,36 +2,36 @@
 declare -A config t_path regexp readme
 anyThemeChanged=false
 
-config_path="$HOME/.config/alacritty"
+config_path="$XDG_CONFIG_HOME/alacritty"
 readme["alacritty"]="$config_path/README.org"
 config["alacritty"]="$config_path/alacritty.yml"
 t_path["alacritty"]="$config_path/themes"
 regexp["alacritty"]="\(- \~\/\.config\/alacritty\/themes\/\)\w\+\(\.yml\)"
 
-config_path="$HOME/.config/rofi"
+config_path="$XDG_CONFIG_HOME/rofi"
 readme["rofi"]="$config_path/README.org"
 config["rofi"]="$config_path/config.rasi"
 t_path["rofi"]="$config_path/themes"
 regexp["rofi"]="\(\@import \"themes\/\)\w\+\(\.rasi\)"
 
-config_path="$HOME/.config/vimiv"
+config_path="$XDG_CONFIG_HOME/vimiv"
 readme["vimiv"]="$config_path/README.org"
 config["vimiv"]="$config_path/vimiv.conf"
 t_path["vimiv"]="$config_path/styles"
 regexp["vimiv"]="\(style = \)\w\+\(\.conf\)"
 
-config_path="$HOME/.config/qtile"
+config_path="$XDG_CONFIG_HOME/qtile"
 config["qtile"]="$config_path/theme/default.py"
 t_path["qtile"]="$config_path/theme/colors"
 regexp["qtile"]="\(import theme\.colors\.\)\w\+\( as color\)"
 
-config_path="$HOME/.xmonad"
+config_path="$XDG_CONFIG_HOME/xmonad"
 readme["xmonad"]="$config_path/README.org"
 config["xmonad"]="$config_path/xmonad.hs"
 t_path["xmonad"]="$config_path/lib/Colors"
 regexp["xmonad"]="\(import Colors\.\)\w\+\(\)"
 
-config_path="$HOME/.config/qutebrowser"
+config_path="$XDG_CONFIG_HOME/qutebrowser"
 config["qutebrowser"]="$config_path/themes/default.py"
 t_path["qutebrowser"]="$config_path/colors"
 regexp["qutebrowser"]="\(import colors\.\)\w\+\( as color\)"

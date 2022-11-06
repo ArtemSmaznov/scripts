@@ -4,8 +4,8 @@ declare -a options
 wall_dir="$(xdg-user-dir PICTURES)/wallpapers"
 mkdir -p "${wall_dir}"
 
-autostart_script="$HOME/.config/autostart-scripts/autostart.sh"
-autostart_script_org="$HOME/.config/README.org"
+autostart_script="$XDG_CONFIG_HOME/autostart-scripts/autostart.sh"
+autostart_script_org="$XDG_CONFIG_HOME/README.org"
 
 screens=$(xrandr | grep -e "\sconnected" | wc -l)
 
@@ -19,6 +19,7 @@ updateAutostart() {
 
 setRandomWallpaper() {
     for (( i = 0; i < $screens; i++ )); do
+        echo nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
         nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
     done
 

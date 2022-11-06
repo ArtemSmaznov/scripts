@@ -748,8 +748,8 @@ mkdir -p "${wall_dir}"
 
 Path to script that calls =dmwallpaper= on startup
 #+begin_src shell
-autostart_script="$HOME/.config/autostart-scripts/autostart.sh"
-autostart_script_org="$HOME/.config/README.org"
+autostart_script="$XDG_CONFIG_HOME/autostart-scripts/autostart.sh"
+autostart_script_org="$XDG_CONFIG_HOME/README.org"
 #+end_src
 
 Get the number of connected screens
@@ -781,6 +781,7 @@ updateAutostart() {
 
 setRandomWallpaper() {
     for (( i = 0; i < $screens; i++ )); do
+        echo nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
         nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
     done
 
@@ -835,7 +836,7 @@ anyThemeChanged=false
 
 *** Alacritty
 #+begin_src shell
-config_path="$HOME/.config/alacritty"
+config_path="$XDG_CONFIG_HOME/alacritty"
 readme["alacritty"]="$config_path/README.org"
 config["alacritty"]="$config_path/alacritty.yml"
 t_path["alacritty"]="$config_path/themes"
@@ -844,7 +845,7 @@ regexp["alacritty"]="\(- \~\/\.config\/alacritty\/themes\/\)\w\+\(\.yml\)"
 
 *** Rofi
 #+begin_src shell
-config_path="$HOME/.config/rofi"
+config_path="$XDG_CONFIG_HOME/rofi"
 readme["rofi"]="$config_path/README.org"
 config["rofi"]="$config_path/config.rasi"
 t_path["rofi"]="$config_path/themes"
@@ -853,7 +854,7 @@ regexp["rofi"]="\(\@import \"themes\/\)\w\+\(\.rasi\)"
 
 *** Vimiv
 #+begin_src shell
-config_path="$HOME/.config/vimiv"
+config_path="$XDG_CONFIG_HOME/vimiv"
 readme["vimiv"]="$config_path/README.org"
 config["vimiv"]="$config_path/vimiv.conf"
 t_path["vimiv"]="$config_path/styles"
@@ -862,7 +863,7 @@ regexp["vimiv"]="\(style = \)\w\+\(\.conf\)"
 
 *** qTile
 #+begin_src shell
-config_path="$HOME/.config/qtile"
+config_path="$XDG_CONFIG_HOME/qtile"
 config["qtile"]="$config_path/theme/default.py"
 t_path["qtile"]="$config_path/theme/colors"
 regexp["qtile"]="\(import theme\.colors\.\)\w\+\( as color\)"
@@ -871,7 +872,7 @@ regexp["qtile"]="\(import theme\.colors\.\)\w\+\( as color\)"
 *** STRT XMonad
 There are some errors in the terminal when selecting Gruvbox ones but not the Dracula color scheme
 #+begin_src shell
-config_path="$HOME/.xmonad"
+config_path="$XDG_CONFIG_HOME/xmonad"
 readme["xmonad"]="$config_path/README.org"
 config["xmonad"]="$config_path/xmonad.hs"
 t_path["xmonad"]="$config_path/lib/Colors"
@@ -880,7 +881,7 @@ regexp["xmonad"]="\(import Colors\.\)\w\+\(\)"
 
 *** QuteBrowser
 #+begin_src shell
-config_path="$HOME/.config/qutebrowser"
+config_path="$XDG_CONFIG_HOME/qutebrowser"
 config["qutebrowser"]="$config_path/themes/default.py"
 t_path["qutebrowser"]="$config_path/colors"
 regexp["qutebrowser"]="\(import colors\.\)\w\+\( as color\)"
