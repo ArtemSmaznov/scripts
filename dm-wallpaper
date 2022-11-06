@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 declare -a options
 
-wall_dir="$HOME/Pictures/wallpapers"
+wall_dir="$(xdg-user-dir PICTURES)/wallpapers"
 mkdir -p "${wall_dir}"
 
 autostart_script="$HOME/.config/autostart-scripts/autostart.sh"

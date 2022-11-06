@@ -705,7 +705,7 @@ Set random wallpapers
 
 ** Test
 #+begin_src shell :tangle dm-test :shebang #!/usr/bin/env bash
-wall_dir="$HOME/Pictures/wallpapers"
+wall_dir="$(xdg-user-dir PICTURES)/wallpapers"
 test_dir="$wall_dir/gruvbox/*"
 
 getWallpaperByTag() {
@@ -732,7 +732,7 @@ declare -a options
 
 Specifying a directory with wallpapers and make sure it exists
 #+begin_src shell
-wall_dir="$HOME/Pictures/wallpapers"
+wall_dir="$(xdg-user-dir PICTURES)/wallpapers"
 mkdir -p "${wall_dir}"
 #+end_src
 
