@@ -132,6 +132,7 @@ declare -a options
 prompt="Notifications"
 options=(
     "Show recent"
+    "Show few recents"
     "Close"
     "Close all"
     "Context menu"
@@ -140,7 +141,8 @@ options=(
 
 ** Functions
 #+begin_src shell
-notif_count_history=$(dunstctl count history)
+notif_count_history=7
+# notif_count_history=$(dunstctl count history)
 notif_count_displayed=$(dunstctl count displayed)
 notif_count_wait=$(dunstctl count waiting)
 
@@ -148,6 +150,7 @@ execute_choice() {
     case $1 in
         close) dunstctl close;;
         clear) dunstctl close-all;;
+        recent) dunstctl history-pop;;
         recents)
             for ((i = 1; i <= $notif_count_history; i++));
             do
@@ -174,7 +177,8 @@ choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 What to do when/if we choose one of the options.
 #+begin_src shell
 case $choice in
-    'Show recent') execute_choice recents ;;
+    'Show recent') execute_choice recent ;;
+    'Show few recents') execute_choice recents ;;
     'Close') execute_choice close ;;
     'Close all') execute_choice close-all ;;
     'Context menu') execute_choice context ;;
