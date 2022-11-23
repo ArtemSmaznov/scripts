@@ -1,36 +1,42 @@
 #!/usr/bin/env bash
 declare -a options
 
-wall_dir="$XDG_PICTURES_DIR/wallpapers"
-mkdir -p "${wall_dir}"
+state="$XDG_STATE_HOME/wallpaper"
 
-autostart_script="$XDG_CONFIG_HOME/autostart-scripts/autostart.sh"
-autostart_script_org="$XDG_CONFIG_HOME/README.org"
+if [ -f $state ]
+then current_category=$(cat $state)
+else current_category="faded"
+fi
+
+wall_dir="$HOME/pictures/wallpapers"
+# xmonad doesn't see XDG pictures dir
+# wall_dir="$XDG_PICTURES_DIR/wallpapers"
+mkdir -p "${wall_dir}"
 
 screens=$(xrandr | grep -e "\sconnected" | wc -l)
 
 prompt="Wallpaper Category"
 options=($(ls $wall_dir --hide="*.*"))
 
-updateAutostart() {
-    sed -i "s/\(.*dm-wallpaper\).*$/\1 $1 \&/" $autostart_script
-    sed -i "s/\(.*dm-wallpaper\).*$/\1 $1 \&/" $autostart_script_org
-}
-
 setRandomWallpaper() {
+    category=$1
+    if [ $1 == "-refresh" ]
+    then category=$current_category
+    fi
+
     for (( i = 0; i < $screens; i++ )); do
-        echo nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
-        nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
+        echo nitrogen --set-zoom-fill --random --head=$i $wall_dir/$category/
+        nitrogen --set-zoom-fill --random --head=$i $wall_dir/$category/
     done
 
-    # Comment out this line if you don't use an autostart script to set random wallpapers using this dmscript
-    updateAutostart "$1"
+    # save selected category
+    echo "$category" > "$state"
 }
 
 [ ! $# -eq 0 ] && setRandomWallpaper $1 && exit
 
 # Prompt the user
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+choice=$(printf '%s\n' "-refresh" "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
 # Act on user selection
 [ $choice ] && setRandomWallpaper $choice

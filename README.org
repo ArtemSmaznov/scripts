@@ -740,16 +740,22 @@ whole_list
 declare -a options
 #+end_src
 
-Specifying a directory with wallpapers and make sure it exists
+State file used for storing last selected category
 #+begin_src shell
-wall_dir="$XDG_PICTURES_DIR/wallpapers"
-mkdir -p "${wall_dir}"
+state="$XDG_STATE_HOME/wallpaper"
+
+if [ -f $state ]
+then current_category=$(cat $state)
+else current_category="faded"
+fi
 #+end_src
 
-Path to script that calls =dmwallpaper= on startup
+Specifying a directory with wallpapers and make sure it exists
 #+begin_src shell
-autostart_script="$XDG_CONFIG_HOME/autostart-scripts/autostart.sh"
-autostart_script_org="$XDG_CONFIG_HOME/README.org"
+wall_dir="$HOME/pictures/wallpapers"
+# xmonad doesn't see XDG pictures dir
+# wall_dir="$XDG_PICTURES_DIR/wallpapers"
+mkdir -p "${wall_dir}"
 #+end_src
 
 Get the number of connected screens
@@ -764,29 +770,20 @@ options=($(ls $wall_dir --hide="*.*"))
 #+end_src
 
 ** Functions
-I am using a shell script to call =dm-wallpaper= to set random wallpapers from a set sub-directory, which is being called on WM start.
-- [[file:~/.config/README.org::*Auto-start][Auto-start]] ([[https://github.com/ArtemSmaznov/Dotfiles/tree/master/.config][repo]])
-
-=updateAutostart= updates the directory in that script every time I call =dm-wallpaper= to set a different sub-directory.
-
-As long as you specify the correct path to the dmscript there and the dmscript is named =dm-wallpaper= it will update it automatically. All you really need to do is set =autostart_script= variable to the correct path to the auto-start script.
-
-The function is agnostic to the path to =dm-wallpaper=, so as long as the dmscript is named =dm-wallpaper=, it will be updated automatically. All you really need to do is set =autostart_script= variable to the correct path to the auto-start script.
-
 #+begin_src shell
-updateAutostart() {
-    sed -i "s/\(.*dm-wallpaper\).*$/\1 $1 \&/" $autostart_script
-    sed -i "s/\(.*dm-wallpaper\).*$/\1 $1 \&/" $autostart_script_org
-}
-
 setRandomWallpaper() {
+    category=$1
+    if [ $1 == "-refresh" ]
+    then category=$current_category
+    fi
+
     for (( i = 0; i < $screens; i++ )); do
-        echo nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
-        nitrogen --set-zoom-fill --random --head=$i $wall_dir/$1/
+        echo nitrogen --set-zoom-fill --random --head=$i $wall_dir/$category/
+        nitrogen --set-zoom-fill --random --head=$i $wall_dir/$category/
     done
 
-    # Comment out this line if you don't use an autostart script to set random wallpapers using this dmscript
-    updateAutostart "$1"
+    # save selected category
+    echo "$category" > "$state"
 }
 #+end_src
 
@@ -800,7 +797,7 @@ Present dmenu to user with options based on the available sub-directories in =$w
 =printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
 #+begin_src shell
 # Prompt the user
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+choice=$(printf '%s\n' "-refresh" "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
 # Act on user selection
 [ $choice ] && setRandomWallpaper $choice
