@@ -752,9 +752,7 @@ fi
 
 Specifying a directory with wallpapers and make sure it exists
 #+begin_src shell
-wall_dir="$HOME/pictures/wallpapers"
-# xmonad doesn't see XDG pictures dir
-# wall_dir="$XDG_PICTURES_DIR/wallpapers"
+wall_dir="$XDG_PICTURES_DIR/wallpapers"
 mkdir -p "${wall_dir}"
 #+end_src
 

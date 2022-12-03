@@ -8,9 +8,7 @@ then current_category=$(cat $state)
 else current_category="faded"
 fi
 
-wall_dir="$HOME/pictures/wallpapers"
-# xmonad doesn't see XDG pictures dir
-# wall_dir="$XDG_PICTURES_DIR/wallpapers"
+wall_dir="$XDG_PICTURES_DIR/wallpapers"
 mkdir -p "${wall_dir}"
 
 screens=$(xrandr | grep -e "\sconnected" | wc -l)
