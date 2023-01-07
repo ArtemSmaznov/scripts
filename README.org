@@ -1,7 +1,8 @@
-#+TITLE: dm-scripts
-#+AUTHOR: Artem Smaznov
-#+DESCRIPTION: A collection of dmenu scripts
-#+STARTUP: overview
+#+title:       dm-scripts
+#+author:      Artem Smaznov
+#+description: A collection of dmenu scripts
+#+startup:     overview
+#+auto_tangle: t
 
 * Table of Contents :toc:
 - [[#grub-reboot-to-windows][GRUB Reboot to Windows]]
