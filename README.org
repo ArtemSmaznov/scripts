@@ -47,7 +47,7 @@
   - [[#dmenu-6][DMenu]]
   - [[#functions-5][Functions]]
   - [[#handling-input-5][Handling Input]]
-- [[#dm-theme][dm-theme]]
+- [[#kill-dm-theme][KILL dm-theme]]
   - [[#setup-7][Setup]]
   - [[#dmenu-7][DMenu]]
   - [[#helper-functions][Helper Functions]]
@@ -226,14 +226,16 @@ EndSection
 time_format='%l:%M %p'
 date_format='%d %b, %Y'
 
-blank='#28282855'
-text='#ebdbb2'
-dark='#282828'
-default='#fabd2fcc'
-wrong='#fb4934bb'
-verifying='#b8bb26cb'
-type='#d65d0e'
-delete='#cc241d'
+# Start flavours
+blank="#28282855"
+text="#ebdbb2"
+dark="#282828"
+default="#fabd2fcc"
+wrong="#fb4934bb"
+verifying="#b8bb26cb"
+type="#d65d0e"
+delete="#cc241d"
+# End flavours
 #+end_src
 
 ** DMenu
@@ -802,7 +804,7 @@ choice=$(printf '%s\n' "-refresh" "${options[@]}" | rofi -dmenu -i -p "${prompt}
 [ $choice ] && setRandomWallpaper $choice
 #+end_src
 
-* dm-theme
+* KILL dm-theme
 :PROPERTIES:
 :header-args: :tangle dm-theme
 :END:

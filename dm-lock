@@ -2,14 +2,16 @@
 time_format='%l:%M %p'
 date_format='%d %b, %Y'
 
-blank='#28282855'
-text='#ebdbb2'
-dark='#282828'
-default='#fabd2fcc'
-wrong='#fb4934bb'
-verifying='#b8bb26cb'
-type='#d65d0e'
-delete='#cc241d'
+# Start flavours
+blank="#28282855"
+text="#ebdbb2"
+dark="#282828"
+default="#fabd2fcc"
+wrong="#fb4934bb"
+verifying="#b8bb26cb"
+type="#d65d0e"
+delete="#cc241d"
+# End flavours
 
 prompt="Lock Screen"
 options=(
