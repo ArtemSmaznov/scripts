@@ -3,14 +3,16 @@ time_format='%l:%M %p'
 date_format='%d %b, %Y'
 
 # Start flavours
+# Base16 Gruvbox dark, medium theme
+# by Dawid Kurek (dawikur@gmail.com), morhetz (https://github.com/morhetz/gruvbox)
 blank="#28282855"
-text="#ebdbb2"
+text="#fbf1c7"
 dark="#282828"
-default="#fabd2fcc"
+default="#d3869bcc"
 wrong="#fb4934bb"
 verifying="#b8bb26cb"
-type="#d65d0e"
-delete="#cc241d"
+type="#8ec07c"
+delete="#d65d0e"
 # End flavours
 
 prompt="Lock Screen"

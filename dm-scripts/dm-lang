@@ -17,7 +17,8 @@ next_lang() {
 }
 
 set_lang() {
-    setxkbmap -layout $1
+    # setxkbmap -layout $1
+    $HOME/.local/bin/set-lang.sh $1
     check_jp $1
 }
 
