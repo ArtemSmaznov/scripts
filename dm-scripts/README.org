@@ -51,16 +51,12 @@
   - [[#dmenu-7][DMenu]]
   - [[#helper-functions][Helper Functions]]
   - [[#handling-input-6][Handling Input]]
-- [[#dm-lang][dm-lang]]
-  - [[#setup-8][Setup]]
-  - [[#helper-functions-1][Helper Functions]]
-  - [[#handling-input-7][Handling Input]]
 - [[#dm-keys][dm-keys]]
   - [[#dependencies-6][Dependencies]]
-  - [[#setup-9][Setup]]
+  - [[#setup-8][Setup]]
   - [[#dmenu-8][DMenu]]
   - [[#functions-6][Functions]]
-  - [[#handling-input-8][Handling Input]]
+  - [[#handling-input-7][Handling Input]]
 
 * GRUB Reboot to Windows
 To reboot to windows without having to interact with grub during boot time create an executable shell script that will switch grub next 1 boot to a named entry, in my case it is a custom entry "*Windows 10*", but by default it be something like "*Windows boot manager*" as created by =os-prober=.
@@ -954,63 +950,6 @@ else
 
     # Act on user selection
     if [ $choice ]; then set_global_theme $choice; fi
-fi
-#+end_src
-
-* dm-lang
-:PROPERTIES:
-:header-args: :tangle dm-lang 
-:END:
-** Setup
-#+begin_src shell :shebang #!/usr/bin/env bash
-declare current_lang
-#+end_src
-
-** Helper Functions
-#+begin_src shell
-get_cur_lang() {
-    current_lang=$(setxkbmap -query | awk '$1=="layout:" {print $2}')
-}
-
-next_lang() {
-    get_cur_lang
-
-    case $current_lang in
-        "us") set_lang "ru";;
-        "ru") set_lang "jp";;
-        "jp") set_lang "us";;
-        ,*) set_lang us & echo Unexpected;;
-    esac
-}
-
-set_lang() {
-    # setxkbmap -layout $1
-    $HOME/.local/bin/set-lang.sh $1
-    check_jp $1
-}
-
-check_jp() {
-    if [[ $1 == 'jp' ]]
-    then fcitx5-remote -o # enable japanese
-         echo -o enable
-    else fcitx5-remote -c # disable japanese
-         echo -c disable
-    fi
-}
-#+end_src
-
-#+RESULTS:
-
-** Handling Input
-Check if any arguments were passed to the script to avoid triggering dmenu
-#+begin_src shell
-if [ ! $# -eq 0 ]; then
-    set_lang $1
-#+end_src
-
-#+begin_src shell
-else
-    next_lang
 fi
 #+end_src
 

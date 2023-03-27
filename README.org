@@ -24,6 +24,7 @@
 - [[#listen-wm-workspaces][listen-wm-workspaces]]
 - [[#set-lang][set-lang]]
 - [[#set-volume][set-volume]]
+- [[#toggle-lang][toggle-lang]]
 - [[#toggle-mute][toggle-mute]]
 
 * auto-start
@@ -280,7 +281,25 @@ step=$2
 amixer -q sset Master ${step}%${direction} unmute
 #+end_src
 
+* toggle-lang
+#+begin_src shell :tangle toggle-lang.sh
+case $($HOME/.local/bin/get-lang.sh) in
+    "us") new_lang="ru" ;;
+    "ru") new_lang="jp" ;;
+    "jp") new_lang="us" ;;
+    ,*)   new_lang="us" ;;
+esac
+
+$HOME/.local/bin/set-lang.sh $new_lang
+
+if [[ $new_lang == 'jp' ]]
+then fcitx5-remote -o # enable japanese
+else fcitx5-remote -c # disable japanese
+fi
+#+end_src
+
 * toggle-mute
 #+begin_src shell :tangle toggle-mute.sh
 amixer -q sset Master toggle
 #+end_src
+
