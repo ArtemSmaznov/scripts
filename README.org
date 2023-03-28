@@ -44,8 +44,8 @@ Wallpaper
 Screen Locker
 #+begin_src shell
 # xscreensaver -no-splash &
-# xautolock -time 60 -locker "$HOME/.local/bin/dm-scripts/dm-lock" &
-xss-lock -- "$HOME/.local/bin/dm-scripts/dm-lock" &
+# xautolock -time 60 -locker "$HOME/.config/i3lock/i3lock.sh" &
+xss-lock -- "$HOME/.config/i3lock/i3lock.sh" &
 #+end_src
 
 System Utilities

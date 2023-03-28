@@ -16,46 +16,41 @@
   - [[#dmenu-1][DMenu]]
   - [[#functions][Functions]]
   - [[#handling-input-1][Handling Input]]
-- [[#dm-lock][dm-lock]]
+- [[#dm-power][dm-power]]
   - [[#dependencies-1][Dependencies]]
   - [[#setup-2][Setup]]
   - [[#dmenu-2][DMenu]]
   - [[#functions-1][Functions]]
-- [[#dm-power][dm-power]]
+  - [[#handling-input-2][Handling Input]]
+- [[#dm-screenshot][dm-screenshot]]
   - [[#dependencies-2][Dependencies]]
   - [[#setup-3][Setup]]
   - [[#dmenu-3][DMenu]]
   - [[#functions-2][Functions]]
-  - [[#handling-input-2][Handling Input]]
-- [[#dm-screenshot][dm-screenshot]]
+  - [[#handling-input-3][Handling Input]]
+- [[#dm-record][dm-record]]
   - [[#dependencies-3][Dependencies]]
   - [[#setup-4][Setup]]
   - [[#dmenu-4][DMenu]]
   - [[#functions-3][Functions]]
-  - [[#handling-input-3][Handling Input]]
-- [[#dm-record][dm-record]]
+  - [[#handling-input-4][Handling Input]]
+- [[#dm-wallpaper][dm-wallpaper]]
   - [[#dependencies-4][Dependencies]]
+  - [[#test][Test]]
   - [[#setup-5][Setup]]
   - [[#dmenu-5][DMenu]]
   - [[#functions-4][Functions]]
-  - [[#handling-input-4][Handling Input]]
-- [[#dm-wallpaper][dm-wallpaper]]
-  - [[#dependencies-5][Dependencies]]
-  - [[#test][Test]]
-  - [[#setup-6][Setup]]
-  - [[#dmenu-6][DMenu]]
-  - [[#functions-5][Functions]]
   - [[#handling-input-5][Handling Input]]
 - [[#kill-dm-theme][KILL dm-theme]]
-  - [[#setup-7][Setup]]
-  - [[#dmenu-7][DMenu]]
+  - [[#setup-6][Setup]]
+  - [[#dmenu-6][DMenu]]
   - [[#helper-functions][Helper Functions]]
   - [[#handling-input-6][Handling Input]]
 - [[#dm-keys][dm-keys]]
-  - [[#dependencies-6][Dependencies]]
-  - [[#setup-8][Setup]]
-  - [[#dmenu-8][DMenu]]
-  - [[#functions-6][Functions]]
+  - [[#dependencies-5][Dependencies]]
+  - [[#setup-7][Setup]]
+  - [[#dmenu-7][DMenu]]
+  - [[#functions-5][Functions]]
   - [[#handling-input-7][Handling Input]]
 
 * GRUB Reboot to Windows
@@ -187,73 +182,6 @@ case $choice in
 esac
 #+end_src
 
-* dm-lock
-:PROPERTIES:
-:header-args: :tangle dm-lock
-:END:
-Trigger lock screen / screen saver
-** Dependencies
-|--------------+------------------------------|
-| App          | Comment                      |
-|--------------+------------------------------|
-| =i3lock-color= | Screen Locker                |
-| =xss-lock=     | Auto trigger external locker |
-|--------------+------------------------------|
-
-** Setup
-#+begin_src shell :shebang #!/bin/sh
-time_format='%l:%M %p'
-date_format='%d %b, %Y'
-
-# Start flavours
-blank="#28282855"
-text="#ebdbb2"
-dark="#282828"
-default="#fabd2fcc"
-wrong="#fb4934bb"
-verifying="#b8bb26cb"
-type="#d65d0e"
-delete="#cc241d"
-# End flavours
-#+end_src
-
-** DMenu
-#+begin_src shell
-prompt="Lock Screen"
-options=(
-    "lock"
-    "daemon"
-)
-#+end_src
-
-** Functions
-For debugging purposes add =--no-verif=
-#+begin_src shell
-i3lock \
-    --clock \
-    --screen 1 \
-    --ignore-empty-password \
-    --pass-media-keys --pass-screen-keys --pass-volume-keys \
-    \
-    --time-str="$time_format" --date-str="$date_format" \
-    --greeter-text="Type password to unlock..." \
-    --time-pos="w-w/2:y+200" --date-pos="tx:ty+50" \
-    --layout-pos="ix:iy+100" \
-    \
-    --radius=200 --ring-width=10 \
-    --time-size=120 --date-size=32 --layout-size=22 \
-    --keylayout=2 \
-    \
-    --color=$blank \
-    --time-color=$text --date-color=$text --greeter-color=$text --layout-color=$text --modif-color=$text         \
-    \
-    --separator-color=$default --line-color=$blank \
-    --keyhl-color=$type --bshl-color=$delete \
-    --ring-color=$default      --inside-color=$blank        \
-    --ringver-color=$verifying --insidever-color=$verifying --verif-color=$dark          \
-    --ringwrong-color=$wrong   --insidewrong-color=$wrong   --wrong-color=$dark
-#+end_src
-
 * dm-power
 :PROPERTIES:
 :header-args: :tangle dm-power
@@ -276,7 +204,7 @@ declare -a options
 Define =LOCKER= in =.xprofile= to set to different locker program
 #+begin_src shell
 # LOCKER="${LOCKER:-lock}"
-LOCKER="$HOME/.local/bin/dm-scripts/dm-lock"
+LOCKER="$HOME/.config/i3lock/i3lock.sh"
 # LOCKER="xscreensaver-command -lock"
 
 # use notify-send if run in dumb term

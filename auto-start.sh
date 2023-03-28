@@ -4,8 +4,8 @@ paplay "$HOME/public/audio/windows95-startup.wav" &
 ~/.local/bin/dm-scripts/dm-wallpaper -refresh &
 
 # xscreensaver -no-splash &
-# xautolock -time 60 -locker "$HOME/.local/bin/dm-scripts/dm-lock" &
-xss-lock -- "$HOME/.local/bin/dm-scripts/dm-lock" &
+# xautolock -time 60 -locker "$HOME/.config/i3lock/i3lock.sh" &
+xss-lock -- "$HOME/.config/i3lock/i3lock.sh" &
 
 picom -b &
 nm-applet &
