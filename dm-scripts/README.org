@@ -643,6 +643,15 @@ whole_list
 ** Setup
 #+begin_src shell :shebang #!/usr/bin/env bash
 declare -a options
+export DISPLAY=":0"
+
+if [ ! $XDG_STATE_HOME ];
+then export XDG_STATE_HOME="$HOME/.local/state"
+fi
+
+if [ ! $XDG_PICTURES_DIR ];
+then export XDG_PICTURES_DIR="$HOME/pictures"
+fi
 #+end_src
 
 State file used for storing last selected category

@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 declare -a options
+export DISPLAY=":0"
+
+if [ ! $XDG_STATE_HOME ];
+then export XDG_STATE_HOME="$HOME/.local/state"
+fi
+
+if [ ! $XDG_PICTURES_DIR ];
+then export XDG_PICTURES_DIR="$HOME/pictures"
+fi
 
 state="$XDG_STATE_HOME/wallpaper"
 
