@@ -1,25 +1,41 @@
 #!/usr/bin/env bash
 paplay "$HOME/public/audio/windows95-startup.wav" &
 
-~/.local/bin/dm-scripts/dm-wallpaper -refresh &
+if [[ $XDG_SESSION_TYPE == "x11" ]]; then
+    # wallpaper
+    ~/.local/bin/dm-scripts/dm-wallpaper -refresh &
 
-# xscreensaver -no-splash &
-# xautolock -time 60 -locker "$HOME/.config/i3lock/i3lock.sh" &
-xss-lock -- "$HOME/.config/i3lock/i3lock.sh" &
+    # screen locker
+    # xscreensaver -no-splash &
+    # xautolock -time 60 -locker "$HOME/.config/i3lock/i3lock.sh" &
+    xss-lock -- "$HOME/.config/i3lock/i3lock.sh" &
 
-picom -b &
+    # compositor
+    picom -b &
+
+    # notification daemon
+    dunst &
+
+    # hide cursor
+    unclutter -jitter 5 &
+
+    # blue screen filter
+    redshift-gtk &
+fi
+
+# if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
+# fi
+
 nm-applet &
 blueman-applet &
-dunst &
-unclutter -jitter 5 &
+nextcloud &
 
 fcitx5 -d &
 
-redshift-gtk &
-# solaar -w hide &
 # emacs --daemon &
 
-# alacritty -t btop -e btop &
 qutebrowser &
 /usr/bin/steam-runtime %U &
-nextcloud &
+emacsclient -c -a 'emacs' &
+alacritty --class ncmpcpp -e ncmpcpp &
+alacritty --class btop -e btop &
