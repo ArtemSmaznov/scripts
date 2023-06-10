@@ -198,9 +198,11 @@ declare -a options
 
 Define =LOCKER= in =.xprofile= to set to different locker program
 #+begin_src shell
-# LOCKER="${LOCKER:-lock}"
-LOCKER="$HOME/.config/i3lock/i3lock.sh"
-# LOCKER="xscreensaver-command -lock"
+if [[ $XDG_SESSION_TYPE == "x11" ]]; then
+    LOCKER="$HOME/.config/i3lock/i3lock.sh"
+elif [[ $XDG_SESSION_TYPE == "wayland" ]]; then
+    LOCKER="swaylock"
+fi
 
 # use notify-send if run in dumb term
 output="echo"
