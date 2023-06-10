@@ -36,17 +36,15 @@
   - [[#handling-input-4][Handling Input]]
 - [[#dm-wallpaper][dm-wallpaper]]
   - [[#dependencies-4][Dependencies]]
-  - [[#test][Test]]
   - [[#setup-5][Setup]]
   - [[#dmenu-5][DMenu]]
-  - [[#functions-4][Functions]]
-  - [[#handling-input-5][Handling Input]]
+  - [[#action][Action]]
 - [[#dm-keys][dm-keys]]
   - [[#dependencies-5][Dependencies]]
   - [[#setup-6][Setup]]
   - [[#dmenu-6][DMenu]]
-  - [[#functions-5][Functions]]
-  - [[#handling-input-6][Handling Input]]
+  - [[#functions-4][Functions]]
+  - [[#handling-input-5][Handling Input]]
 
 * GRUB Reboot to Windows
 To reboot to windows without having to interact with grub during boot time create an executable shell script that will switch grub next 1 boot to a named entry, in my case it is a custom entry "*Windows 10*", but by default it be something like "*Windows boot manager*" as created by =os-prober=.
@@ -620,101 +618,40 @@ Set random wallpapers
 | =nitrogen=    | Wallpaper management |
 |-------------+----------------------|
 
-** Test
-#+begin_src shell :tangle dm-test :shebang #!/usr/bin/env bash
-wall_dir="$XDG_PICTURES_DIR/wallpapers"
-test_dir="$wall_dir/gruvbox/*"
-
-getWallpaperByTag() {
-    for f in $test_dir; do
-        match=$(exiftool $f | grep Keywords | awk -F': ' '{print $2}' | grep "$1")
-        if [ "$match" ]; then
-            echo $f
-        fi
-    done
-}
-
-whole_list() {
-    exiftool $test_dir | grep -e "File Name" -e Keywords | awk -F': ' '{print $2}'
-}
-
-# getWallpaperByTag Logo
-whole_list
-#+end_src
-
 ** Setup
 #+begin_src shell :shebang #!/usr/bin/env bash
 declare -a options
-export DISPLAY=":0"
 
-if [ ! $XDG_STATE_HOME ];
-then export XDG_STATE_HOME="$HOME/.local/state"
-fi
-
-if [ ! $XDG_PICTURES_DIR ];
-then export XDG_PICTURES_DIR="$HOME/pictures"
-fi
-#+end_src
-
-State file used for storing last selected category
-#+begin_src shell
-state="$XDG_STATE_HOME/wallpaper"
-
-if [ -f $state ]
-then current_category=$(cat $state)
-else current_category="faded"
+if [ ! "$XDG_PICTURES_DIR" ]; then
+    export XDG_PICTURES_DIR="$HOME/pictures"
 fi
 #+end_src
 
 Specifying a directory with wallpapers and make sure it exists
 #+begin_src shell
-wall_dir="$XDG_PICTURES_DIR/wallpapers"
-mkdir -p "${wall_dir}"
-#+end_src
-
-Get the number of connected screens
-#+begin_src shell
-screens=$(xrandr | grep -e "\sconnected" | wc -l)
+wallpapers_dir="$XDG_PICTURES_DIR/wallpapers"
 #+end_src
 
 ** DMenu
-#+begin_src shell
-prompt="Wallpaper Category"
-options=($(ls $wall_dir --hide="*.*"))
-#+end_src
-
-** Functions
-#+begin_src shell
-setRandomWallpaper() {
-    category=$1
-    if [ $1 == "-refresh" ]
-    then category=$current_category
-    fi
-
-    for (( i = 0; i < $screens; i++ )); do
-        echo nitrogen --set-zoom-fill --random --head=$i $wall_dir/$category/
-        nitrogen --set-zoom-fill --random --head=$i $wall_dir/$category/
-    done
-
-    # save selected category
-    echo "$category" > "$state"
-}
-#+end_src
-
-** Handling Input
-Execute script without presenting dmenu to the user if any argument was passed
-#+begin_src shell
-[ ! $# -eq 0 ] && setRandomWallpaper $1 && exit
-#+end_src
-
 Present dmenu to user with options based on the available sub-directories in =$wall_dir=
 =printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
 #+begin_src shell
-# Prompt the user
-choice=$(printf '%s\n' "-refresh" "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+prompt="Wallpaper Category"
+options=("$(ls "$wallpapers_dir" --hide="*.*")")
+#+end_src
 
-# Act on user selection
-[ $choice ] && setRandomWallpaper $choice
+Prompt the user
+#+begin_src shell
+choice=$(printf '%s\n' "-refresh" "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+#+end_src
+
+** Action
+Act on user selection
+#+begin_src shell
+case $choice in
+    '-refresh') ~/.local/bin/set-wallpaper.sh ;;
+    *) ~/.local/bin/set-wallpaper.sh "$choice" ;;
+esac
 #+end_src
 
 * dm-keys

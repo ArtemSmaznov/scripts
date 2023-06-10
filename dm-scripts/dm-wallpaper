@@ -1,49 +1,18 @@
 #!/usr/bin/env bash
 declare -a options
-export DISPLAY=":0"
 
-if [ ! $XDG_STATE_HOME ];
-then export XDG_STATE_HOME="$HOME/.local/state"
+if [ ! "$XDG_PICTURES_DIR" ]; then
+    export XDG_PICTURES_DIR="$HOME/pictures"
 fi
 
-if [ ! $XDG_PICTURES_DIR ];
-then export XDG_PICTURES_DIR="$HOME/pictures"
-fi
-
-state="$XDG_STATE_HOME/wallpaper"
-
-if [ -f $state ]
-then current_category=$(cat $state)
-else current_category="faded"
-fi
-
-wall_dir="$XDG_PICTURES_DIR/wallpapers"
-mkdir -p "${wall_dir}"
-
-screens=$(xrandr | grep -e "\sconnected" | wc -l)
+wallpapers_dir="$XDG_PICTURES_DIR/wallpapers"
 
 prompt="Wallpaper Category"
-options=($(ls $wall_dir --hide="*.*"))
+options=("$(ls "$wallpapers_dir" --hide="*.*")")
 
-setRandomWallpaper() {
-    category=$1
-    if [ $1 == "-refresh" ]
-    then category=$current_category
-    fi
-
-    for (( i = 0; i < $screens; i++ )); do
-        echo nitrogen --set-zoom-fill --random --head=$i $wall_dir/$category/
-        nitrogen --set-zoom-fill --random --head=$i $wall_dir/$category/
-    done
-
-    # save selected category
-    echo "$category" > "$state"
-}
-
-[ ! $# -eq 0 ] && setRandomWallpaper $1 && exit
-
-# Prompt the user
 choice=$(printf '%s\n' "-refresh" "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
-# Act on user selection
-[ $choice ] && setRandomWallpaper $choice
+case $choice in
+    '-refresh') ~/.local/bin/set-wallpaper.sh ;;
+    *) ~/.local/bin/set-wallpaper.sh "$choice" ;;
+esac
