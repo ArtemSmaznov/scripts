@@ -17,30 +17,28 @@
   - [[#functions][Functions]]
   - [[#handling-input-1][Handling Input]]
 - [[#dm-power][dm-power]]
-  - [[#dependencies-1][Dependencies]]
   - [[#setup-2][Setup]]
   - [[#dmenu-2][DMenu]]
   - [[#functions-1][Functions]]
   - [[#handling-input-2][Handling Input]]
 - [[#dm-screenshot][dm-screenshot]]
-  - [[#dependencies-2][Dependencies]]
+  - [[#dependencies-1][Dependencies]]
   - [[#setup-3][Setup]]
   - [[#dmenu-3][DMenu]]
   - [[#functions-2][Functions]]
   - [[#handling-input-3][Handling Input]]
 - [[#dm-record][dm-record]]
-  - [[#dependencies-3][Dependencies]]
+  - [[#dependencies-2][Dependencies]]
   - [[#setup-4][Setup]]
   - [[#dmenu-4][DMenu]]
   - [[#functions-3][Functions]]
   - [[#handling-input-4][Handling Input]]
 - [[#dm-wallpaper][dm-wallpaper]]
-  - [[#dependencies-4][Dependencies]]
   - [[#setup-5][Setup]]
   - [[#dmenu-5][DMenu]]
   - [[#action][Action]]
 - [[#dm-keys][dm-keys]]
-  - [[#dependencies-5][Dependencies]]
+  - [[#dependencies-3][Dependencies]]
   - [[#setup-6][Setup]]
   - [[#dmenu-6][DMenu]]
   - [[#functions-4][Functions]]
@@ -67,12 +65,12 @@ user ALL=(ALL) NOPASSWD: /home/user/.local/bin/winreboot
 
 * TODO dm-master
 :PROPERTIES:
-:header-args: :tangle dm-master
+:header-args: :shebang #!/usr/bin/env bash :tangle dm-master
 :END:
 Not Working Yet!
 Trigger any dm-script
 ** Setup
-#+begin_src shell :shebang #!/usr/bin/env bash
+#+begin_src shell
 declare -a options
 #+end_src
 
@@ -100,7 +98,7 @@ choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
 * dm-notify
 :PROPERTIES:
-:header-args: :tangle dm-notify
+:header-args: :shebang #!/usr/bin/env bash :tangle dm-notify
 :END:
 Manage notifications
 ** Dependencies
@@ -113,7 +111,7 @@ Manage notifications
 
 ** Setup
 Get the number of notifications
-#+begin_src shell :shebang #!/usr/bin/env bash
+#+begin_src shell
 declare -a options
 #+end_src
 
@@ -177,20 +175,11 @@ esac
 
 * dm-power
 :PROPERTIES:
-:header-args: :tangle dm-power
+:header-args: :shebang #!/usr/bin/env bash :tangle dm-power
 :END:
 Power controls (Suspend, Reboot, Shutdown, etc.)
-** Dependencies
-|--------------+-------------------------|
-| App          | Comment                 |
-|--------------+-------------------------|
-| =rofi -dmenu=  | Triggers dmenu          |
-| =systemd=      | System management       |
-| =xscreensaver= | Toggle screensaver      |
-| =notify-send=  | Trigger a notifications |
-|--------------+-------------------------|
 ** Setup
-#+begin_src shell :shebang #!/usr/bin/env bash
+#+begin_src shell
 declare -a options
 #+end_src
 
@@ -317,7 +306,7 @@ esac
 
 * dm-screenshot
 :PROPERTIES:
-:header-args: :tangle dm-screenshot
+:header-args: :shebang #!/usr/bin/env bash :tangle dm-screenshot
 :END:
 Take screenshots
 ** Dependencies
@@ -333,7 +322,7 @@ Take screenshots
 |-----------------+--------------------|
 
 ** Setup
-#+begin_src shell :shebang #!/usr/bin/env bash
+#+begin_src shell
 # Set with the flags "-e", "-u","-o pipefail" cause the script to fail
 # if certain things happen, which is a good thing.  Otherwise, we can
 # get hidden bugs that are hard to discover.
@@ -467,7 +456,7 @@ choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
 * dm-record
 :PROPERTIES:
-:header-args: :tangle dm-record 
+:header-args: :shebang #!/usr/bin/env bash :tangle dm-record
 :END:
 Record video/audio
 ** Dependencies
@@ -481,7 +470,7 @@ Record video/audio
 
 ** Setup
 Tracking process
-#+begin_src shell :shebang #!/usr/bin/env bash
+#+begin_src shell
 rec_proc="/tmp/recordingpid"
 #+end_src
 
@@ -606,20 +595,11 @@ fi
 
 * dm-wallpaper
 :PROPERTIES:
-:header-args: :tangle dm-wallpaper
+:header-args: :shebang #!/usr/bin/env bash :tangle dm-wallpaper
 :END:
 Set random wallpapers
-** Dependencies
-|-------------+----------------------|
-| App         | Comment              |
-|-------------+----------------------|
-| =rofi -dmenu= | Triggers dmenu       |
-| =xrandr=      | Screen management    |
-| =nitrogen=    | Wallpaper management |
-|-------------+----------------------|
-
 ** Setup
-#+begin_src shell :shebang #!/usr/bin/env bash
+#+begin_src shell
 declare -a options
 
 if [ ! "$XDG_PICTURES_DIR" ]; then
@@ -656,7 +636,7 @@ esac
 
 * dm-keys
 :PROPERTIES:
-:header-args: :tangle dm-keys
+:header-args: :shebang #!/usr/bin/env bash :tangle dm-keys
 :END:
 Record video/audio
 ** Dependencies
@@ -672,7 +652,7 @@ sudo pacman -S screenkeys
 
 ** Setup
 Tracking process
-#+begin_src shell :shebang #!/usr/bin/env bash
+#+begin_src shell
 position='bottom'
 #+end_src
 
