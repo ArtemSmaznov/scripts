@@ -76,6 +76,7 @@ handleCategoryInput "$wallpaper_category"
 updateStateFile "$wallpaper_category"
 
 if [[ $XDG_SESSION_TYPE == "x11" ]]; then
+    export DISPLAY=":0"
     setNitrogen
 fi
 
