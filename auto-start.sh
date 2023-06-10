@@ -34,8 +34,8 @@ fcitx5 -d &
 
 # emacs --daemon &
 
-qutebrowser &
 /usr/bin/steam-runtime %U &
 emacsclient -c -a 'emacs' &
 alacritty --class ncmpcpp -e ncmpcpp &
 alacritty --class btop -e btop &
+qutebrowser &
