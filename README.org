@@ -25,6 +25,7 @@
 - [[#listen-wm-layout][listen-wm-layout]]
 - [[#listen-wm-title][listen-wm-title]]
 - [[#listen-wm-workspaces][listen-wm-workspaces]]
+- [[#screenshot][screenshot]]
 - [[#set-lang][set-lang]]
 - [[#set-volume][set-volume]]
 - [[#set-wallpaper][set-wallpaper]]
@@ -124,7 +125,17 @@ curl -s ifconfig.co
 
 * get-lang
 #+begin_src shell :tangle get-lang.sh
-setxkbmap -query | awk '$1=="layout:" {print $2}'
+if [[ $XDG_SESSION_TYPE == "x11" ]]; then
+    setxkbmap -query | awk '$1=="layout:" {print $2}'
+fi
+
+if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
+    # if [[ $XDG_DESKTOP_SESSION == "hyprland" ]]; then
+    # if [[ $XDG_SESSION_DESKTOP == "Hyprland" ]]; then
+    if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
+        hyprctl -j devices | jq -r '.keyboards[] | select(.name | contains("wlr")) .active_keymap'
+    fi
+fi
 #+end_src
 
 * get-music
@@ -269,6 +280,66 @@ fi
 exit 0
 #+end_src
 
+* screenshot
+#+begin_src shell :tangle screenshot.sh
+#
+capture_target="$1"
+
+if [ ! "$XDG_PICTURES_DIR" ]; then
+    export XDG_PICTURES_DIR="$HOME/pictures"
+fi
+
+timestamp='+%Y%m%d_%H%M%S'
+shutter="/usr/share/sounds/freedesktop/stereo/camera-shutter.oga"
+
+screen_format="png"
+screen_dir="$XDG_PICTURES_DIR/screenshots"
+
+#===============================================================================
+
+getTimeStamp() {
+    date "$timestamp"
+}
+
+#===============================================================================
+
+mkdir -p "${screen_dir}"
+
+screen_file="$screen_dir/screenshot-$(getTimeStamp).$screen_format"
+
+case $capture_target in
+    full)
+        message="Full desktop"
+        grim "$screen_file" || exit 1
+        ;;
+    screen)
+        # active_monitor=$(hyprctl -j activewindow | jq -r .monitor)
+        # grim -g "$(hyprctl -j monitors | jq -r '.[] | select(.id | contains(0))' | jq -r '"\(.x),\(.y) \(.width)x\(.height)"')" "$screen_file" || exit 1
+        grim "$screen_file" || exit 1
+        message="Main monitor"
+        ;;
+    window)
+        message="Active window"
+        grim -g "$(hyprctl -j activewindow | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')" "$screen_file" || exit 1
+        ;;
+    area)
+        message="Area selection"
+        grim -g "$(slurp)" "$screen_file" || exit 1
+        ;;
+    ,*)
+        echo -e """Only the following arguments are accepted:
+    full
+    screen
+    window
+    area"""
+        exit 1
+        ;;
+esac
+
+paplay "$shutter"
+notify-send "Screenshot saved!" "$message"
+#+end_src
+
 * set-lang
 #+begin_src shell :tangle set-lang.sh
 #
@@ -392,18 +463,32 @@ fi
 
 * toggle-lang
 #+begin_src shell :tangle toggle-lang.sh
-case $($HOME/.local/bin/get-lang.sh) in
-    "us") new_lang="ru" ;;
-    "ru") new_lang="jp" ;;
-    "jp") new_lang="us" ;;
-    ,*)   new_lang="us" ;;
-esac
+if [[ $XDG_SESSION_TYPE == "x11" ]]; then
+    case $($HOME/.local/bin/get-lang.sh) in
+        "us") new_lang="ru" ;;
+        "ru") new_lang="jp" ;;
+        "jp") new_lang="us" ;;
+        ,*) new_lang="us" ;;
+    esac
 
-$HOME/.local/bin/set-lang.sh $new_lang
+    $HOME/.local/bin/set-lang.sh $new_lang
 
-if [[ $new_lang == 'jp' ]]
-then fcitx5-remote -o # enable japanese
-else fcitx5-remote -c # disable japanese
+    if [[ $new_lang == 'jp' ]]; then
+        fcitx5-remote -o # enable japanese
+    else
+        fcitx5-remote -c # disable japanese
+    fi
+fi
+
+if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
+    # if [[ $XDG_DESKTOP_SESSION == "hyprland" ]]; then
+    # if [[ $XDG_SESSION_DESKTOP == "Hyprland" ]]; then
+    if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
+        case $($HOME/.local/bin/get-lang.sh) in
+            "Japanese") fcitx5-remote -o ;; # enable japanese
+            ,*) fcitx5-remote -c ;;          # disable japanese
+        esac
+    fi
 fi
 #+end_src
 
@@ -411,4 +496,5 @@ fi
 #+begin_src shell :tangle toggle-mute.sh
 amixer -q sset Master toggle
 #+end_src
+
 
