@@ -26,16 +26,15 @@ fi
 # if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
 # fi
 
+emacs --daemon &
 nm-applet &
 blueman-applet &
 nextcloud &
 
 fcitx5 -d &
 
-# emacs --daemon &
-
 /usr/bin/steam-runtime %U &
-emacsclient -c -a 'emacs' &
 alacritty --class ncmpcpp -e ncmpcpp &
 alacritty --class btop -e btop &
 qutebrowser &
+emacsclient -c &
