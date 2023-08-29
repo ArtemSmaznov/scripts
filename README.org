@@ -11,6 +11,10 @@
   - [[#wayland][Wayland]]
   - [[#global][Global]]
 - [[#get-battery][get-battery]]
+- [[#get-geometry-area][get-geometry-area]]
+- [[#get-geometry-desktop][get-geometry-desktop]]
+- [[#get-geometry-monitor][get-geometry-monitor]]
+- [[#get-geometry-window][get-geometry-window]]
 - [[#get-ip][get-ip]]
 - [[#get-lang][get-lang]]
 - [[#get-music][get-music]]
@@ -25,12 +29,15 @@
 - [[#listen-wm-layout][listen-wm-layout]]
 - [[#listen-wm-title][listen-wm-title]]
 - [[#listen-wm-workspaces][listen-wm-workspaces]]
+- [[#record-screen][record-screen]]
 - [[#screenshot][screenshot]]
 - [[#set-lang][set-lang]]
 - [[#set-volume][set-volume]]
 - [[#set-wallpaper][set-wallpaper]]
 - [[#toggle-lang][toggle-lang]]
 - [[#toggle-mute][toggle-mute]]
+- [[#trigger-confirmation][trigger-confirmation]]
+- [[#trigger-countdown][trigger-countdown]]
 
 * auto-start
 :PROPERTIES:
@@ -115,6 +122,45 @@ device=$2
 
 # upower -i "/org/freedesktop/UPower/devices/battery_ps_controller_battery_a0oabo51o62o65o1d"
 upower -i "/org/freedesktop/UPower/devices/$device" | grep $metric | awk '{print $2}' | sed 's/%//'
+#+end_src
+
+* get-geometry-area
+#+begin_src shell :tangle get-geometry-area.sh
+slurp
+#+end_src
+
+* get-geometry-desktop
+#+begin_src shell :tangle get-geometry-desktop.sh
+if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
+    if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
+        exit
+    fi
+fi
+exit
+#+end_src
+
+* get-geometry-monitor
+#+begin_src shell :tangle get-geometry-monitor.sh
+if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
+    if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
+        # active_monitor=$(hyprctl -j activewindow | jq -r .monitor)
+        exit
+    fi
+fi
+exit
+#+end_src
+
+* get-geometry-window
+#+begin_src shell :tangle get-geometry-window.sh
+if [[ $XDG_SESSION_TYPE == "x11" ]]; then
+    echo 0
+fi
+
+if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
+    if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
+        hyprctl -j activewindow | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"'
+    fi
+fi
 #+end_src
 
 * get-ip
@@ -280,6 +326,85 @@ fi
 exit 0
 #+end_src
 
+* record-screen
+#+begin_src shell :tangle record-screen.sh
+#
+scope="$1"
+
+if [ ! "$XDG_VIDEOS_DIR" ]; then
+    export XDG_VIDEOS_DIR="$HOME/videos"
+fi
+
+timestamp='+%Y%m%d_%H%M%S'
+
+record_format="mp4"
+record_dir="$XDG_VIDEOS_DIR/recordings"
+record_file="$record_dir/screenrecording-$(date $timestamp).$record_format"
+record_delay=3
+
+mkdir -p "${record_dir}"
+
+#-------------------------------------------------------------------------------
+# Xorg
+
+# Video Settings
+resolution='1920x1080'
+fps='30'
+
+# Audio Settings
+audio_device='alsa_output.usb-Focusrite_Scarlett_2i2_USB_Y86EP6H211E46C-00.analog-stereo.monitor'
+
+xorg_capture() {
+    ffmpeg \
+        -video_size $resolution -framerate $fps \
+        -f x11grab -i "$DISPLAY" \
+        -f pulse -ac 2 -i $audio_device \
+        -codec:v libx264 -preset ultrafast \
+        -codec:a copy \
+        $record_dir/screenrecording-$(date $timestamp).mkv
+}
+
+#-------------------------------------------------------------------------------
+
+case $scope in
+    desktop)
+        message="Full desktop"
+        geometry=$(~/.local/bin/get-geometry-desktop.sh) || exit 1
+        ;;
+    monitor)
+        message="Active monitor"
+        geometry=$(~/.local/bin/get-geometry-monitor.sh) || exit 1
+        ;;
+    window)
+        message="Active window"
+        geometry=$(~/.local/bin/get-geometry-window.sh) || exit 1
+        ;;
+    area)
+        message="Area selection"
+        geometry=$(~/.local/bin/get-geometry-area.sh) || exit 1
+        ;;
+    ,*) echo -e """Only the following arguments are accepted:
+  - desktop
+  - monitor
+  - window
+  - area"""
+        exit 1
+        ;;
+esac
+
+#===============================================================================
+
+~/.local/bin/trigger-countdown.sh $record_delay
+
+if [[ $geometry ]]; then
+    wf-recorder --audio --file="$record_file" -g "$geometry" || exit 1
+else
+    wf-recorder --audio --file="$record_file" || exit 1
+fi
+
+notify-send --urgency=low "Screen recording saved!" "$message"
+#+end_src
+
 * screenshot
 #+begin_src shell :tangle screenshot.sh
 #
@@ -337,7 +462,7 @@ case $capture_target in
 esac
 
 paplay "$shutter"
-notify-send "Screenshot saved!" "$message"
+notify-send --urgency-low "Screenshot saved!" "$message"
 #+end_src
 
 * set-lang
@@ -408,7 +533,8 @@ function updateStateFile {
 
 function selectRandomWallpaper {
     category="$1"
-    wallpaper=$(find "$wallpapers_dir/$category" -type f,l | shuf -n 1)
+    # wallpaper=$(find "$wallpapers_dir/$category" -type f,l | shuf -n 1)
+    wallpaper=$(find "$wallpapers_dir/$category" -type f | shuf -n 1)
 }
 
 #-------------------------------------------------------------------------------
@@ -497,4 +623,20 @@ fi
 amixer -q sset Master toggle
 #+end_src
 
+* trigger-confirmation
+#+begin_src shell :tangle trigger-confirmation.sh
+prompt="$1"
+echo -e "Yes\nNo" | rofi -dmenu -i -p "$prompt"
+#+end_src
 
+* trigger-countdown
+#+begin_src shell :tangle trigger-countdown.sh
+duration=$1
+while (( $duration > 0 )); do
+    notify-send "Starting recording in" "$duration"
+
+    sleep 1
+    dunstctl close
+    ((duration--))
+done
+#+end_src

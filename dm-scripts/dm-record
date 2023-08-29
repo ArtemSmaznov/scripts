@@ -1,44 +1,40 @@
 #!/usr/bin/env bash
-rec_proc="/tmp/recordingpid"
-
-record_dir="$XDG_VIDEOS_DIR/recordings"
-timestamp='+%Y-%m-%d_%T'
-
-resolution='1920x1080'
-fps='30'
-
-audio_device='alsa_output.usb-Focusrite_Scarlett_2i2_USB_Y86EP6H211E46C-00.analog-stereo.monitor'
+# Tracking process
+proc="/tmp/dm-record"
 
 prompt="Record"
 options=(
-    "Screen"
-    "Audio"
+    "Monitor"
+    "Area"
+    "Window"
+    "Desktop"
     "Camera"
+    "Audio"
 )
 
-yesno() {
-    echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
-}
-
 start_recording() {
-    case "$1" in
-        Screen) screen_capture;;
-        Audio) audio_capture;;
-        Camera) echo camera;;
+    scope="$1"
+    case "$scope" in
+        "Monitor") ~/.local/bin/record-screen.sh monitor ;;
+        "Area") ~/.local/bin/record-screen.sh area ;;
+        "Window") ~/.local/bin/record-screen.sh window ;;
+        "Desktop") ~/.local/bin/record-screen.sh desktop ;;
+        "Camera") echo camera;; # TODO
+        "Audio") echo audio_capture;; # REVIEW
         *) echo Invalid input;;
-    esac
+    esac & echo $! > "$proc"
 }
 
 stop_recording() {
-    rec_pid="$(cat $rec_proc)"
+    pid="$(cat $proc)"
 
     # kill with SIGTERM, allowing finishing touches.
-    kill -15 "$rec_pid"
-    rm -f $rec_proc
+    kill -15 "$pid"
+    rm -f "$proc"
 
     # even after SIGTERM, ffmpeg may still run, so SIGKILL it.
     sleep 3
-    kill -9 "$rec_pid"
+    kill -9 "$pid"
     exit
 }
 
@@ -47,26 +43,18 @@ audio_capture() {
         -f pulse -ac 2 -i $audio_device \
         -codec:a copy \
         $record_dir/dm-$(date $timestamp).wav &
-    echo $! > $rec_proc
+    echo $! > $proc
 }
 
-screen_capture() {
-    ffmpeg \
-        -video_size $resolution -framerate $fps \
-        -f x11grab -i "$DISPLAY" \
-        -f pulse -ac 2 -i $audio_device \
-        -codec:v libx264 -preset ultrafast \
-        -codec:a copy \
-        $record_dir/dm-$(date $timestamp).mkv &
-    echo $! > $rec_proc
-}
+if [ -f $proc ]; then
+    if [ $(~/.local/bin/trigger-confirmation.sh "Stop recording?") = "Yes" ]; then
+        stop_recording
+    else
+        exit
+    fi
 
-if [ -f $rec_proc ]
-then [ $(yesno "Stop Active Recording?") = "Yes" ] && stop_recording || exit
-
-elif [ ! $# -eq 0 ]
-
-then start_recording $1
+elif [ ! $# -eq 0 ]; then
+    start_recording $1
 
 else
     # Prompt the user

@@ -36,7 +36,8 @@ function updateStateFile {
 
 function selectRandomWallpaper {
     category="$1"
-    wallpaper=$(find "$wallpapers_dir/$category" -type f,l | shuf -n 1)
+    # wallpaper=$(find "$wallpapers_dir/$category" -type f,l | shuf -n 1)
+    wallpaper=$(find "$wallpapers_dir/$category" -type f | shuf -n 1)
 }
 
 #-------------------------------------------------------------------------------

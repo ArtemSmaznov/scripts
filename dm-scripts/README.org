@@ -28,17 +28,17 @@
   - [[#functions-2][Functions]]
   - [[#handling-input-3][Handling Input]]
 - [[#dm-record][dm-record]]
-  - [[#dependencies-2][Dependencies]]
   - [[#setup-4][Setup]]
   - [[#dmenu-4][DMenu]]
   - [[#functions-3][Functions]]
+  - [[#audio-capture][Audio Capture]]
   - [[#handling-input-4][Handling Input]]
 - [[#dm-wallpaper][dm-wallpaper]]
   - [[#setup-5][Setup]]
   - [[#dmenu-5][DMenu]]
   - [[#action][Action]]
 - [[#dm-keys][dm-keys]]
-  - [[#dependencies-3][Dependencies]]
+  - [[#dependencies-2][Dependencies]]
   - [[#setup-6][Setup]]
   - [[#dmenu-6][DMenu]]
   - [[#functions-4][Functions]]
@@ -459,82 +459,55 @@ choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 :header-args: :shebang #!/usr/bin/env bash :tangle dm-record
 :END:
 Record video/audio
-** Dependencies
-|-------------+--------------------------|
-| App         | Comment                  |
-|-------------+--------------------------|
-| =rofi -dmenu= | Triggers dmenu           |
-| =ffmpeg=      | Video converter/recorder |
-| =slop=        | Window selector          |
-|-------------+--------------------------|
-
 ** Setup
-Tracking process
 #+begin_src shell
-rec_proc="/tmp/recordingpid"
-#+end_src
-
-Save File
-#+begin_src shell
-record_dir="$XDG_VIDEOS_DIR/recordings"
-timestamp='+%Y-%m-%d_%T'
-#+end_src
-
-Video Settings
-#+begin_src shell
-resolution='1920x1080'
-fps='30'
-#+end_src
-
-Audio Settings
-#+begin_src shell
-audio_device='alsa_output.usb-Focusrite_Scarlett_2i2_USB_Y86EP6H211E46C-00.analog-stereo.monitor'
+# Tracking process
+proc="/tmp/dm-record"
 #+end_src
 
 ** DMenu
 #+begin_src shell
 prompt="Record"
 options=(
-    "Screen"
-    "Audio"
+    "Monitor"
+    "Area"
+    "Window"
+    "Desktop"
     "Camera"
+    "Audio"
 )
 #+end_src
 
 ** Functions
 #+begin_src shell
-yesno() {
-    echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
-}
-#+end_src
-*** Recording Selection
-#+begin_src shell
 start_recording() {
-    case "$1" in
-        Screen) screen_capture;;
-        Audio) audio_capture;;
-        Camera) echo camera;;
-        *) echo Invalid input;;
-    esac
+    scope="$1"
+    case "$scope" in
+        "Monitor") ~/.local/bin/record-screen.sh monitor ;;
+        "Area") ~/.local/bin/record-screen.sh area ;;
+        "Window") ~/.local/bin/record-screen.sh window ;;
+        "Desktop") ~/.local/bin/record-screen.sh desktop ;;
+        "Camera") echo camera;; # TODO
+        "Audio") echo audio_capture;; # REVIEW
+        ,*) echo Invalid input;;
+    esac & echo $! > "$proc"
 }
-#+end_src
 
-#+begin_src shell
 stop_recording() {
-    rec_pid="$(cat $rec_proc)"
+    pid="$(cat $proc)"
 
     # kill with SIGTERM, allowing finishing touches.
-    kill -15 "$rec_pid"
-    rm -f $rec_proc
+    kill -15 "$pid"
+    rm -f "$proc"
 
     # even after SIGTERM, ffmpeg may still run, so SIGKILL it.
     sleep 3
-    kill -9 "$rec_pid"
+    kill -9 "$pid"
     exit
 }
 #+end_src
 
-*** Audio Capture
+** Audio Capture
 Check audio sources with
 #+begin_example shell
 pactl list sources | grep Name
@@ -546,39 +519,26 @@ audio_capture() {
         -f pulse -ac 2 -i $audio_device \
         -codec:a copy \
         $record_dir/dm-$(date $timestamp).wav &
-    echo $! > $rec_proc
-}
-#+end_src
-
-*** Screen Capture
-#+begin_src shell
-screen_capture() {
-    ffmpeg \
-        -video_size $resolution -framerate $fps \
-        -f x11grab -i "$DISPLAY" \
-        -f pulse -ac 2 -i $audio_device \
-        -codec:v libx264 -preset ultrafast \
-        -codec:a copy \
-        $record_dir/dm-$(date $timestamp).mkv &
-    echo $! > $rec_proc
+    echo $! > $proc
 }
 #+end_src
 
 ** Handling Input
 Check if there is an active recordings and prompt user to stop it
 #+begin_src shell
-if [ -f $rec_proc ]
-then [ $(yesno "Stop Active Recording?") = "Yes" ] && stop_recording || exit
+if [ -f $proc ]; then
+    if [ $(~/.local/bin/trigger-confirmation.sh "Stop recording?") = "Yes" ]; then
+        stop_recording
+    else
+        exit
+    fi
 #+end_src
 
-Check if any arguments were passed to the script to avoid triggering dmenu
+Check if any arguments were passed to the script and execute script without
+presenting dmenu to the user
 #+begin_src shell
-elif [ ! $# -eq 0 ]
-#+end_src
-
-Execute script without presenting dmenu to the user if an argument was passed
-#+begin_src shell
-then start_recording $1
+elif [ ! $# -eq 0 ]; then
+    start_recording $1
 #+end_src
 
 If no arguments were passed, present dmenu to user
