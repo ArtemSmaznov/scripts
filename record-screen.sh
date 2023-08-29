@@ -6,11 +6,9 @@ if [ ! "$XDG_VIDEOS_DIR" ]; then
     export XDG_VIDEOS_DIR="$HOME/videos"
 fi
 
-timestamp='+%Y%m%d_%H%M%S'
-
 record_format="mp4"
 record_dir="$XDG_VIDEOS_DIR/recordings"
-record_file="$record_dir/screenrecording-$(date $timestamp).$record_format"
+record_file="$record_dir/screenrecording-$(~/.local/bin/get-timestamp.sh).$record_format"
 record_delay=3
 
 mkdir -p "${record_dir}"
@@ -32,7 +30,7 @@ xorg_capture() {
         -f pulse -ac 2 -i $audio_device \
         -codec:v libx264 -preset ultrafast \
         -codec:a copy \
-        $record_dir/screenrecording-$(date $timestamp).mkv
+        $record_dir/screenrecording-$(~/.local/bin/get-timestamp.sh).mkv
 }
 
 #-------------------------------------------------------------------------------

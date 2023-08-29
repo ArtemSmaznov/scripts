@@ -20,6 +20,7 @@
 - [[#get-music][get-music]]
 - [[#get-mute][get-mute]]
 - [[#get-network-interface][get-network-interface]]
+- [[#get-timestamp][get-timestamp]]
 - [[#get-trayer-width][get-trayer-width]]
 - [[#get-updates][get-updates]]
 - [[#get-uptime][get-uptime]]
@@ -227,6 +228,12 @@ route |
     awk '{print $8}'
 #+end_src
 
+* get-timestamp
+#+begin_src shell :tangle get-timestamp.sh
+timestamp='+%Y%m%d_%H%M%S'
+date "$timestamp"
+#+end_src
+
 * get-trayer-width
 #+begin_src shell :tangle get-trayer-width.sh
 if [ $(pidof trayer) ]
@@ -335,11 +342,9 @@ if [ ! "$XDG_VIDEOS_DIR" ]; then
     export XDG_VIDEOS_DIR="$HOME/videos"
 fi
 
-timestamp='+%Y%m%d_%H%M%S'
-
 record_format="mp4"
 record_dir="$XDG_VIDEOS_DIR/recordings"
-record_file="$record_dir/screenrecording-$(date $timestamp).$record_format"
+record_file="$record_dir/screenrecording-$(~/.local/bin/get-timestamp.sh).$record_format"
 record_delay=3
 
 mkdir -p "${record_dir}"
@@ -361,7 +366,7 @@ xorg_capture() {
         -f pulse -ac 2 -i $audio_device \
         -codec:v libx264 -preset ultrafast \
         -codec:a copy \
-        $record_dir/screenrecording-$(date $timestamp).mkv
+        $record_dir/screenrecording-$(~/.local/bin/get-timestamp.sh).mkv
 }
 
 #-------------------------------------------------------------------------------
@@ -414,7 +419,6 @@ if [ ! "$XDG_PICTURES_DIR" ]; then
     export XDG_PICTURES_DIR="$HOME/pictures"
 fi
 
-timestamp='+%Y%m%d_%H%M%S'
 shutter="/usr/share/sounds/freedesktop/stereo/camera-shutter.oga"
 
 screen_format="png"
@@ -422,15 +426,9 @@ screen_dir="$XDG_PICTURES_DIR/screenshots"
 
 #===============================================================================
 
-getTimeStamp() {
-    date "$timestamp"
-}
-
-#===============================================================================
-
 mkdir -p "${screen_dir}"
 
-screen_file="$screen_dir/screenshot-$(getTimeStamp).$screen_format"
+screen_file="$screen_dir/screenshot-$(~/.local/bin/get-timestamp.sh).$screen_format"
 
 case $capture_target in
     full)
