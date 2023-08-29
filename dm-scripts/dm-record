@@ -15,26 +15,26 @@ options=(
 start_recording() {
     scope="$1"
     case "$scope" in
-        "Monitor") ~/.local/bin/record-screen.sh monitor ;;
-        "Area") ~/.local/bin/record-screen.sh area ;;
-        "Window") ~/.local/bin/record-screen.sh window ;;
-        "Desktop") ~/.local/bin/record-screen.sh desktop ;;
+        "Monitor") ~/.local/bin/record-screen.sh monitor & echo $! > "$proc" ;;
+        "Area") ~/.local/bin/record-screen.sh area & echo $! > "$proc" ;;
+        "Window") ~/.local/bin/record-screen.sh window & echo $! > "$proc" ;;
+        "Desktop") ~/.local/bin/record-screen.sh desktop & echo $! > "$proc" ;;
         "Camera") echo camera;; # TODO
         "Audio") echo audio_capture;; # REVIEW
         *) echo Invalid input;;
-    esac & echo $! > "$proc"
+    esac
 }
 
 stop_recording() {
     pid="$(cat $proc)"
 
-    # kill with SIGTERM, allowing finishing touches.
-    kill -15 "$pid"
+    # kill with SIGINT, allowing finishing touches.
+    pkill -INT -P "$pid"
     rm -f "$proc"
 
     # even after SIGTERM, ffmpeg may still run, so SIGKILL it.
     sleep 3
-    kill -9 "$pid"
+    pkill -TERM "$pid"
     exit
 }
 
