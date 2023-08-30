@@ -11,15 +11,15 @@ record_delay=3
 
 mkdir -p "${record_dir}"
 
+# Audio Settings
+audio_device='alsa_output.usb-Focusrite_Scarlett_2i2_USB_Y86EP6H211E46C-00.analog-stereo.monitor'
+
 #-------------------------------------------------------------------------------
 # Xorg
 
 # Video Settings
 resolution='1920x1080'
 fps='30'
-
-# Audio Settings
-audio_device='alsa_output.usb-Focusrite_Scarlett_2i2_USB_Y86EP6H211E46C-00.analog-stereo.monitor'
 
 xorg_capture() {
     ffmpeg \
@@ -67,9 +67,9 @@ esac
 ~/.local/bin/trigger-countdown.sh $record_delay
 
 if [[ $geometry ]]; then
-    wf-recorder --audio --file="$record_file" -g "$geometry" || exit 1
+    wf-recorder --audio="$audio_device" --file="$record_file" -g "$geometry" || exit 1
 else
-    wf-recorder --audio --file="$record_file" || exit 1
+    wf-recorder --audio="$audio_device" --file="$record_file" || exit 1
 fi
 
 notify-send --urgency=low "Recording saved!" "$message"
