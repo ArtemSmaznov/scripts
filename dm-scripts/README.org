@@ -322,28 +322,11 @@ Take screenshots
 |-----------------+--------------------|
 
 ** Setup
+Set with the flags "-e", "-u","-o pipefail" cause the script to fail if certain
+things happen, which is a good thing. Otherwise, we can get hidden bugs that are
+hard to discover.
 #+begin_src shell
-# Set with the flags "-e", "-u","-o pipefail" cause the script to fail
-# if certain things happen, which is a good thing.  Otherwise, we can
-# get hidden bugs that are hard to discover.
 set -euo pipefail
-declare -a options
-#+end_src
-
-Specifying a directory to save our screenshots and make sure it exists
-#+begin_src shell
-screen_dir="$XDG_PICTURES_DIR/screenshots"
-mkdir -p "${screen_dir}"
-#+end_src
-
-Filename Time Stamp Format
-#+begin_src shell
-timestamp='+%Y-%m-%d_%T'
-#+end_src
-
-Shutter sound file
-#+begin_src shell
-shutter="/usr/share/sounds/freedesktop/stereo/camera-shutter.oga" 
 #+end_src
 
 ** DMenu
@@ -358,100 +341,30 @@ options=(
 #+end_src
 
 ** Functions
-*** Monitors
-Get monitors and their settings for maim
-#+begin_src shell
-displays=$(xrandr --listactivemonitors | grep '+' | awk '{print $4, $3}' | awk -F'[x/+* ]' '{print $1,$2"x"$4"+"$6"+"$7}')
-#+end_src
-
-Add monitor data
-#+begin_src shell
-IFS=$'\n'
-declare -A display_mode
-
-for d in ${displays}; do
-    name=$(echo "${d}" | awk '{print $1}')
-    area="$(echo "${d}" | awk '{print $2}')"
-    display_mode[${name}]="${area}"
-done
-
-unset IFS
-#+end_src
-
-*** Timestamp
-#+begin_src shell
-getTimeStamp() {
-    date "$timestamp"
-}
-#+end_src
-
-*** Active Window
-#+begin_src shell
-getActiveWindow() {
-    xdotool getactivewindow
-}
-#+end_src
-
-*** Clipboard
-#+begin_src shell
-saveToClipboard() {
-    case "$XDG_SESSION_TYPE" in
-        'x11') xclip -selection clipboard -t image/png;;
-        'wayland') wl-copy -t image/png;;
-        ,*) err "Unknown display server";;
-    esac
-}
-#+end_src
-
-*** Main
 #+begin_src shell
 main() {
-    local maim_args=""
-
-    case $1 in
-        full) 
-            message="Full desktop"
-        ;;
-        screen) 
-            maim_args="--geometry=${display_mode['DVI-D-0']}"
-            message="Main monitor"
-        ;;
-        window) 
-            maim_args="--capturebackground -i $(getActiveWindow)" 
-            message="Active window"
-        ;;
-        area) 
-            maim_args="--capturebackground --select -n"
-            message="Area selection"
-        ;;
-        ,*)
-            echo -e "Only the following arguments are accepted:\n"
-            printf '%s\n' "${options[@]}"
-            exit 1
-        ;;
+    scope="$1"
+    case "$scope" in
+        "Monitor") ~/.local/bin/screenshot.sh monitor ;;
+        "Area") ~/.local/bin/screenshot.sh area ;;
+        "Window") ~/.local/bin/screenshot.sh window ;;
+        "Desktop") ~/.local/bin/screenshot.sh desktop ;;
+        ,*) echo Invalid input;;
     esac
-
-    file_name="screenshot-$(getTimeStamp).png"
-
-    maim -u ${maim_args} | tee "${screen_dir}/$file_name" | saveToClipboard || exit 1
-    paplay "$shutter" & notify-send "Screenshot saved!" "$message"
 }
 #+end_src
 
 ** Handling Input
-Execute script without presenting dmenu to the user if any argument was passed
 #+begin_src shell
+# execute script without presenting dmenu to the user if any arguments were
+# passed to the script
 [ ! $# -eq 0 ] && main $1 && exit
-#+end_src
 
-Present dmenu to user with options defined in the [[#dmenu-2][DMenu]] section
-=printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
-#+begin_src shell
-# Prompt the user
+# if no arguments were passed, present dmenu to user
 choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
-# Act on user selection
-[ $choice ] && main $choice
+# act on user selection
+[ $choice ] && main "$choice"
 #+end_src
 
 * dm-record
@@ -461,7 +374,7 @@ choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 Record video/audio
 ** Setup
 #+begin_src shell
-# Tracking process
+# Track process
 proc="/tmp/dm-record"
 #+end_src
 
@@ -524,31 +437,25 @@ audio_capture() {
 #+end_src
 
 ** Handling Input
-Check if there is an active recordings and prompt user to stop it
 #+begin_src shell
+# check if there is an active recordings and prompt user to stop it
 if [ -f $proc ]; then
     if [ $(~/.local/bin/trigger-confirmation.sh "Stop recording?") = "Yes" ]; then
         stop_recording
     else
         exit
     fi
-#+end_src
 
-Check if any arguments were passed to the script and execute script without
-presenting dmenu to the user
-#+begin_src shell
 elif [ ! $# -eq 0 ]; then
-    start_recording $1
-#+end_src
+    # execute script without presenting dmenu to the user if any arguments were
+    # passed to the script
+    start_recording "$1"
 
-If no arguments were passed, present dmenu to user
-=printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
-#+begin_src shell
 else
-    # Prompt the user
+    # if no arguments were passed, present dmenu to user
     choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
-    # Act on user selection
+    # act on user selection
     [ $choice ] && start_recording $choice
 fi
 #+end_src

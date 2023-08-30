@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 if [[ $XDG_SESSION_TYPE == "x11" ]]; then
+    # xdotool getactivewindow
     echo 0
 fi
 

@@ -17,7 +17,10 @@ mkdir -p "${screen_dir}"
 #-------------------------------------------------------------------------------
 
 xorg_screen() {
-    exit
+    maim -u --geometry "$geometry" | tee "$screen_file" | ~/.local/bin/save-to-clipboard.sh image/png || exit 1
+    maim -u --capturebackground -i $(xdotool getactivewindow) | tee "$screen_file" | ~/.local/bin/save-to-clipboard.sh image/png || exit 1
+    maim -u --capturebackground --select -n | tee "$screen_file" | ~/.local/bin/save-to-clipboard.sh image/png || exit 1
+    maim -u | tee "$screen_file" | ~/.local/bin/save-to-clipboard.sh image/png || exit 1
 }
 
 #-------------------------------------------------------------------------------

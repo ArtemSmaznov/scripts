@@ -32,6 +32,7 @@
 - [[#listen-wm-workspaces][listen-wm-workspaces]]
 - [[#record-screen][record-screen]]
 - [[#screenshot][screenshot]]
+- [[#save-to-clipboard][save-to-clipboard]]
 - [[#set-lang][set-lang]]
 - [[#set-volume][set-volume]]
 - [[#set-wallpaper][set-wallpaper]]
@@ -142,6 +143,21 @@ exit
 
 * get-geometry-monitor
 #+begin_src shell :tangle get-geometry-monitor.sh
+if [[ $XDG_SESSION_TYPE == "x11" ]]; then
+    displays=$(xrandr --listactivemonitors | grep '+' | awk '{print $4, $3}' | awk -F'[x/+* ]' '{print $1,$2"x"$4"+"$6"+"$7}')
+
+    IFS=$'\n'
+    declare -A display_mode
+
+    for d in ${displays}; do
+        name=$(echo "${d}" | awk '{print $1}')
+        area="$(echo "${d}" | awk '{print $2}')"
+        display_mode[${name}]="${area}"
+    done
+
+    unset IFS
+fi
+
 if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
     if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
         # active_monitor=$(hyprctl -j activewindow | jq -r .monitor)
@@ -155,6 +171,7 @@ exit
 * get-geometry-window
 #+begin_src shell :tangle get-geometry-window.sh
 if [[ $XDG_SESSION_TYPE == "x11" ]]; then
+    # xdotool getactivewindow
     echo 0
 fi
 
@@ -434,7 +451,10 @@ mkdir -p "${screen_dir}"
 #-------------------------------------------------------------------------------
 
 xorg_screen() {
-    exit
+    maim -u --geometry "$geometry" | tee "$screen_file" | ~/.local/bin/save-to-clipboard.sh image/png || exit 1
+    maim -u --capturebackground -i $(xdotool getactivewindow) | tee "$screen_file" | ~/.local/bin/save-to-clipboard.sh image/png || exit 1
+    maim -u --capturebackground --select -n | tee "$screen_file" | ~/.local/bin/save-to-clipboard.sh image/png || exit 1
+    maim -u | tee "$screen_file" | ~/.local/bin/save-to-clipboard.sh image/png || exit 1
 }
 
 #-------------------------------------------------------------------------------
@@ -478,6 +498,18 @@ fi
 
 paplay "$shutter"
 notify-send --urgency low "Screenshot saved!" "$message" --icon "$screen_file"
+#+end_src
+
+* save-to-clipboard
+#+begin_src shell :tangle save-to-clipboard.sh
+type="$1" # image/png
+# screenshot.sh monitor | save-to-clipboard.sh image/png
+
+case "$XDG_SESSION_TYPE" in
+    'x11') xclip -selection clipboard -t "$type" ;;
+    'wayland') wl-copy -t "$type" ;;
+    ,*) err "Unknown display server" ;;
+esac
 #+end_src
 
 * set-lang

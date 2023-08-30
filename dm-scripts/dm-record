@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tracking process
+# Track process
 proc="/tmp/dm-record"
 
 prompt="Record"
@@ -46,6 +46,7 @@ audio_capture() {
     echo $! > $proc
 }
 
+# check if there is an active recordings and prompt user to stop it
 if [ -f $proc ]; then
     if [ $(~/.local/bin/trigger-confirmation.sh "Stop recording?") = "Yes" ]; then
         stop_recording
@@ -54,12 +55,14 @@ if [ -f $proc ]; then
     fi
 
 elif [ ! $# -eq 0 ]; then
-    start_recording $1
+    # execute script without presenting dmenu to the user if any arguments were
+    # passed to the script
+    start_recording "$1"
 
 else
-    # Prompt the user
+    # if no arguments were passed, present dmenu to user
     choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
-    # Act on user selection
+    # act on user selection
     [ $choice ] && start_recording $choice
 fi

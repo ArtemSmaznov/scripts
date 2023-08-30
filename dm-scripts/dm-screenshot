@@ -1,16 +1,5 @@
 #!/usr/bin/env bash
-# Set with the flags "-e", "-u","-o pipefail" cause the script to fail
-# if certain things happen, which is a good thing.  Otherwise, we can
-# get hidden bugs that are hard to discover.
 set -euo pipefail
-declare -a options
-
-screen_dir="$XDG_PICTURES_DIR/screenshots"
-mkdir -p "${screen_dir}"
-
-timestamp='+%Y-%m-%d_%T'
-
-shutter="/usr/share/sounds/freedesktop/stereo/camera-shutter.oga"
 
 prompt="Screenshot"
 options=(
@@ -20,71 +9,23 @@ options=(
     "Desktop"
 )
 
-displays=$(xrandr --listactivemonitors | grep '+' | awk '{print $4, $3}' | awk -F'[x/+* ]' '{print $1,$2"x"$4"+"$6"+"$7}')
-
-IFS=$'\n'
-declare -A display_mode
-
-for d in ${displays}; do
-    name=$(echo "${d}" | awk '{print $1}')
-    area="$(echo "${d}" | awk '{print $2}')"
-    display_mode[${name}]="${area}"
-done
-
-unset IFS
-
-getTimeStamp() {
-    date "$timestamp"
-}
-
-getActiveWindow() {
-    xdotool getactivewindow
-}
-
-saveToClipboard() {
-    case "$XDG_SESSION_TYPE" in
-        'x11') xclip -selection clipboard -t image/png;;
-        'wayland') wl-copy -t image/png;;
-        *) err "Unknown display server";;
-    esac
-}
-
 main() {
-    local maim_args=""
-
-    case $1 in
-        full) 
-            message="Full desktop"
-        ;;
-        screen) 
-            maim_args="--geometry=${display_mode['DVI-D-0']}"
-            message="Main monitor"
-        ;;
-        window) 
-            maim_args="--capturebackground -i $(getActiveWindow)" 
-            message="Active window"
-        ;;
-        area) 
-            maim_args="--capturebackground --select -n"
-            message="Area selection"
-        ;;
-        *)
-            echo -e "Only the following arguments are accepted:\n"
-            printf '%s\n' "${options[@]}"
-            exit 1
-        ;;
+    scope="$1"
+    case "$scope" in
+        "Monitor") ~/.local/bin/screenshot.sh monitor ;;
+        "Area") ~/.local/bin/screenshot.sh area ;;
+        "Window") ~/.local/bin/screenshot.sh window ;;
+        "Desktop") ~/.local/bin/screenshot.sh desktop ;;
+        *) echo Invalid input;;
     esac
-
-    file_name="screenshot-$(getTimeStamp).png"
-
-    maim -u ${maim_args} | tee "${screen_dir}/$file_name" | saveToClipboard || exit 1
-    paplay "$shutter" & notify-send "Screenshot saved!" "$message"
 }
 
+# execute script without presenting dmenu to the user if any arguments were
+# passed to the script
 [ ! $# -eq 0 ] && main $1 && exit
 
-# Prompt the user
+# if no arguments were passed, present dmenu to user
 choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
-# Act on user selection
-[ $choice ] && main $choice
+# act on user selection
+[ $choice ] && main "$choice"
