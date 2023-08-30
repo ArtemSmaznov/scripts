@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 scope="$1"
 
-if [ ! "$XDG_VIDEOS_DIR" ]; then
-    export XDG_VIDEOS_DIR="$HOME/videos"
-fi
+[ ! "$XDG_VIDEOS_DIR" ] && export XDG_VIDEOS_DIR="$HOME/Videos"
 
 record_dir="$XDG_VIDEOS_DIR/recordings"
 record_name="recording"

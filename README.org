@@ -355,9 +355,7 @@ exit 0
 #+begin_src shell :tangle record-screen.sh
 scope="$1"
 
-if [ ! "$XDG_VIDEOS_DIR" ]; then
-    export XDG_VIDEOS_DIR="$HOME/videos"
-fi
+[ ! "$XDG_VIDEOS_DIR" ] && export XDG_VIDEOS_DIR="$HOME/Videos"
 
 record_dir="$XDG_VIDEOS_DIR/recordings"
 record_name="recording"
@@ -435,9 +433,7 @@ notify-send --urgency=low "Recording saved!" "$message"
 #+begin_src shell :tangle screenshot.sh
 scope="$1"
 
-if [ ! "$XDG_PICTURES_DIR" ]; then
-    export XDG_PICTURES_DIR="$HOME/pictures"
-fi
+[ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
 
 screen_dir="$XDG_PICTURES_DIR/screenshots"
 screen_name="screenshot"
@@ -547,14 +543,10 @@ amixer -q sset Master ${step}%${direction} unmute
 # Inputs
 wallpaper_category=$1
 
-if [ ! "$XDG_STATE_HOME" ]; then
-    export XDG_STATE_HOME="$HOME/.local/state"
-fi
+[ ! "$XDG_STATE_HOME" ] && export XDG_STATE_HOME="$HOME/.local/state"
 wallpaper_category_file="$XDG_STATE_HOME/wallpaper"
 
-if [ ! "$XDG_PICTURES_DIR" ]; then
-    export XDG_PICTURES_DIR="$HOME/pictures"
-fi
+[ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
 wallpapers_dir="$XDG_PICTURES_DIR/wallpapers"
 
 #===============================================================================

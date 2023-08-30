@@ -469,9 +469,7 @@ Set random wallpapers
 #+begin_src shell
 declare -a options
 
-if [ ! "$XDG_PICTURES_DIR" ]; then
-    export XDG_PICTURES_DIR="$HOME/pictures"
-fi
+[ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
 #+end_src
 
 Specifying a directory with wallpapers and make sure it exists

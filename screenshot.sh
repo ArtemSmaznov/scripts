@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 scope="$1"
 
-if [ ! "$XDG_PICTURES_DIR" ]; then
-    export XDG_PICTURES_DIR="$HOME/pictures"
-fi
+[ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
 
 screen_dir="$XDG_PICTURES_DIR/screenshots"
 screen_name="screenshot"

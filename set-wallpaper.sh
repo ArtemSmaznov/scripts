@@ -3,14 +3,10 @@
 # Inputs
 wallpaper_category=$1
 
-if [ ! "$XDG_STATE_HOME" ]; then
-    export XDG_STATE_HOME="$HOME/.local/state"
-fi
+[ ! "$XDG_STATE_HOME" ] && export XDG_STATE_HOME="$HOME/.local/state"
 wallpaper_category_file="$XDG_STATE_HOME/wallpaper"
 
-if [ ! "$XDG_PICTURES_DIR" ]; then
-    export XDG_PICTURES_DIR="$HOME/pictures"
-fi
+[ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
 wallpapers_dir="$XDG_PICTURES_DIR/wallpapers"
 
 #===============================================================================

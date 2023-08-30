@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 declare -a options
 
-if [ ! "$XDG_PICTURES_DIR" ]; then
-    export XDG_PICTURES_DIR="$HOME/pictures"
-fi
+[ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
 
 wallpapers_dir="$XDG_PICTURES_DIR/wallpapers"
 
