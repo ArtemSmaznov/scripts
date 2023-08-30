@@ -145,6 +145,7 @@ exit
 if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
     if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
         # active_monitor=$(hyprctl -j activewindow | jq -r .monitor)
+        # hyprctl -j monitors | jq -r '.[] | select(.id | contains(0))' | jq -r '"\(.x),\(.y) \(.width)x\(.height)"'
         exit
     fi
 fi
@@ -335,16 +336,16 @@ exit 0
 
 * record-screen
 #+begin_src shell :tangle record-screen.sh
-#
 scope="$1"
 
 if [ ! "$XDG_VIDEOS_DIR" ]; then
     export XDG_VIDEOS_DIR="$HOME/videos"
 fi
 
-record_format="mp4"
 record_dir="$XDG_VIDEOS_DIR/recordings"
-record_file="$record_dir/screenrecording-$(~/.local/bin/get-timestamp.sh).$record_format"
+record_name="recording"
+record_format="mp4"
+record_file="$record_dir/$record_name-$(~/.local/bin/get-timestamp.sh).$record_format"
 record_delay=3
 
 mkdir -p "${record_dir}"
@@ -372,27 +373,30 @@ xorg_capture() {
 #-------------------------------------------------------------------------------
 
 case $scope in
-    desktop)
-        message="Full desktop"
-        geometry=$(~/.local/bin/get-geometry-desktop.sh) || exit 1
-        ;;
     monitor)
         message="Active monitor"
         geometry=$(~/.local/bin/get-geometry-monitor.sh) || exit 1
-        ;;
-    window)
-        message="Active window"
-        geometry=$(~/.local/bin/get-geometry-window.sh) || exit 1
         ;;
     area)
         message="Area selection"
         geometry=$(~/.local/bin/get-geometry-area.sh) || exit 1
         ;;
-    ,*) echo -e """Only the following arguments are accepted:
-  - desktop
+    window)
+        message="Active window"
+        geometry=$(~/.local/bin/get-geometry-window.sh) || exit 1
+        ;;
+    desktop)
+        message="Full desktop"
+        geometry=$(~/.local/bin/get-geometry-desktop.sh) || exit 1
+        ;;
+    ,*)
+        echo -e """error: invalid option '$scope'
+
+accepted options:
   - monitor
+  - area
   - window
-  - area"""
+  - desktop"""
         exit 1
         ;;
 esac
@@ -407,60 +411,73 @@ else
     wf-recorder --audio --file="$record_file" || exit 1
 fi
 
-notify-send --urgency=low "Screen recording saved!" "$message"
+notify-send --urgency=low "Recording saved!" "$message"
 #+end_src
 
 * screenshot
 #+begin_src shell :tangle screenshot.sh
-#
-capture_target="$1"
+scope="$1"
 
 if [ ! "$XDG_PICTURES_DIR" ]; then
     export XDG_PICTURES_DIR="$HOME/pictures"
 fi
 
-shutter="/usr/share/sounds/freedesktop/stereo/camera-shutter.oga"
-
-screen_format="png"
 screen_dir="$XDG_PICTURES_DIR/screenshots"
+screen_name="screenshot"
+screen_format="png"
+screen_file="$screen_dir/$screen_name-$(~/.local/bin/get-timestamp.sh).$screen_format"
 
-#===============================================================================
+shutter="/usr/share/sounds/freedesktop/stereo/camera-shutter.oga"
 
 mkdir -p "${screen_dir}"
 
-screen_file="$screen_dir/screenshot-$(~/.local/bin/get-timestamp.sh).$screen_format"
+#-------------------------------------------------------------------------------
 
-case $capture_target in
-    full)
-        message="Full desktop"
-        grim "$screen_file" || exit 1
-        ;;
-    screen)
-        # active_monitor=$(hyprctl -j activewindow | jq -r .monitor)
-        # grim -g "$(hyprctl -j monitors | jq -r '.[] | select(.id | contains(0))' | jq -r '"\(.x),\(.y) \(.width)x\(.height)"')" "$screen_file" || exit 1
-        grim "$screen_file" || exit 1
-        message="Main monitor"
-        ;;
-    window)
-        message="Active window"
-        grim -g "$(hyprctl -j activewindow | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')" "$screen_file" || exit 1
+xorg_screen() {
+    exit
+}
+
+#-------------------------------------------------------------------------------
+
+case $scope in
+    monitor)
+        message="Active monitor"
+        geometry=$(~/.local/bin/get-geometry-monitor.sh) || exit 1
         ;;
     area)
         message="Area selection"
-        grim -g "$(slurp)" "$screen_file" || exit 1
+        geometry=$(~/.local/bin/get-geometry-area.sh) || exit 1
+        ;;
+    window)
+        message="Active window"
+        geometry=$(~/.local/bin/get-geometry-window.sh) || exit 1
+        ;;
+    desktop)
+        message="Full desktop"
+        geometry=$(~/.local/bin/get-geometry-desktop.sh) || exit 1
         ;;
     ,*)
-        echo -e """Only the following arguments are accepted:
-    full
-    screen
-    window
-    area"""
+        echo -e """error: invalid option '$scope'
+
+accepted options:
+  - monitor
+  - area
+  - window
+  - desktop"""
         exit 1
         ;;
 esac
 
+#===============================================================================
+
+if [[ $geometry ]]; then
+    grim -g "$geometry" "$screen_file" || exit 1
+else
+    grim "$screen_file" || exit 1
+fi
+
 paplay "$shutter"
-notify-send --urgency-low "Screenshot saved!" "$message"
+notify-send --urgency low "Screenshot saved!" "$message" --icon "$screen_file"
 #+end_src
 
 * set-lang

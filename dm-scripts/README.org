@@ -348,12 +348,12 @@ shutter="/usr/share/sounds/freedesktop/stereo/camera-shutter.oga"
 
 ** DMenu
 #+begin_src shell
-prompt="Select what to screenshot"
+prompt="Screenshot"
 options=(
-    "full"
-    "screen"
-    "window"
-    "area"
+    "Monitor"
+    "Area"
+    "Window"
+    "Desktop"
 )
 #+end_src
 

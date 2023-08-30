@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-#
 scope="$1"
 
 if [ ! "$XDG_VIDEOS_DIR" ]; then
     export XDG_VIDEOS_DIR="$HOME/videos"
 fi
 
-record_format="mp4"
 record_dir="$XDG_VIDEOS_DIR/recordings"
-record_file="$record_dir/screenrecording-$(~/.local/bin/get-timestamp.sh).$record_format"
+record_name="recording"
+record_format="mp4"
+record_file="$record_dir/$record_name-$(~/.local/bin/get-timestamp.sh).$record_format"
 record_delay=3
 
 mkdir -p "${record_dir}"
@@ -36,27 +36,30 @@ xorg_capture() {
 #-------------------------------------------------------------------------------
 
 case $scope in
-    desktop)
-        message="Full desktop"
-        geometry=$(~/.local/bin/get-geometry-desktop.sh) || exit 1
-        ;;
     monitor)
         message="Active monitor"
         geometry=$(~/.local/bin/get-geometry-monitor.sh) || exit 1
-        ;;
-    window)
-        message="Active window"
-        geometry=$(~/.local/bin/get-geometry-window.sh) || exit 1
         ;;
     area)
         message="Area selection"
         geometry=$(~/.local/bin/get-geometry-area.sh) || exit 1
         ;;
-    *) echo -e """Only the following arguments are accepted:
-  - desktop
+    window)
+        message="Active window"
+        geometry=$(~/.local/bin/get-geometry-window.sh) || exit 1
+        ;;
+    desktop)
+        message="Full desktop"
+        geometry=$(~/.local/bin/get-geometry-desktop.sh) || exit 1
+        ;;
+    *)
+        echo -e """error: invalid option '$scope'
+
+accepted options:
   - monitor
+  - area
   - window
-  - area"""
+  - desktop"""
         exit 1
         ;;
 esac
@@ -71,4 +74,4 @@ else
     wf-recorder --audio --file="$record_file" || exit 1
 fi
 
-notify-send --urgency=low "Screen recording saved!" "$message"
+notify-send --urgency=low "Recording saved!" "$message"

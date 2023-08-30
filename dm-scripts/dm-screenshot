@@ -12,12 +12,12 @@ timestamp='+%Y-%m-%d_%T'
 
 shutter="/usr/share/sounds/freedesktop/stereo/camera-shutter.oga"
 
-prompt="Select what to screenshot"
+prompt="Screenshot"
 options=(
-    "full"
-    "screen"
-    "window"
-    "area"
+    "Monitor"
+    "Area"
+    "Window"
+    "Desktop"
 )
 
 displays=$(xrandr --listactivemonitors | grep '+' | awk '{print $4, $3}' | awk -F'[x/+* ]' '{print $1,$2"x"$4"+"$6"+"$7}')
