@@ -32,6 +32,7 @@
 - [[#listen-wm-workspaces][listen-wm-workspaces]]
 - [[#record-screen][record-screen]]
 - [[#screenshot][screenshot]]
+- [[#scan-playlists][scan-playlists]]
 - [[#save-to-clipboard][save-to-clipboard]]
 - [[#set-lang][set-lang]]
 - [[#set-volume][set-volume]]
@@ -494,6 +495,23 @@ fi
 
 paplay "$shutter"
 notify-send --urgency low "Screenshot saved!" "$message" --icon "$screen_file"
+#+end_src
+
+* scan-playlists
+#+begin_src shell :tangle scan-playlists.sh
+music_dir="$XDG_MUSIC_DIR"
+playlists_dir="$XDG_CONFIG_HOME/mpd/playlists"
+
+cd "$music_dir" || exit 1
+
+echo "broken song links"
+for playlist in "$playlists_dir"/*; do
+    playlist=$(basename "$playlist" .m3u)
+
+    while read -r song; do
+        ls "$song" &>/dev/null || echo "$playlist: $song"
+    done <"$playlists_dir/$playlist.m3u"
+done
 #+end_src
 
 * save-to-clipboard
