@@ -17,6 +17,7 @@
 - [[#get-geometry-window][get-geometry-window]]
 - [[#get-ip][get-ip]]
 - [[#get-lang][get-lang]]
+- [[#get-wm-layout][get-wm-layout]]
 - [[#get-music][get-music]]
 - [[#get-mute][get-mute]]
 - [[#get-network-interface][get-network-interface]]
@@ -204,6 +205,15 @@ if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
 fi
 #+end_src
 
+* get-wm-layout
+#+begin_src shell :tangle get-wm-layout.sh
+if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
+    if [[ $XDG_SESSION_DESKTOP == "Hyprland" ]]; then
+        hyprctl getoption -j general:layout | jq -r .str
+    fi
+fi
+#+end_src
+
 * get-music
 #+begin_src shell :tangle get-music.sh
 usage="""Usage:
@@ -302,8 +312,7 @@ xprop -spy -root _NET_ACTIVE_WINDOW |
 
 * listen-wm-layout
 #+begin_src shell :tangle listen-wm-layout.sh
-if [[ $DESKTOP_SESSION == "xmonad" ]]
-then
+if [[ $DESKTOP_SESSION == "xmonad" ]]; then
     xprop -spy -root _XMONAD_LOG |
         stdbuf -oL sed 's/^.*= //' |
         stdbuf -oL sed 's/^"\(.*\)"$/\1/' |
