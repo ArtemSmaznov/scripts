@@ -2,9 +2,6 @@
 paplay "$HOME/public/audio/windows95-startup.wav" &
 
 if [[ $XDG_SESSION_TYPE == "x11" ]]; then
-    # wallpaper
-    ~/.local/bin/dm-scripts/dm-wallpaper -refresh &
-
     # screen locker
     # xscreensaver -no-splash &
     # xautolock -time 60 -locker "$HOME/.config/i3lock/i3lock.sh" &
@@ -38,3 +35,5 @@ alacritty --class ncmpcpp -e ncmpcpp &
 alacritty --class btop -e btop &
 qutebrowser &
 emacsclient -c &
+
+sleep 3 && "$HOME/.local/bin/set-wallpaper.sh" &

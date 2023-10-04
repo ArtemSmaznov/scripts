@@ -3,10 +3,10 @@
 # Inputs
 wallpaper_category=$1
 
-[ ! "$XDG_STATE_HOME" ] && export XDG_STATE_HOME="$HOME/.local/state"
-wallpaper_category_file="$XDG_STATE_HOME/wallpaper"
-
 [ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
+[ ! "$XDG_STATE_HOME" ] && export XDG_STATE_HOME="$HOME/.local/state"
+
+wallpaper_category_file="$XDG_STATE_HOME/wallpaper"
 wallpapers_dir="$XDG_PICTURES_DIR/wallpapers"
 
 #===============================================================================
@@ -53,9 +53,7 @@ function setNitrogen {
 function setHyprPaper {
     monitors=$(hyprctl -j monitors | jq -r '.[].name')
 
-    if [ ! "$(pidof hyprpaper)" ]; then
-        hyprpaper &
-    fi
+    [ ! "$(pidof hyprpaper)" ] && hyprpaper &
 
     hyprctl hyprpaper unload all
 
@@ -64,6 +62,15 @@ function setHyprPaper {
         hyprctl hyprpaper preload "$wallpaper"
         hyprctl hyprpaper wallpaper "$monitor,$wallpaper"
     done
+}
+
+function setWPaperD {
+    config_file="$XDG_CONFIG_HOME/wpaperd/wallpaper.toml"
+    sed -i "s|path = .*$|path = \"$wallpapers_dir/$wallpaper_category\"|" "$config_file"
+
+    # restart wpaperd
+    [ "$(pidof wpaperd)" ] && killall wpaperd
+    wpaperd
 }
 
 #===============================================================================
@@ -78,9 +85,11 @@ if [[ $XDG_SESSION_TYPE == "x11" ]]; then
 fi
 
 if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
+    setWPaperD
+
     # if [[ $XDG_DESKTOP_SESSION == "hyprland" ]]; then
+    # if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
     # if [[ $XDG_SESSION_DESKTOP == "Hyprland" ]]; then
-    if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
-        setHyprPaper
-    fi
+    #     setHyprPaper
+    # fi
 fi
