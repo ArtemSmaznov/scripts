@@ -337,6 +337,7 @@ options=(
     "Area"
     "Window"
     "Desktop"
+    "TV"
 )
 #+end_src
 
@@ -349,6 +350,7 @@ main() {
         "Area") ~/.local/bin/screenshot.sh area ;;
         "Window") ~/.local/bin/screenshot.sh window ;;
         "Desktop") ~/.local/bin/screenshot.sh desktop ;;
+        "TV") ~/.local/bin/screenshot.sh tv ;;
         ,*) echo Invalid input;;
     esac
 }
