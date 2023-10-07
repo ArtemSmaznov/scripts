@@ -10,6 +10,7 @@
   - [[#xorg][Xorg]]
   - [[#wayland][Wayland]]
   - [[#global][Global]]
+- [[#cast-to-tv][cast-to-tv]]
 - [[#get-battery][get-battery]]
 - [[#get-geometry-area][get-geometry-area]]
 - [[#get-geometry-desktop][get-geometry-desktop]]
@@ -106,6 +107,21 @@ emacsclient -c &
 Wallpaper
 #+begin_src shell
 sleep 3 && "$HOME/.local/bin/set-wallpaper.sh" &
+#+end_src
+
+* cast-to-tv
+#+begin_src shell :tangle cast-to-tv.sh
+media_url="$1"
+
+# variables
+#-------------------------------------------------------------------------------
+remote_host=shield
+remote_port=5555
+adb_device="$(~/.local/bin/get-ip.sh $remote_host):$remote_port"
+
+# execution
+#===============================================================================
+adb -s "$adb_device" shell am start -a android.intent.action.VIEW -d "$media_url"
 #+end_src
 
 * get-battery
@@ -724,3 +740,4 @@ while (( $duration > 0 )); do
     ((duration--))
 done
 #+end_src
+
