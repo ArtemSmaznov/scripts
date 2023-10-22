@@ -1,3 +1,6 @@
+:PROPERTIES:
+:ID:       c9d06930-ec33-4afc-b320-3942fa73e592
+:END:
 #+title:       dm-scripts
 #+author:      Artem Smaznov
 #+description: A collection of dmenu scripts

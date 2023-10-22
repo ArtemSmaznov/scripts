@@ -1,3 +1,6 @@
+:PROPERTIES:
+:ID:       d4c60fae-8667-4066-902f-692a61572338
+:END:
 #+title:       Scripts
 #+author:      Artem Smaznov
 #+description: Miscalenious scripts
