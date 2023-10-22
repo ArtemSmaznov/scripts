@@ -10,9 +10,6 @@ if [[ $XDG_SESSION_TYPE == "x11" ]]; then
     # compositor
     picom -b &
 
-    # notification daemon
-    dunst &
-
     # hide cursor
     unclutter -jitter 5 &
 
@@ -23,6 +20,7 @@ fi
 # if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
 # fi
 
+dunst &
 emacs --daemon &
 nm-applet &
 blueman-applet &

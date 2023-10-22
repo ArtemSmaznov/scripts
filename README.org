@@ -67,9 +67,6 @@ if [[ $XDG_SESSION_TYPE == "x11" ]]; then
     # compositor
     picom -b &
 
-    # notification daemon
-    dunst &
-
     # hide cursor
     unclutter -jitter 5 &
 
@@ -87,6 +84,7 @@ fi
 ** Global
 System Utilities
 #+begin_src shell
+dunst &
 emacs --daemon &
 nm-applet &
 blueman-applet &
