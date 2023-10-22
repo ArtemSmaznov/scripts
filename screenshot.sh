@@ -52,6 +52,7 @@ screenshot_android() {
 
     adb_device="$(~/.local/bin/get-ip.sh $remote_host):$remote_port"
 
+    adb connect "$adb_device"
     adb -s "$adb_device" shell mkdir -p "$remote_dir"
     adb -s "$adb_device" shell screencap -p "$remote_file"
     paplay "$shutter"
@@ -99,7 +100,7 @@ esac
 mkdir -p "${screen_dir}"
 
 case $scope in
-    tv) screenshot_android shield 5555 ;;
+    tv) screenshot_android nvidia-shield 5555 ;;
     *) case $XDG_SESSION_TYPE in
            wayland) screenshot_wayland ;;
            x11) screenshot_xorg ;;
