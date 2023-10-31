@@ -738,33 +738,51 @@ fi
 
 * toggle-lang
 #+begin_src shell :tangle toggle-lang.sh
-if [[ $XDG_SESSION_TYPE == "x11" ]]; then
-    case $($HOME/.local/bin/get-lang.sh) in
-        "us") new_lang="ru" ;;
-        "ru") new_lang="jp" ;;
-        "jp") new_lang="us" ;;
-        ,*) new_lang="us" ;;
+# variables
+#-------------------------------------------------------------------------------
+scripts_dir="$HOME/.local/bin"
+
+# x11 functions
+#-------------------------------------------------------------------------------
+toggle_x11 () {
+    case $("$scripts_dir/get-lang.sh") in
+        'us') new_lang='ru' ;;
+        'ru') new_lang='jp' ;;
+        'jp') new_lang='us' ;;
+        *) new_lang='us' ;;
     esac
 
-    $HOME/.local/bin/set-lang.sh $new_lang
+    "$scripts_dir/set-lang.sh $new_lang"
 
-    if [[ $new_lang == 'jp' ]]; then
-        fcitx5-remote -o # enable japanese
-    else
-        fcitx5-remote -c # disable japanese
-    fi
-fi
+    case $new_lang in
+        'jp') fcitx5-remote -o ;; # enable japanese
+        *) fcitx5-remote -c ;;    # disable japanese
+    esac
+}
 
-if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-    # if [[ $XDG_DESKTOP_SESSION == "hyprland" ]]; then
-    # if [[ $XDG_SESSION_DESKTOP == "Hyprland" ]]; then
-    if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
-        case $($HOME/.local/bin/get-lang.sh) in
-            "Japanese") fcitx5-remote -o ;; # enable japanese
-            ,*) fcitx5-remote -c ;;          # disable japanese
-        esac
-    fi
-fi
+# wayland functions
+#-------------------------------------------------------------------------------
+toggle_wayland () {
+    case $XDG_CURRENT_DESKTOP in
+        'Hyprland') toggle_hyprland ;;
+    esac
+}
+
+toggle_hyprland () {
+    keyboard_device="massdrop-inc.-ctrl-keyboard"
+    hyprctl switchxkblayout "$keyboard_device" next
+    case $("$scripts_dir/get-lang.sh") in
+        'Japanese') fcitx5-remote -o ;; # enable japanese
+        *) fcitx5-remote -c ;;          # disable japanese
+    esac
+}
+
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    'x11') toggle_x11 ;;
+    'wayland') toggle_wayland ;;
+esac
 #+end_src
 
 * toggle-mute
