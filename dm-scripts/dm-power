@@ -34,14 +34,12 @@ declare -a options=(
     "Shutdown"
     "Logout"
     "Lock screen"
-    "Reboot to Windows"
     "Quit"
 )
 
 execute_choice() {
     if [[ $1 == 'lock' ]]; then ${LOCKER}
     elif [[ $1 == 'reboot' ]]; then systemctl reboot
-    elif [[ $1 == 'windows' ]]; then sudo $HOME/.local/bin/winreboot
     elif [[ $1 == 'poweroff' ]]; then systemctl poweroff
     elif [[ $1 == 'suspend' ]]; then systemctl suspend
     elif [[ $1 == 'quit' ]]; then ${output} "Program terminated." && exit 0
@@ -68,13 +66,6 @@ case $choice in
     'Reboot')
         if [[ $(yesno "Reboot?") == "Yes" ]]; then
             execute_choice reboot
-        else
-            ${output} "User chose not to reboot." && exit 0
-        fi
-        ;;
-    'Reboot to Windows')
-        if [[ $(yesno "Reboot?") == "Yes" ]]; then
-            execute_choice windows
         else
             ${output} "User chose not to reboot." && exit 0
         fi
