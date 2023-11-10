@@ -14,6 +14,7 @@
   - [[#wayland][Wayland]]
   - [[#global][Global]]
 - [[#cast-to-tv][cast-to-tv]]
+- [[#disconnect-controller][disconnect-controller]]
 - [[#get-battery][get-battery]]
 - [[#get-geometry-area][get-geometry-area]]
 - [[#get-geometry-desktop][get-geometry-desktop]]
@@ -124,6 +125,35 @@ adb_device="$(~/.local/bin/get-ip.sh $remote_host):$remote_port"
 #===============================================================================
 adb connect "$adb_device"
 adb -s "$adb_device" shell am start -a android.intent.action.VIEW -d "$media_url"
+#+end_src
+
+* disconnect-controller
+#+begin_src shell :tangle disconnect-controller.sh
+# variables
+target_device="$1"
+
+# variables
+#-------------------------------------------------------------------------------
+controllers=(
+    "PS4 Magma"
+    "PS4 Onyx"
+    "Xbox One"
+)
+
+# functions
+#-------------------------------------------------------------------------------
+get_device_mac () {
+    device="$1"
+    bluetoothctl devices | grep "$device" | awk '{print $2}' | head -1
+}
+
+# execution
+#===============================================================================
+
+for controller in "${controllers[@]}"; do
+    mac_address=$(get_device_mac "$controller")
+    bluetoothctl disconnect "$mac_address"
+done
 #+end_src
 
 * get-battery

@@ -224,6 +224,7 @@ declare -a options=(
     "Shutdown"
     "Logout"
     "Lock screen"
+    "Disconnect Controllers"
     "Quit"
 )
 #+end_src
@@ -236,6 +237,7 @@ execute_choice() {
     elif [[ $1 == 'reboot' ]]; then systemctl reboot
     elif [[ $1 == 'poweroff' ]]; then systemctl poweroff
     elif [[ $1 == 'suspend' ]]; then systemctl suspend
+    elif [[ $1 == 'controller' ]]; then ~/.local/bin/disconnect-controller.sh
     elif [[ $1 == 'quit' ]]; then ${output} "Program terminated." && exit 0
     else ${output} "Program terminated." && exit 0
     fi
@@ -288,6 +290,9 @@ case $choice in
         else
             ${output} "User chose not to suspend." && exit 0
         fi
+        ;;
+    "Disconnect Controllers")
+        ~/.local/bin/disconnect-controller.sh
         ;;
     'Quit') execute_choice quit ;;
     # It is a common practice to use the wildcard asterisk symbol (*) as a final
