@@ -36,4 +36,4 @@ alacritty --class btop -e btop &
 qutebrowser &
 emacsclient -c &
 
-sleep 3 && "$HOME/.local/bin/set-wallpaper.sh" &
+sleep 10 && "$HOME/.local/bin/set-wallpaper.sh" &

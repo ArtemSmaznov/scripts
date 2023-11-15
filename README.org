@@ -110,7 +110,7 @@ emacsclient -c &
 
 Wallpaper
 #+begin_src shell
-sleep 3 && "$HOME/.local/bin/set-wallpaper.sh" &
+sleep 10 && "$HOME/.local/bin/set-wallpaper.sh" &
 #+end_src
 
 * cast-to-tv
