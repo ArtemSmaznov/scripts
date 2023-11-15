@@ -31,8 +31,6 @@ nextcloud &
 fcitx5 -d &
 
 /usr/bin/steam-runtime %U &
-alacritty --class ncmpcpp -e ncmpcpp &
-alacritty --class btop -e btop &
 qutebrowser &
 emacsclient -c &
 

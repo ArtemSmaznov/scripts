@@ -102,8 +102,6 @@ fcitx5 -d &
 Launch Apps
 #+begin_src shell
 /usr/bin/steam-runtime %U &
-alacritty --class ncmpcpp -e ncmpcpp &
-alacritty --class btop -e btop &
 qutebrowser &
 emacsclient -c &
 #+end_src
