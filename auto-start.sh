@@ -17,8 +17,10 @@ if [[ $XDG_SESSION_TYPE == "x11" ]]; then
     redshift-gtk &
 fi
 
-# if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-# fi
+if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
+    # blue screen filter
+    $XDG_CONFIG_HOME/wlsunset/wlsunset.sh &
+fi
 
 dunst &
 emacs --daemon &

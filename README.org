@@ -78,8 +78,10 @@ fi
 
 ** Wayland
 #+begin_src shell
-# if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-# fi
+if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
+    # blue screen filter
+    $XDG_CONFIG_HOME/wlsunset/wlsunset.sh &
+fi
 #+end_src
 
 ** Global
