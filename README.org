@@ -316,7 +316,7 @@ route |
 
 * get-timestamp
 #+begin_src shell :tangle get-timestamp.sh
-timestamp='+%Y%m%d-%H%M%S'
+timestamp='+%Y-%m-%d_%H-%M-%S'
 date "$timestamp"
 #+end_src
 
