@@ -2,7 +2,8 @@
 usage="""Usage:
     get-music.sh song
     get-music.sh state
-    get-music.sh flags """
+    get-music.sh flags
+    get-music.sh volume """
 
 convert_flag() {
     if [[ $(mpc status "%$1%") == "on" ]]
@@ -19,5 +20,6 @@ case $1 in
     song) mpc current -f "%artist% - %title%";;
     state) mpc status "%state%";;
     flags) get_flags;;
+    volume) mpc status "%volume%";;
     *) echo "$usage"
 esac
