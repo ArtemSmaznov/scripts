@@ -92,7 +92,7 @@ System Utilities
 # emacs --daemon &
 nm-applet &
 blueman-applet &
-#nextcloud &
+nextcloud &
 #+end_src
 
 Japanese Language Input

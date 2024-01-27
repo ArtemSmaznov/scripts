@@ -26,7 +26,7 @@ fi
 # emacs --daemon &
 nm-applet &
 blueman-applet &
-#nextcloud &
+nextcloud &
 
 fcitx5 -d &
 
