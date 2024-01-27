@@ -52,9 +52,9 @@
 :PROPERTIES:
 :header-args: :shebang #!/usr/bin/env bash :tangle auto-start.sh
 :END:
-Startup Sound
+Debug mode
 #+begin_src shell
-paplay "$HOME/public/audio/windows95-startup.wav" &
+debug=false
 #+end_src
 
 ** Xorg
@@ -87,11 +87,11 @@ fi
 ** Global
 System Utilities
 #+begin_src shell
-dunst &
-emacs --daemon &
+# dunst &
+# emacs --daemon &
 nm-applet &
 blueman-applet &
-nextcloud &
+#nextcloud &
 #+end_src
 
 Japanese Language Input
@@ -101,14 +101,15 @@ fcitx5 -d &
 
 Launch Apps
 #+begin_src shell
-/usr/bin/steam-runtime %U &
-qutebrowser &
-emacsclient -c &
-#+end_src
+if ! $debug; then
+    paplay "$HOME/public/audio/windows95-startup.wav" &
 
-Wallpaper
-#+begin_src shell
-sleep 10 && "$HOME/.local/bin/set-wallpaper.sh" &
+    /usr/bin/steam-runtime %U &
+    qutebrowser &
+    # emacsclient -c &
+
+    sleep 10 && "$HOME/.local/bin/set-wallpaper.sh" &
+fi
 #+end_src
 
 * cast-to-tv

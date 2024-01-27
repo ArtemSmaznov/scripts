@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-paplay "$HOME/public/audio/windows95-startup.wav" &
+debug=false
 
 if [[ $XDG_SESSION_TYPE == "x11" ]]; then
     # screen locker
@@ -22,16 +22,20 @@ if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
     $XDG_CONFIG_HOME/wlsunset/wlsunset.sh &
 fi
 
-dunst &
-emacs --daemon &
+# dunst &
+# emacs --daemon &
 nm-applet &
 blueman-applet &
-nextcloud &
+#nextcloud &
 
 fcitx5 -d &
 
-/usr/bin/steam-runtime %U &
-qutebrowser &
-emacsclient -c &
+if ! $debug; then
+    paplay "$HOME/public/audio/windows95-startup.wav" &
 
-sleep 10 && "$HOME/.local/bin/set-wallpaper.sh" &
+    /usr/bin/steam-runtime %U &
+    qutebrowser &
+    # emacsclient -c &
+
+    sleep 10 && "$HOME/.local/bin/set-wallpaper.sh" &
+fi
