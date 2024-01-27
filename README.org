@@ -501,7 +501,7 @@ notify-send --urgency=low "Recording saved!" "$message"
 #+begin_src shell :tangle screenshot.sh
 scope="$1"
 
-# env variables
+# environment variables
 #-------------------------------------------------------------------------------
 [ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
 

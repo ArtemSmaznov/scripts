@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 scope="$1"
 
-# env variables
+# environment variables
 #-------------------------------------------------------------------------------
 [ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
 
