@@ -11,6 +11,7 @@ options=("$(ls "$wallpapers_dir" --hide="*.*")")
 choice=$(printf '%s\n' "-refresh" "${options[@]}" | rofi -dmenu -i -p "${prompt}")
 
 case $choice in
+    '') exit 1 ;;
     '-refresh') ~/.local/bin/set-wallpaper.sh ;;
     *) ~/.local/bin/set-wallpaper.sh "$choice" ;;
 esac
