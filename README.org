@@ -29,7 +29,6 @@
 - [[#get-timestamp][get-timestamp]]
 - [[#get-trayer-width][get-trayer-width]]
 - [[#get-updates][get-updates]]
-- [[#get-update-flags][get-update-flags]]
 - [[#get-uptime][get-uptime]]
 - [[#get-volume][get-volume]]
 - [[#listen-current-workspace][listen-current-workspace]]
@@ -333,15 +332,28 @@ fi
 #+end_src
 
 * get-updates
+
+crontab example
+#+begin_example shell
+checkupdates --nocolor > ~/.cache/pacman/updates
+#+end_example
+
+get-updates
 #+begin_src shell :tangle get-updates.sh
-checkupdates | wc -l
+[ ! "$XDG_CACHE_HOME" ] && export XDG_CACHE_HOME="$HOME/.cache"
+updates_file="$XDG_CACHE_HOME/pacman/updates"
+
+cat "$updates_file" | wc -l
 #+end_src
 
-* get-update-flags
+get-update-flags
 #+begin_src shell :tangle get-update-flags.sh
-checkupdates | grep -q "wine"      && flag+=w
-checkupdates | grep -q "mesa"      && flag+=m
-checkupdates | grep -q "linux-zen" && flag+=k
+[ ! "$XDG_CACHE_HOME" ] && export XDG_CACHE_HOME="$HOME/.cache"
+updates_file="$XDG_CACHE_HOME/pacman/updates"
+
+cat "$updates_file" | grep -q "wine"      && flag+=w
+cat "$updates_file" | grep -q "mesa"      && flag+=m
+cat "$updates_file" | grep -q "linux-zen" && flag+=k
 
 echo "$flag"
 #+end_src
