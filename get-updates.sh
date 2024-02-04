@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-[ ! "$XDG_CACHE_HOME" ] && export XDG_CACHE_HOME="$HOME/.cache"
-updates_file="$XDG_CACHE_HOME/pacman/updates"
+updates_file="/var/cache/pacman/updates"
+
+if [ ! -f "$updates_file" ]; then
+    echo "Error: $updates_file is missing!"
+    exit 1
+fi
 
 cat "$updates_file" | wc -l

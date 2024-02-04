@@ -29,6 +29,7 @@
 - [[#get-timestamp][get-timestamp]]
 - [[#get-trayer-width][get-trayer-width]]
 - [[#get-updates][get-updates]]
+  - [[#dependencies][Dependencies]]
 - [[#get-uptime][get-uptime]]
 - [[#get-volume][get-volume]]
 - [[#listen-current-workspace][listen-current-workspace]]
@@ -338,30 +339,55 @@ fi
 #+end_src
 
 * get-updates
-
-crontab example
-#+begin_example shell
-checkupdates --nocolor > ~/.cache/pacman/updates
-#+end_example
-
 get-updates
 #+begin_src shell :tangle get-updates.sh
-[ ! "$XDG_CACHE_HOME" ] && export XDG_CACHE_HOME="$HOME/.cache"
-updates_file="$XDG_CACHE_HOME/pacman/updates"
+updates_file="/var/cache/pacman/updates"
+
+if [ ! -f "$updates_file" ]; then
+    echo "Error: $updates_file is missing!"
+    exit 1
+fi
 
 cat "$updates_file" | wc -l
 #+end_src
 
 get-update-flags
 #+begin_src shell :tangle get-update-flags.sh
-[ ! "$XDG_CACHE_HOME" ] && export XDG_CACHE_HOME="$HOME/.cache"
-updates_file="$XDG_CACHE_HOME/pacman/updates"
+updates_file="/var/cache/pacman/updates"
 
 cat "$updates_file" | grep -q "wine"      && flag+=w
 cat "$updates_file" | grep -q "mesa"      && flag+=m
 cat "$updates_file" | grep -q "linux-zen" && flag+=k
 
 echo "$flag"
+#+end_src
+
+** Dependencies
+~/opt/pacman/refresh-updates.sh~
+#+begin_src shell
+checkupdates --nocolor > /var/cache/pacman/updates || true
+#+end_src
+
+Run after using pacman
+~/etc/pacman.d/hooks/refresh-updates.hook~
+#+begin_src conf
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Type = Package
+Target = *
+
+[Action]
+Description = Refreshing updates cache
+When = PostTransaction
+Exec = /bin/sh -c '/opt/pacman/refresh-updates.sh'
+#+end_src
+
+Run every 15 min
+~crontab -e~
+#+begin_src cron
+*/15 * * * * /opt/pacman/refresh-updates.sh
 #+end_src
 
 * get-uptime
