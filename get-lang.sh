@@ -7,6 +7,12 @@ if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
     # if [[ $XDG_DESKTOP_SESSION == "hyprland" ]]; then
     # if [[ $XDG_SESSION_DESKTOP == "Hyprland" ]]; then
     if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
-        hyprctl -j devices | jq -r '.keyboards[] | select(.name | contains("wlr")) .active_keymap'
+        language=$(hyprctl -j devices | jq -r '.keyboards[] | select(.name | contains("wlr")) .active_keymap')
+        case "$language" in
+             'English (US)') echo us;;
+             'Russian') echo ru;;
+             'Japanese') echo jp;;
+             *) echo err;;
+        esac
     fi
 fi
