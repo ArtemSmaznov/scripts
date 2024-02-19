@@ -15,6 +15,7 @@
   - [[#global][Global]]
 - [[#cast-to-tv][cast-to-tv]]
 - [[#disconnect-controller][disconnect-controller]]
+- [[#idea-get-acoustid][IDEA get-acoustid]]
 - [[#get-battery][get-battery]]
 - [[#get-geometry-area][get-geometry-area]]
 - [[#get-geometry-desktop][get-geometry-desktop]]
@@ -161,6 +162,34 @@ for controller in "${controllers[@]}"; do
     mac_address=$(get_device_mac "$controller")
     bluetoothctl disconnect "$mac_address"
 done
+#+end_src
+
+* IDEA get-acoustid
+
+This needs to be clear it can only target a file rather than showing the id of
+currently playing track like ~get-music~ script does.
+
+#+begin_src shell :tangle get-acoustid.sh
+music_file="$1"
+
+# environment variables
+#-------------------------------------------------------------------------------
+
+# variables
+#-------------------------------------------------------------------------------
+acoustid_field="acoustid_id"
+
+# functions
+#-------------------------------------------------------------------------------
+
+# setup
+#-------------------------------------------------------------------------------
+
+# execution
+#===============================================================================
+beet info "$music_file" |
+    grep "$acoustid_field" |
+    awk '{print $2}'
 #+end_src
 
 * get-battery
