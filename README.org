@@ -666,7 +666,7 @@ Requirements
 sudo pacman -S mpv-mpris playerctl
 paru -S mpd-mpris
 #+end_src
-or
+or (~mpdris2~ doesn't show embedded album covers)
 #+begin_src shell
 paru -S mpdris2
 #+end_src
