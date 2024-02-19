@@ -26,7 +26,7 @@
 - [[#get-mute][get-mute]]
 - [[#get-network-interface][get-network-interface]]
 - [[#get-primary-color][get-primary-color]]
-- [[#get-song-acoustid][get-song-acoustid]]
+- [[#get-song-metadata][get-song-metadata]]
 - [[#get-timestamp][get-timestamp]]
 - [[#get-trayer-width][get-trayer-width]]
 - [[#get-updates][get-updates]]
@@ -394,29 +394,17 @@ image="$1"
 convert "$image" -scale $colorsx$colors\! -format %c -colors $colors histogram:info:- | awk '{print $3}'
 #+end_src
 
-* get-song-acoustid
+* get-song-metadata
 
-#+begin_src shell :tangle get-song-acoustid.sh
-music_file="$1"
-
-# environment variables
-#-------------------------------------------------------------------------------
-
-# variables
-#-------------------------------------------------------------------------------
-acoustid_field="acoustid_id"
-
-# functions
-#-------------------------------------------------------------------------------
-
-# setup
-#-------------------------------------------------------------------------------
+See ~beet fields~ for a list of available fields
+#+begin_src shell :tangle get-song-metadata.sh
+field="$1"
+music_file="$2"
 
 # execution
 #===============================================================================
-beet info "$music_file" |
-    grep "$acoustid_field" |
-    awk '{print $2}'
+beet list "path:$music_file" \
+    -f "\$$field"
 #+end_src
 
 * get-timestamp
