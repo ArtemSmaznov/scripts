@@ -16,5 +16,3 @@ case $1 in
     vol-up)    playerctl volume 0.02+ ;;
     vol-down)  playerctl volume 0.02- ;;
 esac
-
-~/.local/bin/update-music.sh

@@ -52,7 +52,6 @@
 - [[#toggle-mute][toggle-mute]]
 - [[#trigger-confirmation][trigger-confirmation]]
 - [[#trigger-countdown][trigger-countdown]]
-- [[#update-music][update-music]]
 
 * auto-start
 :PROPERTIES:
@@ -343,11 +342,6 @@ get_flags () {
 get_progress () {
     music_progress=$(mpc status "%percenttime%" | cut -c-3 | tr -d '[:space:]')
     echo "$music_progress"
-
-    music_current_time=$(mpc status "%currenttime%")
-    if [ $music_current_time == "0:00" ]; then
-        ~/.config/eww/scripts/song-switch.sh
-    fi
 }
 
 case $1 in
@@ -617,8 +611,6 @@ case $1 in
     vol-up)    playerctl volume 0.02+ ;;
     vol-down)  playerctl volume 0.02- ;;
 esac
-
-~/.local/bin/update-music.sh
 #+end_src
 
 * player-auto-pause
@@ -1117,9 +1109,3 @@ while (( $duration > 0 )); do
 done
 #+end_src
 
-* update-music
-#+begin_src shell :tangle update-music.sh
-# if [[ $(eww ping 2> /dev/null) == "pong" ]]; then
-#     ~/.config/eww/scripts/update-music.sh
-# fi
-#+end_src

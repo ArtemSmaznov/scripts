@@ -66,11 +66,6 @@ get_flags () {
 get_progress () {
     music_progress=$(mpc status "%percenttime%" | cut -c-3 | tr -d '[:space:]')
     echo "$music_progress"
-
-    music_current_time=$(mpc status "%currenttime%")
-    if [ $music_current_time == "0:00" ]; then
-        ~/.config/eww/scripts/song-switch.sh
-    fi
 }
 
 case $1 in
