@@ -40,6 +40,7 @@
 - [[#listen-wm-layout][listen-wm-layout]]
 - [[#listen-wm-title][listen-wm-title]]
 - [[#listen-wm-workspaces][listen-wm-workspaces]]
+- [[#musictl][musictl]]
 - [[#playerctl][playerctl]]
 - [[#player-auto-pause][player-auto-pause]]
 - [[#record-screen][record-screen]]
@@ -639,21 +640,40 @@ fi
 exit 0
 #+end_src
 
-* playerctl
-#+begin_src shell :tangle playerctl.sh
+* musictl
+#+begin_src shell :tangle musictl.sh
 seek="$2"
 
+# execution
+#===============================================================================
+case $1 in
+    toggle)    mpc toggle       ;;
+    stop)      mpc stop         ;;
+    prev)      mpc prev         ;;
+    next)      mpc next         ;;
+    goto)      mpc seek "$seek" ;;
+
+    repeat)    mpc repeat       ;;
+    random)    mpc random       ;;
+    single)    mpc single       ;;
+    consume)   mpc consume      ;;
+
+    vol-up)    mpc volume +2    ;;
+    vol-down)  mpc volume -2    ;;
+esac
+#+end_src
+
+* playerctl
+#+begin_src shell :tangle playerctl.sh
+# player="$2"
+
+# execution
+#===============================================================================
 case $1 in
     toggle)    playerctl play-pause   ;;
     stop)      playerctl stop         ;;
     prev)      playerctl previous     ;;
     next)      playerctl next         ;;
-    goto)      mpc seek "$seek"       ;;
-
-    repeat)    mpc repeat             ;;
-    random)    mpc random             ;;
-    single)    mpc single             ;;
-    consume)   mpc consume            ;;
 
     vol-up)    playerctl volume 0.02+ ;;
     vol-down)  playerctl volume 0.02- ;;
