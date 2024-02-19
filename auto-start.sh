@@ -23,7 +23,6 @@ if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
 fi
 
 # dunst &
-# emacs --daemon &
 nm-applet &
 blueman-applet &
 nextcloud &
@@ -35,7 +34,7 @@ if ! $debug; then
 
     /usr/bin/steam-runtime %U &
     qutebrowser &
-    # emacsclient -c &
+    # emacsclient -ca '' &
 
     sleep 10 && "$HOME/.local/bin/set-wallpaper.sh" &
 fi
