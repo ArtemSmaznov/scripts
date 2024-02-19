@@ -15,7 +15,6 @@
   - [[#global][Global]]
 - [[#cast-to-tv][cast-to-tv]]
 - [[#disconnect-controller][disconnect-controller]]
-- [[#idea-get-acoustid][IDEA get-acoustid]]
 - [[#get-battery][get-battery]]
 - [[#get-geometry-area][get-geometry-area]]
 - [[#get-geometry-desktop][get-geometry-desktop]]
@@ -27,6 +26,7 @@
 - [[#get-mute][get-mute]]
 - [[#get-network-interface][get-network-interface]]
 - [[#get-primary-color][get-primary-color]]
+- [[#get-song-acoustid][get-song-acoustid]]
 - [[#get-timestamp][get-timestamp]]
 - [[#get-trayer-width][get-trayer-width]]
 - [[#get-updates][get-updates]]
@@ -162,34 +162,6 @@ for controller in "${controllers[@]}"; do
     mac_address=$(get_device_mac "$controller")
     bluetoothctl disconnect "$mac_address"
 done
-#+end_src
-
-* IDEA get-acoustid
-
-This needs to be clear it can only target a file rather than showing the id of
-currently playing track like ~get-music~ script does.
-
-#+begin_src shell :tangle get-acoustid.sh
-music_file="$1"
-
-# environment variables
-#-------------------------------------------------------------------------------
-
-# variables
-#-------------------------------------------------------------------------------
-acoustid_field="acoustid_id"
-
-# functions
-#-------------------------------------------------------------------------------
-
-# setup
-#-------------------------------------------------------------------------------
-
-# execution
-#===============================================================================
-beet info "$music_file" |
-    grep "$acoustid_field" |
-    awk '{print $2}'
 #+end_src
 
 * get-battery
@@ -420,6 +392,31 @@ image="$1"
 [ $2 ] && colors=$2 || colors=1
 
 convert "$image" -scale $colorsx$colors\! -format %c -colors $colors histogram:info:- | awk '{print $3}'
+#+end_src
+
+* get-song-acoustid
+
+#+begin_src shell :tangle get-song-acoustid.sh
+music_file="$1"
+
+# environment variables
+#-------------------------------------------------------------------------------
+
+# variables
+#-------------------------------------------------------------------------------
+acoustid_field="acoustid_id"
+
+# functions
+#-------------------------------------------------------------------------------
+
+# setup
+#-------------------------------------------------------------------------------
+
+# execution
+#===============================================================================
+beet info "$music_file" |
+    grep "$acoustid_field" |
+    awk '{print $2}'
 #+end_src
 
 * get-timestamp
