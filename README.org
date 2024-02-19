@@ -691,6 +691,7 @@ or (~mpdris2~ doesn't show embedded album covers)
 paru -S mpdris2
 #+end_src
 
+Systemd service
 #+begin_src conf :shebang :tangle ~/.config/systemd/user/player-auto-pause.service
 [Unit]
 Description=Pause all MPRIS players when new one starts
@@ -703,6 +704,7 @@ ExecStart=/home/artem/.local/bin/player-auto-pause.sh
 WantedBy=default.target
 #+end_src
 
+Running script
 #+begin_src shell :tangle player-auto-pause.sh
 function get_all_players {
     playerctl --list-all
