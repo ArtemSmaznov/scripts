@@ -290,6 +290,7 @@ usage="""Usage:
     get-music.sh albumcover
     get-music.sh albumcovercolor
 
+    get-music.sh rating
     get-music.sh song
     get-music.sh title
     get-music.sh artist
@@ -324,6 +325,12 @@ convert_update () {
     then echo "$1"
     else echo -
     fi
+}
+
+get_song_rating () {
+    song_rating="$(~/.local/bin/get-song-metadata.sh rating "$(get_track_file)")"
+
+    [ "$song_rating" != '$rating' ] && echo "$song_rating" || echo 0
 }
 
 get_track_file () {
@@ -377,8 +384,8 @@ case $1 in
     albumcover) get_album_cover_file ;;
     albumcovercolor) get_album_cover_color ;;
 
+    rating) get_song_rating ;;
     song) mpc current -f "%artist% · %title%" ;;
-
     title) mpc current -f "%title%" ;;
     album) mpc current -f "%album%" ;;
     artist) mpc current -f "%artist%" ;;
