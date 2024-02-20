@@ -556,8 +556,7 @@ listen_metadata_path () {
     playerctl metadata \
         --follow \
         "$player_arg" \
-        --format "{{$1}}" |
-        sed -e 's,file://,,' -e 's,%20, ,g'
+        --format "{{$1}}"
 }
 
 listen_metadata_icon () {
