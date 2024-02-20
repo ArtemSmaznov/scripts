@@ -50,7 +50,7 @@ convert_update () {
 get_song_rating () {
     song_rating="$(~/.local/bin/get-song-metadata.sh rating "$(get_track_file)")"
 
-    [ "$song_rating" != '$rating' ] && echo "$song_rating" || echo 0
+    [ "$song_rating" != '$rating' ] && echo "$song_rating" || echo 0.5
 }
 
 get_track_file () {
