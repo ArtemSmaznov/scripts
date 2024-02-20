@@ -36,6 +36,12 @@ listen_metadata_icon () {
         --format "{{emoji($1)}}"
 }
 
+listen_track_change () {
+    "$0" track_file mpd | while read -r line; do
+        ~/.local/bin/get-music.sh "$1"
+    done
+}
+
 # execution
 #===============================================================================
 case $1 in
@@ -56,6 +62,8 @@ case $1 in
 
     track_file)   listen_metadata_path      xesam:url    ;;
     cover_file)   listen_metadata           mpris:artUrl ;;
+
+    rating)       listen_track_change       rating       ;;
 
     *)           listen_metadata           $1           ;;
 esac
