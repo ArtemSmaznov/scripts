@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+arg="$1"
+
+# variables
+#-------------------------------------------------------------------------------
 usage="""Usage:
     get-music.sh artist
     get-music.sh albumcover
@@ -10,6 +14,8 @@ usage="""Usage:
     get-music.sh flags
     get-music.sh volume """
 
+# functions
+#-------------------------------------------------------------------------------
 convert_mode () {
     if [ $(mpc status "%$1%") == "on" ]
     then echo "$2"
@@ -68,6 +74,8 @@ get_progress () {
     echo "$music_progress"
 }
 
+# execution
+#===============================================================================
 case $1 in
     albumcover) get_album_cover_file ;;
     albumcovercolor) get_album_cover_color ;;
