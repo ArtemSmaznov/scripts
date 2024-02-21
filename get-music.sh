@@ -8,23 +8,31 @@ stat="$1"
 # variables
 #-------------------------------------------------------------------------------
 usage="""Usage:
-    get-music.sh file
-    get-music.sh albumcover
-    get-music.sh albumcovercolor
-
-    get-music.sh rating
-    get-music.sh song
-    get-music.sh title
-    get-music.sh artist
-    get-music.sh album
-
     get-music.sh state
     get-music.sh progress
     get-music.sh volume
 
     get-music.sh flags
+    get-music.sh repeat
+    get-music.sh random
+    get-music.sh single
     get-music.sh consume
-    get-music.sh crossfade """
+    get-music.sh crossfade
+    get-music.sh update
+
+    get-music.sh song
+    get-music.sh title
+    get-music.sh artist
+    get-music.sh album
+
+    get-music.sh file
+    get-music.sh albumcover
+    get-music.sh albumcovercolor
+
+    get-music.sh rating
+    get-music.sh play_count
+    get-music.sh skip_count
+    get-music.sh last_played """
 
 # functions
 #-------------------------------------------------------------------------------
@@ -120,23 +128,32 @@ get_track_metadata () {
 # execution
 #===============================================================================
 case $1 in
+    # player info
+    state)    mpc status "%state%"  ;;
+    progress) get_progress          ;;
+    volume)   mpc status "%volume%" ;;
+
+    # flags
+    flags)     get_flags              ;;
+    repeat)    convert_mode repeat  r ;;
+    random)    convert_mode random  z ;;
+    single)    convert_mode single  s ;;
+    consume)   convert_mode consume c ;;
+    crossfade) convert_crossfade    x ;;
+    update)    convert_update       U ;;
+
+    # track info
+    song)   mpc current -f "%artist% · %title%" ;;
+    title)  mpc current -f "%title%"            ;;
+    album)  mpc current -f "%album%"            ;;
+    artist) mpc current -f "%artist%"           ;;
+
+    # files
     file)            get_track_file ;;
     albumcover)      get_album_cover_file ;;
     albumcovercolor) get_album_cover_color ;;
 
-    song)        mpc current -f "%artist% · %title%" ;;
-    title)       mpc current -f "%title%" ;;
-    album)       mpc current -f "%album%" ;;
-    artist)      mpc current -f "%artist%" ;;
-
-    state)       mpc status "%state%" ;;
-    progress)    get_progress ;;
-    volume)      mpc status "%volume%" ;;
-
-    flags)       get_flags ;;
-    consume)     convert_mode consume c ;;
-    crossfade)   convert_crossfade x ;;
-
+    # mpd-stats
     rating)      get_track_metadata "$stat" ;;
     play_count)  get_track_metadata "$stat" ;;
     skip_count)  get_track_metadata "$stat" ;;

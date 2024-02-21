@@ -50,29 +50,39 @@ listen_mpd_event () {
 # execution
 #===============================================================================
 case $1 in
-    title)        listen_metadata           title        ;;
-    artist)       listen_metadata           artist       ;;
-    album)        listen_metadata           album        ;;
-    volume)       listen_metadata           volume       ;;
-    progress)     listen_metadata           position     ;;
-    duration)     listen_metadata           mpris:length ;;
+    # player info
+    state)       listen_metadata_lc   status     ;;
+    player)      listen_metadata_lc   playerName ;;
+    state_icon)  listen_metadata_icon status     ;;
+    volume_icon) listen_metadata_icon volume     ;;
 
-    state_icon)   listen_metadata_icon      status       ;;
-    volume_icon)  listen_metadata_icon      volume       ;;
+    # flags
+    shuffle)   listen_metadata_lc       shuffle   ;;
+    loop)      listen_metadata_lc       loop      ;;
+    repeat)    listen_mpd_event options repeat    ;;
+    random)    listen_mpd_event options random    ;;
+    single)    listen_mpd_event options single    ;;
+    consume)   listen_mpd_event options consume   ;;
+    crossfade) listen_mpd_event options crossfade ;;
+    update)    listen_mpd_event update  update    ;;
 
-    state)        listen_metadata_lc        status       ;;
-    player)       listen_metadata_lc        playerName   ;;
+    # track info
+    title)    listen_metadata title        ;;
+    artist)   listen_metadata artist       ;;
+    album)    listen_metadata album        ;;
+    volume)   listen_metadata volume       ;;
+    progress) listen_metadata position     ;;
+    duration) listen_metadata mpris:length ;;
 
-    track_file)   listen_metadata_path      xesam:url    ;;
-    cover_file)   listen_metadata           mpris:artUrl ;;
+    # files
+    track_file) listen_metadata_path      xesam:url    ;;
+    cover_file) listen_metadata           mpris:artUrl ;;
 
-    shuffle)      listen_metadata_lc        shuffle      ;;
-    loop)         listen_metadata_lc        loop         ;;
+    # mpd-stats
+    rating)      listen_mpd_event player rating      ;;
+    play_count)  listen_mpd_event player play_count  ;;
+    skip_count)  listen_mpd_event player skip_count  ;;
+    last_played) listen_mpd_event player last_played ;;
 
-    rating)       listen_mpd_event  player  rating       ;;
-    play_count)   listen_mpd_event  player  play_count   ;;
-    skip_count)   listen_mpd_event  player  skip_count   ;;
-    last_played)  listen_mpd_event  player  last_played  ;;
-
-    *)           listen_metadata           $1           ;;
+    *) listen_metadata $1 ;;
 esac
