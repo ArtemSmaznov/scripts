@@ -32,7 +32,9 @@ usage="""Usage:
     get-music.sh rating
     get-music.sh play_count
     get-music.sh skip_count
-    get-music.sh last_played """
+    get-music.sh last_played
+
+    get-music.sh stats """
 
 # functions
 #-------------------------------------------------------------------------------
@@ -109,20 +111,40 @@ get_progress () {
 get_track_metadata () {
     field=$1
 
+    case $field in
+        rating)     default=0.5 ;;
+        play_count) default=0   ;;
+        skip_count) default=0   ;;
+    esac
+
     track_file="$(get_track_file)"
     if [ -z "$track_file" ]; then
-        echo 0
-        return
+         [ "$field" == "last_played" ] && return
+         echo $default
+         return
     fi
 
     value="$(~/.local/bin/get-song-metadata.sh $field "$track_file")"
 
-    [ "$value" == '$rating'      ] && echo 0.5 && return
-    [ "$value" == '$play_count'  ] && echo 0   && return
-    [ "$value" == '$skip_count'  ] && echo 0   && return
     [ "$value" == '$last_played' ] && return
+    [ "$value" == "\$$field" ] && echo $default && return
 
     echo "$value"
+}
+
+get_stats () {
+    rating="$(get_track_metadata rating)"
+    play_count="$(get_track_metadata play_count)"
+    skip_count="$(get_track_metadata skip_count)"
+    last_played="$(get_track_metadata last_played)"
+
+    echo """rating: $rating
+            play_count: $play_count
+            skip_count: $skip_count
+            last_played: $last_played
+            """ |
+        column --table \
+            --table-column right
 }
 
 # execution
@@ -158,6 +180,8 @@ case $1 in
     play_count)  get_track_metadata "$stat" ;;
     skip_count)  get_track_metadata "$stat" ;;
     last_played) get_track_metadata "$stat" ;;
+
+    stats) get_stats ;;
 
     *) echo "$usage"
 esac

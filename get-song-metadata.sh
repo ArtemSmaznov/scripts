@@ -4,5 +4,4 @@ music_file="$2"
 
 # execution
 #===============================================================================
-beet list "path:$music_file" \
-    -f "\$$field"
+beet list "path:$music_file" -f "\$$field"
