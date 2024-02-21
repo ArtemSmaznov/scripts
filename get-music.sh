@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+stat="$1"
+
 # environment variables
 #-------------------------------------------------------------------------------
 [ ! "$XDG_MUSIC_DIR" ] && export XDG_MUSIC_DIR="$HOME/Music"
@@ -47,21 +49,20 @@ convert_update () {
     fi
 }
 
-get_song_rating () {
-    song_rating="$(~/.local/bin/get-song-metadata.sh rating "$(get_track_file)")"
-
-    [ "$song_rating" != '$rating' ] && echo "$song_rating" || echo 0.5
-}
-
 get_track_file () {
     relative_file="$(mpc current -f %file%)"
-    absolute_file="$XDG_MUSIC_DIR/$relative_file"
 
+    [ -z "$relative_file" ] && echo "" && return
+
+    absolute_file="$XDG_MUSIC_DIR/$relative_file"
     echo "$absolute_file"
 }
 
 get_album_cover_file () {
-    music_track_dir="$(dirname "$(get_track_file)")"
+    track_file="$(get_track_file)"
+    [ -z "$track_file" ] && return
+
+    music_track_dir="$(dirname "$track_file")"
     album_cover_file=$(find "$music_track_dir" -type f -name "cover.*" | head -1)
     if [ -z "$album_cover_file" ]; then
         echo "$XDG_MUSIC_DIR/no-cover"
@@ -97,26 +98,49 @@ get_progress () {
     echo "$music_progress"
 }
 
+get_track_metadata () {
+    field=$1
+
+    track_file="$(get_track_file)"
+    if [ -z "$track_file" ]; then
+        echo 0
+        return
+    fi
+
+    value="$(~/.local/bin/get-song-metadata.sh $field "$track_file")"
+
+    [ "$value" == '$rating'      ] && echo 0.5 && return
+    [ "$value" == '$play_count'  ] && echo 0   && return
+    [ "$value" == '$skip_count'  ] && echo 0   && return
+    [ "$value" == '$last_played' ] && return
+
+    echo "$value"
+}
+
 # execution
 #===============================================================================
 case $1 in
-    file) get_track_file ;;
-    albumcover) get_album_cover_file ;;
+    file)            get_track_file ;;
+    albumcover)      get_album_cover_file ;;
     albumcovercolor) get_album_cover_color ;;
 
-    rating) get_song_rating ;;
-    song) mpc current -f "%artist% · %title%" ;;
-    title) mpc current -f "%title%" ;;
-    album) mpc current -f "%album%" ;;
-    artist) mpc current -f "%artist%" ;;
+    song)        mpc current -f "%artist% · %title%" ;;
+    title)       mpc current -f "%title%" ;;
+    album)       mpc current -f "%album%" ;;
+    artist)      mpc current -f "%artist%" ;;
 
-    state) mpc status "%state%" ;;
-    progress) get_progress ;;
-    volume) mpc status "%volume%" ;;
+    state)       mpc status "%state%" ;;
+    progress)    get_progress ;;
+    volume)      mpc status "%volume%" ;;
 
-    flags) get_flags ;;
-    consume) convert_mode consume c ;;
-    crossfade) convert_crossfade x ;;
+    flags)       get_flags ;;
+    consume)     convert_mode consume c ;;
+    crossfade)   convert_crossfade x ;;
+
+    rating)      get_track_metadata "$stat" ;;
+    play_count)  get_track_metadata "$stat" ;;
+    skip_count)  get_track_metadata "$stat" ;;
+    last_played) get_track_metadata "$stat" ;;
 
     *) echo "$usage"
 esac

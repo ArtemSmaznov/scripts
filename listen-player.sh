@@ -36,9 +36,14 @@ listen_metadata_icon () {
         --format "{{emoji($1)}}"
 }
 
-listen_track_change () {
-    "$0" track_file mpd | while read -r line; do
-        ~/.local/bin/get-music.sh "$1"
+listen_mpd_event () {
+    event="$1"
+    field="$2"
+
+    ~/.local/bin/get-music.sh "$field"
+
+    mpc idleloop "$event" | while read -r line; do
+        ~/.local/bin/get-music.sh "$field"
     done
 }
 
@@ -57,13 +62,17 @@ case $1 in
 
     state)        listen_metadata_lc        status       ;;
     player)       listen_metadata_lc        playerName   ;;
-    shuffle)      listen_metadata_lc        shuffle      ;;
-    loop)         listen_metadata_lc        loop         ;;
 
     track_file)   listen_metadata_path      xesam:url    ;;
     cover_file)   listen_metadata           mpris:artUrl ;;
 
-    rating)       listen_track_change       rating       ;;
+    shuffle)      listen_metadata_lc        shuffle      ;;
+    loop)         listen_metadata_lc        loop         ;;
+
+    rating)       listen_mpd_event  player  rating       ;;
+    play_count)   listen_mpd_event  player  play_count   ;;
+    skip_count)   listen_mpd_event  player  skip_count   ;;
+    last_played)  listen_mpd_event  player  last_played  ;;
 
     *)           listen_metadata           $1           ;;
 esac
