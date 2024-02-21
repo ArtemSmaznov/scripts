@@ -660,8 +660,9 @@ case $1 in
     volume_icon) listen_metadata_icon volume     ;;
 
     # flags
-    shuffle)   listen_metadata_lc       shuffle   ;;
     loop)      listen_metadata_lc       loop      ;;
+    shuffle)   listen_metadata_lc       shuffle   ;;
+    flags)     listen_mpd_event options flags     ;;
     repeat)    listen_mpd_event options repeat    ;;
     random)    listen_mpd_event options random    ;;
     single)    listen_mpd_event options single    ;;
