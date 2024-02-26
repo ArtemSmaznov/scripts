@@ -61,7 +61,7 @@ elif [ ! $# -eq 0 ]; then
 
 else
     # if no arguments were passed, present dmenu to user
-    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+    choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
     # act on user selection
     [ $choice ] && start_recording $choice

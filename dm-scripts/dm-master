@@ -7,7 +7,7 @@ prompt="dm-script"
 options=($(ls $dm_dir --hide="*.*" --hide="dm-master"))
 
 # Prompt the user
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
 # Act on user selection
 [ $choice ] && $choice

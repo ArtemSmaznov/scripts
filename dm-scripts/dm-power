@@ -15,7 +15,7 @@ fi
 
 yesno() {
     # shellcheck disable=SC2005
-    echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
+    echo "$(echo -e "No\nYes" | wofi --dmenu -p "${1}")"
 }
 
 declare -a managers=(
@@ -52,7 +52,7 @@ execute_choice() {
 [ ! $# -eq 0 ] && execute_choice $1 && exit
 
 # Prompt the user
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
 case $choice in
     'Logout')

@@ -93,7 +93,7 @@ Present dmenu to user with options based on the available dmenu scripts
 =printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
 #+begin_src shell
 # Prompt the user
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
 # Act on user selection
 [ $choice ] && $choice
@@ -108,7 +108,7 @@ Manage notifications
 |-------------+---------------------|
 | App         | Comment             |
 |-------------+---------------------|
-| =rofi -dmenu= | Triggers dmenu      |
+| =wofi --dmenu= | Triggers dmenu      |
 | =dunst=       | Notification server |
 |-------------+---------------------|
 
@@ -162,7 +162,7 @@ Execute script without presenting dmenu to the user if any argument was passed
 Present dmenu to user with options defined in the [[#dmenu][DMenu]] section
 =printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
 #+begin_src shell
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 #+end_src
 
 What to do when/if we choose one of the options.
@@ -186,7 +186,7 @@ Power controls (Suspend, Reboot, Shutdown, etc.)
 declare -a options
 #+end_src
 
-Define =LOCKER= in =.xprofile= to set to different locker program
+Define =LOCKER= in =.xpwofile= to set to different locker program
 #+begin_src shell
 if [[ $XDG_SESSION_TYPE == "x11" ]]; then
     LOCKER="$HOME/.config/i3lock/i3lock.sh"
@@ -202,7 +202,7 @@ fi
 
 yesno() {
     # shellcheck disable=SC2005
-    echo "$(echo -e "No\nYes" | rofi -dmenu -i -p "${1}")"
+    echo "$(echo -e "No\nYes" | wofi --dmenu -p "${1}")"
 }
 
 declare -a managers=(
@@ -254,7 +254,7 @@ Present dmenu to user with options defined in the [[#dmenu-1][DMenu]] section
 =printf '%s\n'= is used to format the array one item to a line to feed to =dmenu=
 #+begin_src shell
 # Prompt the user
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 #+end_src
 
 What to do when/if we choose one of the options.
@@ -312,7 +312,7 @@ Take screenshots
 |-----------------+--------------------|
 | App             | Comment            |
 |-----------------+--------------------|
-| =rofi -dmenu=     | Triggers dmenu     |
+| =wofi --dmenu=     | Triggers dmenu     |
 | =maim=            | Screenshot tool    |
 | =xrandr=          | Screen management  |
 | =xdotool=         | Get active window  |
@@ -362,7 +362,7 @@ main() {
 [ ! $# -eq 0 ] && main $1 && exit
 
 # if no arguments were passed, present dmenu to user
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
 # act on user selection
 [ $choice ] && main "$choice"
@@ -454,7 +454,7 @@ elif [ ! $# -eq 0 ]; then
 
 else
     # if no arguments were passed, present dmenu to user
-    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+    choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
     # act on user selection
     [ $choice ] && start_recording $choice
@@ -488,7 +488,7 @@ options=("$(ls "$wallpapers_dir" --hide="*.*")")
 
 Prompt the user
 #+begin_src shell
-choice=$(printf '%s\n' "-refresh" "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+choice=$(printf '%s\n' "-refresh" "${options[@]}" | wofi --dmenu -p "${prompt}")
 #+end_src
 
 ** Action
@@ -588,7 +588,7 @@ If no arguments were passed, present dmenu to user
 #+begin_src shell
 else
     # Prompt the user
-    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+    choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
     # Act on user selection
     [ $choice ] && key_grabber $choice

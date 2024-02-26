@@ -8,7 +8,7 @@ wallpapers_dir="$XDG_PICTURES_DIR/wallpapers"
 prompt="Wallpaper Category"
 options=("$(ls "$wallpapers_dir" --hide="*.*")")
 
-choice=$(printf '%s\n' "-refresh" "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+choice=$(printf '%s\n' "-refresh" "${options[@]}" | wofi --dmenu -p "${prompt}")
 
 case $choice in
     '') exit 1 ;;

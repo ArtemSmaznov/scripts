@@ -32,7 +32,7 @@ execute_choice() {
 
 [ ! $# -eq 0 ] && execute_choice $1 && exit
 
-choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -p "${prompt}")
+choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
 case $choice in
     'Show recent') execute_choice recent ;;
