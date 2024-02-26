@@ -992,7 +992,8 @@ playlists_dir="$XDG_CONFIG_HOME/mpd/playlists"
 
 cd "$music_dir" || exit 1
 
-echo "broken song links"
+echo "Broken song links:"
+echo "------------------"
 for playlist in "$playlists_dir"/*; do
     playlist=$(basename "$playlist" .m3u)
 
