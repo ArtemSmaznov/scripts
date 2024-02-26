@@ -113,6 +113,7 @@ if ! $debug; then
 
     /usr/bin/steam-runtime %U &
     qutebrowser &
+    emacs &
     # emacsclient -ca '' &
 
     sleep 10 && "$HOME/.local/bin/set-wallpaper.sh" &
