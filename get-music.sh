@@ -26,8 +26,8 @@ usage="""Usage:
     get-music.sh album
 
     get-music.sh file
-    get-music.sh albumcover
-    get-music.sh albumcovercolor
+    get-music.sh cover_file
+    get-music.sh cover_color
 
     get-music.sh rating
     get-music.sh play_count
@@ -171,9 +171,9 @@ case $1 in
     artist) mpc current -f "%artist%"           ;;
 
     # files
-    file)            get_track_file ;;
-    albumcover)      get_album_cover_file ;;
-    albumcovercolor) get_album_cover_color ;;
+    file)        get_track_file        ;;
+    cover_fil)   get_album_cover_file  ;;
+    cover_color) get_album_cover_color ;;
 
     # mpd-stats
     rating)      get_track_metadata "$stat" ;;

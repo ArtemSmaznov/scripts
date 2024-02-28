@@ -36,6 +36,12 @@ listen_metadata_icon () {
         --format "{{emoji($1)}}"
 }
 
+listen_album_color () {
+    listen_metadata "$1" | while read -r cover_file; do
+        ~/.local/bin/get-primary-color.sh "$cover_file"
+    done
+}
+
 listen_mpd_event () {
     event="$1"
     field="$2"
@@ -76,8 +82,9 @@ case $1 in
     duration) listen_metadata mpris:length ;;
 
     # files
-    track_file) listen_metadata_path      xesam:url    ;;
-    cover_file) listen_metadata           mpris:artUrl ;;
+    track_file)  listen_metadata_path      xesam:url    ;;
+    cover_file)  listen_metadata           mpris:artUrl ;;
+    cover_color) listen_album_color        mpris:artUrl ;;
 
     # mpd-stats
     rating)      listen_mpd_event player rating      ;;
