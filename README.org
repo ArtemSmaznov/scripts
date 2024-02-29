@@ -452,7 +452,7 @@ case $1 in
 
     # files
     file)        get_track_file        ;;
-    cover_fil)   get_album_cover_file  ;;
+    cover_file)  get_album_cover_file  ;;
     cover_color) get_album_cover_color ;;
 
     # mpd-stats
