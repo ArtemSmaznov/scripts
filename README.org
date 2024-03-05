@@ -16,6 +16,7 @@
 - [[#cast-to-tv][cast-to-tv]]
 - [[#disconnect-controller][disconnect-controller]]
 - [[#get-battery][get-battery]]
+- [[#get-current-monitor][get-current-monitor]]
 - [[#get-geometry-area][get-geometry-area]]
 - [[#get-geometry-desktop][get-geometry-desktop]]
 - [[#get-geometry-monitor][get-geometry-monitor]]
@@ -185,6 +186,36 @@ device=$2
 
 # upower -i "/org/freedesktop/UPower/devices/battery_ps_controller_battery_a0oabo51o62o65o1d"
 upower -i "/org/freedesktop/UPower/devices/$device" | grep $metric | awk '{print $2}' | sed 's/%//'
+#+end_src
+
+* get-current-monitor
+#+begin_src shell :tangle get-current-monitor.sh
+[ "$1" ] && param=$1 || param=name
+
+# environment variables
+#-------------------------------------------------------------------------------
+[ ! "$XDG_CONFIG_HOME" ] && export XDG_CONFIG_HOME="$HOME/.config"
+
+# variables
+#-------------------------------------------------------------------------------
+
+# functions
+#-------------------------------------------------------------------------------
+
+# setup
+#-------------------------------------------------------------------------------
+
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    wayland)
+        case $XDG_SESSION_DESKTOP in
+            Hyprland) "$XDG_CONFIG_HOME"/hypr/scripts/get-current-monitor.sh "$param" ;;
+            *) exit 1 ;;
+        esac ;;
+
+    *) exit 1 ;;
+esac
 #+end_src
 
 * get-geometry-area
