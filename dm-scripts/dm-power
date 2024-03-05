@@ -43,13 +43,13 @@ execute_choice() {
     elif [[ $1 == 'reboot' ]]; then systemctl reboot
     elif [[ $1 == 'poweroff' ]]; then systemctl poweroff
     elif [[ $1 == 'suspend' ]]; then systemctl suspend
-    elif [[ $1 == 'controller' ]]; then ~/.local/bin/disconnect-controller.sh
+    elif [[ $1 == 'controller' ]]; then ~/.local/bin/disconnect-controller.sh || exit 0
     elif [[ $1 == 'quit' ]]; then ${output} "Program terminated." && exit 0
     else ${output} "Program terminated." && exit 0
     fi
 }
 
-[ ! $# -eq 0 ] && execute_choice $1 && exit
+[ ! $# -eq 0 ] && execute_choice $1 && exit 0
 
 # Prompt the user
 choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
