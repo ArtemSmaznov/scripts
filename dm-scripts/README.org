@@ -191,7 +191,11 @@ Define =LOCKER= in =.xpwofile= to set to different locker program
 if [[ $XDG_SESSION_TYPE == "x11" ]]; then
     LOCKER="$HOME/.config/i3lock/i3lock.sh"
 elif [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-    LOCKER="swaylock"
+    if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
+        LOCKER="hyprlock"
+    else
+        LOCKER="swaylock"
+    fi
 fi
 
 # use notify-send if run in dumb term
