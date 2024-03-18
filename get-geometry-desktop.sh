@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
-if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-    if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
-        exit
-    fi
-fi
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    wayland)
+        case $XDG_SESSION_DESKTOP in
+            Hyprland) exit ;;
+            *) exit 1 ;;
+        esac ;;
+
+    *) exit 1 ;;
+esac
+
 exit

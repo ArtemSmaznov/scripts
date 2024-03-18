@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------------
 scripts_dir="$HOME/.local/bin"
 
-# x11 functions
+# functions - x11
 #-------------------------------------------------------------------------------
 toggle_x11 () {
     case $("$scripts_dir/get-lang.sh") in
@@ -21,7 +21,7 @@ toggle_x11 () {
     esac
 }
 
-# wayland functions
+# functions - wayland
 #-------------------------------------------------------------------------------
 toggle_wayland () {
     case $XDG_CURRENT_DESKTOP in
@@ -41,6 +41,6 @@ toggle_hyprland () {
 # execution
 #===============================================================================
 case $XDG_SESSION_TYPE in
-    'x11') toggle_x11 ;;
-    'wayland') toggle_wayland ;;
+    x11) toggle_x11 ;;
+    wayland) toggle_wayland ;;
 esac

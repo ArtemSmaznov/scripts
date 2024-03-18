@@ -39,23 +39,26 @@ usage="""Usage:
 # functions
 #-------------------------------------------------------------------------------
 convert_mode () {
-    if [ $(mpc status "%$1%") == "on" ]
-    then echo "$2"
-    else echo -
+    if [ $(mpc status "%$1%") == "on" ]; then
+        echo "$2"
+    else
+        echo -
     fi
 }
 
 convert_crossfade () {
-    if [[ $(mpc crossfade | awk '{print $2}') > 0 ]]
-    then echo "$1"
-    else echo -
+    if [ $(mpc crossfade | awk '{print $2}') > 0 ]; then
+        echo "$1"
+    else
+        echo -
     fi
 }
 
 convert_update () {
-    if mpc status | grep -q 'Updating DB'
-    then echo "$1"
-    else echo -
+    if mpc status | grep -q 'Updating DB'; then
+        echo "$1"
+    else
+        echo -
     fi
 }
 

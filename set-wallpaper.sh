@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
-#
-# Inputs
 wallpaper_category=$1
 
+# environment variables
+#-------------------------------------------------------------------------------
 [ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
 [ ! "$XDG_STATE_HOME" ] && export XDG_STATE_HOME="$HOME/.local/state"
 
+# variables
+#-------------------------------------------------------------------------------
 wallpaper_category_file="$XDG_STATE_HOME/wallpaper"
 wallpapers_dir="$XDG_PICTURES_DIR/wallpapers"
 
-#===============================================================================
-
+# functions
+#-------------------------------------------------------------------------------
 function getLastCategory {
     last_category="faded"
     if [ -f "$wallpaper_category_file" ]; then
@@ -36,20 +38,20 @@ function selectRandomWallpaper {
     wallpaper=$(find "$wallpapers_dir/$category" -type f | shuf -n 1)
 }
 
+# functions - x11
 #-------------------------------------------------------------------------------
-# Xorg
-
 function setNitrogen {
-    monitors=$(xrandr --query | grep -e '\sconnected' | awk '{print $1}')
+    monitors=$(xrandr --query |
+                   grep -e '\sconnected' |
+                   awk '{print $1}')
 
     for monitor in $monitors; do
         nitrogen --set-zoom-fill --random --head="$monitor" "$wallpapers_dir/$wallpaper_category"
     done
 }
 
+# functions - wayland
 #-------------------------------------------------------------------------------
-# Wayland
-
 function setHyprPaper {
     monitors=$(hyprctl -j monitors | jq -r '.[].name')
 
@@ -73,23 +75,21 @@ function setWPaperD {
     wpaperd
 }
 
+# execution
 #===============================================================================
-
 getLastCategory
 handleCategoryInput "$wallpaper_category"
 updateStateFile "$wallpaper_category"
 
-if [[ $XDG_SESSION_TYPE == "x11" ]]; then
-    export DISPLAY=":0"
-    setNitrogen
-fi
+case $XDG_SESSION_TYPE in
+    wayland)
+        setWPaperD
+        ;;
 
-if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-    setWPaperD
+    x11)
+        export DISPLAY=":0"
+        setNitrogen
+        ;;
 
-    # if [[ $XDG_DESKTOP_SESSION == "hyprland" ]]; then
-    # if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
-    # if [[ $XDG_SESSION_DESKTOP == "Hyprland" ]]; then
-    #     setHyprPaper
-    # fi
-fi
+    *) exit 1 ;;
+esac

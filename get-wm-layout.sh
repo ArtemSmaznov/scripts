@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
-if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-    if [[ $XDG_SESSION_DESKTOP == "Hyprland" ]]; then
-        hyprctl getoption -j general:layout | jq -r .str
-    fi
-fi
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    wayland)
+        case $XDG_SESSION_DESKTOP in
+            Hyprland)
+                hyprctl getoption -j general:layout |
+                    jq -r .str
+                ;;
+            *) exit 1 ;;
+        esac ;;
+
+    *) exit 1 ;;
+esac

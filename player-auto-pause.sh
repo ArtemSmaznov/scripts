@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# functions
+#-------------------------------------------------------------------------------
 function get_all_players {
     playerctl --list-all
 }
@@ -32,6 +34,8 @@ function pause_player {
 
 last_player=""
 
+# execution
+#===============================================================================
 while true; do
     new_player=$(get_current_player)
     new_player_state=$(get_player_state $new_player)

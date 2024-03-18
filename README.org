@@ -10,8 +10,6 @@
 
 * Table of Contents :toc:
 - [[#auto-start][auto-start]]
-  - [[#xorg][Xorg]]
-  - [[#wayland][Wayland]]
   - [[#global][Global]]
 - [[#cast-to-tv][cast-to-tv]]
 - [[#disconnect-controller][disconnect-controller]]
@@ -66,31 +64,37 @@ Debug mode
 debug=false
 #+end_src
 
-** Xorg
 #+begin_src shell
-if [[ $XDG_SESSION_TYPE == "x11" ]]; then
-    # screen locker
-    # xscreensaver -no-splash &
-    # xautolock -time 60 -locker "$HOME/.config/i3lock/i3lock.sh" &
-    xss-lock -- "$HOME/.config/i3lock/i3lock.sh" &
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    wayland)
+        case $XDG_SESSION_DESKTOP in
+            Hyprland)
+                # blue screen filter
+                $XDG_CONFIG_HOME/wlsunset/wlsunset.sh &
+                ;;
+            ,*) exit 1 ;;
+        esac ;;
 
-    # compositor
-    picom -b &
+    x11)
+        # screen locker
+        # xscreensaver -no-splash &
+        # xautolock -time 60 -locker "$HOME/.config/i3lock/i3lock.sh" &
+        xss-lock -- "$HOME/.config/i3lock/i3lock.sh" &
 
-    # hide cursor
-    unclutter -jitter 5 &
+        # compositor
+        picom -b &
 
-    # blue screen filter
-    redshift-gtk &
-fi
-#+end_src
+        # hide cursor
+        unclutter -jitter 5 &
 
-** Wayland
-#+begin_src shell
-if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-    # blue screen filter
-    $XDG_CONFIG_HOME/wlsunset/wlsunset.sh &
-fi
+        # blue screen filter
+        redshift-gtk &
+        ;;
+
+    ,*) exit 1 ;;
+esac
 #+end_src
 
 ** Global
@@ -154,12 +158,14 @@ controllers=(
 #-------------------------------------------------------------------------------
 get_device_mac () {
     device="$1"
-    bluetoothctl devices | grep "$device" | awk '{print $2}' | head -1
+    bluetoothctl devices |
+        grep "$device" |
+        awk '{print $2}' |
+        head -1
 }
 
 # execution
 #===============================================================================
-
 for controller in "${controllers[@]}"; do
     mac_address=$(get_device_mac "$controller")
     bluetoothctl disconnect "$mac_address"
@@ -184,8 +190,13 @@ device:
 metric=$1
 device=$2
 
+# execution
+#===============================================================================
 # upower -i "/org/freedesktop/UPower/devices/battery_ps_controller_battery_a0oabo51o62o65o1d"
-upower -i "/org/freedesktop/UPower/devices/$device" | grep $metric | awk '{print $2}' | sed 's/%//'
+upower -i "/org/freedesktop/UPower/devices/$device" |
+    grep $metric |
+    awk '{print $2}' |
+    sed 's/%//'
 #+end_src
 
 * get-current-monitor
@@ -225,86 +236,125 @@ slurp
 
 * get-geometry-desktop
 #+begin_src shell :tangle get-geometry-desktop.sh
-if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-    if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
-        exit
-    fi
-fi
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    wayland)
+        case $XDG_SESSION_DESKTOP in
+            Hyprland) exit ;;
+            ,*) exit 1 ;;
+        esac ;;
+
+    ,*) exit 1 ;;
+esac
+
 exit
 #+end_src
 
 * get-geometry-monitor
 #+begin_src shell :tangle get-geometry-monitor.sh
-if [[ $XDG_SESSION_TYPE == "x11" ]]; then
-    displays=$(xrandr --listactivemonitors | grep '+' | awk '{print $4, $3}' | awk -F'[x/+* ]' '{print $1,$2"x"$4"+"$6"+"$7}')
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    wayland)
+        case $XDG_SESSION_DESKTOP in
+            Hyprland)
+                # active_monitor=$(hyprctl -j activewindow | jq -r .monitor)
+                # hyprctl -j monitors | jq -r '.[] | select(.id | contains(0))' | jq -r '"\(.x),\(.y) \(.width)x\(.height)"'
+                exit
+                ;;
+            ,*) exit 1 ;;
+        esac ;;
 
-    IFS=$'\n'
-    declare -A display_mode
+    x11)
+        displays=$(xrandr --listactivemonitors |
+                       grep '+' |
+                       awk '{print $4, $3}' |
+                       awk -F'[x/+* ]' '{print $1,$2"x"$4"+"$6"+"$7}')
 
-    for d in ${displays}; do
-        name=$(echo "${d}" | awk '{print $1}')
-        area="$(echo "${d}" | awk '{print $2}')"
-        display_mode[${name}]="${area}"
-    done
+        IFS=$'\n'
+        declare -A display_mode
 
-    unset IFS
-fi
+        for d in ${displays}; do
+            name=$(echo "${d}" | awk '{print $1}')
+            area="$(echo "${d}" | awk '{print $2}')"
+            display_mode[${name}]="${area}"
+        done
 
-if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-    if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
-        # active_monitor=$(hyprctl -j activewindow | jq -r .monitor)
-        # hyprctl -j monitors | jq -r '.[] | select(.id | contains(0))' | jq -r '"\(.x),\(.y) \(.width)x\(.height)"'
-        exit
-    fi
-fi
+        unset IFS
+        ;;
+
+    ,*) exit 1 ;;
+esac
+
 exit
 #+end_src
 
 * get-geometry-window
 #+begin_src shell :tangle get-geometry-window.sh
-if [[ $XDG_SESSION_TYPE == "x11" ]]; then
-    # xdotool getactivewindow
-    echo 0
-fi
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    wayland)
+        case $XDG_SESSION_DESKTOP in
+            Hyprland)
+                hyprctl -j activewindow |
+                    jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"'
+                ;;
+            ,*) exit 1 ;;
+        esac ;;
 
-if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-    if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
-        hyprctl -j activewindow | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"'
-    fi
-fi
+    x11)
+        # xdotool getactivewindow
+        echo 0
+        ;;
+
+    ,*) exit 1 ;;
+esac
 #+end_src
 
 * get-ip
 #+begin_src shell :tangle get-ip.sh
 target="$1"
 
+# execution
+#===============================================================================
 if [[ ! $target ]]; then
     curl -s ifconfig.co
     exit
 fi
 
-host $target | awk '{ print $NF }'
+host $target |
+    awk '{ print $NF }'
 #+end_src
 
 * get-lang
 #+begin_src shell :tangle get-lang.sh
-if [[ $XDG_SESSION_TYPE == "x11" ]]; then
-    setxkbmap -query | awk '$1=="layout:" {print $2}'
-fi
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    wayland)
+        case $XDG_SESSION_DESKTOP in
+            Hyprland)
+                language=$(hyprctl -j devices |
+                               jq -r '.keyboards[] | select(.name | contains("wlr")) .active_keymap')
+                case "$language" in
+                    'English (US)') echo us;;
+                    'Russian') echo ru;;
+                    'Japanese') echo jp;;
+                    ,*) echo err;;
+                esac
+                ;;
+            ,*) exit 1 ;;
+        esac ;;
 
-if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-    # if [[ $XDG_DESKTOP_SESSION == "hyprland" ]]; then
-    # if [[ $XDG_SESSION_DESKTOP == "Hyprland" ]]; then
-    if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
-        language=$(hyprctl -j devices | jq -r '.keyboards[] | select(.name | contains("wlr")) .active_keymap')
-        case "$language" in
-             'English (US)') echo us;;
-             'Russian') echo ru;;
-             'Japanese') echo jp;;
-             *) echo err;;
-        esac
-    fi
-fi
+    x11)
+        setxkbmap -query |
+            awk '$1=="layout:" {print $2}'
+        ;;
+
+    ,*) exit 1 ;;
+esac
 #+end_src
 
 * get-music
@@ -349,23 +399,26 @@ usage="""Usage:
 # functions
 #-------------------------------------------------------------------------------
 convert_mode () {
-    if [ $(mpc status "%$1%") == "on" ]
-    then echo "$2"
-    else echo -
+    if [ $(mpc status "%$1%") == "on" ]; then
+        echo "$2"
+    else
+        echo -
     fi
 }
 
 convert_crossfade () {
-    if [[ $(mpc crossfade | awk '{print $2}') > 0 ]]
-    then echo "$1"
-    else echo -
+    if [ $(mpc crossfade | awk '{print $2}') > 0 ]; then
+        echo "$1"
+    else
+        echo -
     fi
 }
 
 convert_update () {
-    if mpc status | grep -q 'Updating DB'
-    then echo "$1"
-    else echo -
+    if mpc status | grep -q 'Updating DB'; then
+        echo "$1"
+    else
+        echo -
     fi
 }
 
@@ -499,11 +552,19 @@ esac
 
 * get-mute
 #+begin_src shell :tangle get-mute.sh
-stream=$( amixer sget Master | grep "%" | awk -F'[][]' '{print $4}' | sort -u )
-if [ $stream == "on" ]
-then echo off
-else echo on
-fi
+# variables
+#-------------------------------------------------------------------------------
+stream=$( amixer sget Master |
+              grep "%" |
+              awk -F'[][]' '{print $4}' |
+              sort -u )
+
+# execution
+#===============================================================================
+case $stream in
+    on) echo off ;;
+    ,*) echo on ;;
+esac
 #+end_src
 
 * get-network-interface
@@ -519,6 +580,8 @@ route |
 image="$1"
 [ $2 ] && colors=$2 || colors=1
 
+# execution
+#===============================================================================
 convert "$image" -scale $colorsx$colors\! -format %c -colors $colors histogram:info:- | awk '{print $3}'
 #+end_src
 
@@ -535,39 +598,62 @@ beet list "path:$music_file" -f "\$$field"
 
 * get-timestamp
 #+begin_src shell :tangle get-timestamp.sh
+# variables
+#-------------------------------------------------------------------------------
 timestamp='+%Y-%m-%d_%H-%M-%S'
+
+# execution
+#===============================================================================
 date "$timestamp"
 #+end_src
 
 * get-trayer-width
 #+begin_src shell :tangle get-trayer-width.sh
-if [ $(pidof trayer) ]
-then xprop -name panel | grep 'program specified minimum size' | awk '{print $5}'
-else echo 0
+# execution
+#===============================================================================
+if [ $(pidof trayer) ]; then
+    xprop -name panel |
+        grep 'program specified minimum size' |
+        awk '{print $5}'
+else
+    echo 0
 fi
 #+end_src
 
 * get-updates
 get-updates
 #+begin_src shell :tangle get-updates.sh
+# variables
+#-------------------------------------------------------------------------------
 updates_file="/var/cache/pacman/updates"
 
+# setup
+#-------------------------------------------------------------------------------
 if [ ! -f "$updates_file" ]; then
     echo "Error: $updates_file is missing!"
     exit 1
 fi
 
-cat "$updates_file" | wc -l
+# execution
+#===============================================================================
+cat "$updates_file" |
+    wc -l
 #+end_src
 
 get-update-flags
 #+begin_src shell :tangle get-update-flags.sh
+# variables
+#-------------------------------------------------------------------------------
 updates_file="/var/cache/pacman/updates"
 
+# setup
+#-------------------------------------------------------------------------------
 cat "$updates_file" | grep -q "wine"      && flag+=w
 cat "$updates_file" | grep -q "mesa"      && flag+=m
 cat "$updates_file" | grep -q "linux-zen" && flag+=k
 
+# execution
+#===============================================================================
 echo "$flag"
 #+end_src
 
@@ -601,10 +687,10 @@ Run every 15 min
 
 * get-uptime
 #+begin_src shell :tangle get-uptime.sh
-uptime --pretty \
-    | sed -e 's/up //' \
-          -e 's/ \([a-z]\)\w*,*/\1/g' \
-    | awk '{print $1 " " $2}'
+uptime --pretty |
+    sed -e 's/up //' \
+        -e 's/ \([a-z]\)\w*,*/\1/g' |
+    awk '{print $1 " " $2}'
 #+end_src
 
 * get-video-thumbnail
@@ -631,16 +717,30 @@ ffmpeg \
 
 * get-volume
 #+begin_src shell :tangle get-volume.sh
-amixer sget Master | grep "%" | awk -F'[][]' '{print $2}' | tr -d '%' | sort -r | head -1
+amixer sget Master |
+    grep "%" |
+    awk -F'[][]' '{print $2}' |
+    tr -d '%' |
+    sort -r |
+    head -1
 #+end_src
 
 * get-wm-layout
 #+begin_src shell :tangle get-wm-layout.sh
-if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-    if [[ $XDG_SESSION_DESKTOP == "Hyprland" ]]; then
-        hyprctl getoption -j general:layout | jq -r .str
-    fi
-fi
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    wayland)
+        case $XDG_SESSION_DESKTOP in
+            Hyprland)
+                hyprctl getoption -j general:layout |
+                    jq -r .str
+                ;;
+            ,*) exit 1 ;;
+        esac ;;
+
+    ,*) exit 1 ;;
+esac
 #+end_src
 
 * listen-current-workspace
@@ -765,51 +865,88 @@ xprop -spy -root _NET_ACTIVE_WINDOW |
 
 * listen-wm-layout
 #+begin_src shell :tangle listen-wm-layout.sh
-if [[ $DESKTOP_SESSION == "xmonad" ]]; then
-    xprop -spy -root _XMONAD_LOG |
-        stdbuf -oL sed 's/^.*= //' |
-        stdbuf -oL sed 's/^"\(.*\)"$/\1/' |
-        stdbuf -oL awk -F'::::' '{ print $2 }'
-fi
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    x11)
+        case $DESKTOP_SESSION in
+            xmonad)
+                xprop -spy -root _XMONAD_LOG |
+                    stdbuf -oL sed 's/^.*= //' |
+                    stdbuf -oL sed 's/^"\(.*\)"$/\1/' |
+                    stdbuf -oL awk -F'::::' '{ print $2 }'
+                ;;
+            ,*) exit 1 ;;
+        esac ;;
+
+    ,*) exit 1 ;;
+esac
 
 exit 0
 #+end_src
 
 * listen-wm-title
 #+begin_src shell :tangle listen-wm-title.sh
-if [[ $DESKTOP_SESSION == "xmonad" ]]
-then
-    xprop -spy -root _XMONAD_LOG |
-        stdbuf -oL sed 's/^.*= //' |
-        stdbuf -oL sed 's/^"\(.*\)"$/\1/' |
-        stdbuf -oL awk -F'::::' '{ print $3 }'
-fi
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    x11)
+        case $DESKTOP_SESSION in
+            xmonad)
+                xprop -spy -root _XMONAD_LOG |
+                    stdbuf -oL sed 's/^.*= //' |
+                    stdbuf -oL sed 's/^"\(.*\)"$/\1/' |
+                    stdbuf -oL awk -F'::::' '{ print $3 }'
+                ;;
+            ,*) exit 1 ;;
+        esac ;;
+
+    ,*) exit 1 ;;
+esac
 
 exit 0
 #+end_src
 
 * listen-wm-workspaces
 #+begin_src shell :tangle listen-wm-workspaces.sh
-if [[ $DESKTOP_SESSION == "xmonad" ]]
-then
-    xprop -spy -root _XMONAD_LOG |
-        stdbuf -oL sed 's/^.*= //' |
-        stdbuf -oL sed 's/^"\(.*\)"$/\1/' |
-        stdbuf -oL awk -F'::::' "{ print \$1 }"
-fi
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    x11)
+        case $DESKTOP_SESSION in
+            xmonad)
+                xprop -spy -root _XMONAD_LOG |
+                    stdbuf -oL sed 's/^.*= //' |
+                    stdbuf -oL sed 's/^"\(.*\)"$/\1/' |
+                    stdbuf -oL awk -F'::::' "{ print \$1 }"
+                ;;
+            ,*) exit 1 ;;
+        esac ;;
+
+    ,*) exit 1 ;;
+esac
 
 exit 0
 #+end_src
 
 #+begin_src shell :tangle listen-wm-workspaces.sh :tangle no
-if [[ $DESKTOP_SESSION == "xmonad" ]]
-then
-    xprop -spy -root _XMONAD_LOG |
-        stdbuf -oL sed 's/^.*= //' |
-        stdbuf -oL sed 's/^"\(.*\)"$/\1/' |
-        stdbuf -oL awk -F'::::' "{ print \"[\\\"\" \$1 \"\\\"]\" }" |
-        stdbuf -oL sed 's/ /\", \"/g'
-fi
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    x11)
+        case $DESKTOP_SESSION in
+            xmonad)
+                xprop -spy -root _XMONAD_LOG |
+                    stdbuf -oL sed 's/^.*= //' |
+                    stdbuf -oL sed 's/^"\(.*\)"$/\1/' |
+                    stdbuf -oL awk -F'::::' "{ print \"[\\\"\" \$1 \"\\\"]\" }" |
+                    stdbuf -oL sed 's/ /\", \"/g'
+                ;;
+            ,*) exit 1 ;;
+        esac ;;
+
+    ,*) exit 1 ;;
+esac
 
 exit 0
 #+end_src
@@ -880,6 +1017,8 @@ WantedBy=default.target
 
 Running script
 #+begin_src shell :tangle player-auto-pause.sh
+# functions
+#-------------------------------------------------------------------------------
 function get_all_players {
     playerctl --list-all
 }
@@ -913,6 +1052,8 @@ function pause_player {
 
 last_player=""
 
+# execution
+#===============================================================================
 while true; do
     new_player=$(get_current_player)
     new_player_state=$(get_player_state $new_player)
@@ -936,8 +1077,12 @@ systemctl --user enable --now player-auto-pause.service
 #+begin_src shell :tangle record-screen.sh
 scope="$1"
 
+# environment variables
+#-------------------------------------------------------------------------------
 [ ! "$XDG_VIDEOS_DIR" ] && export XDG_VIDEOS_DIR="$HOME/Videos"
 
+# variables
+#-------------------------------------------------------------------------------
 record_dir="$XDG_VIDEOS_DIR/recordings"
 record_name="recording"
 record_format="mp4"
@@ -949,13 +1094,14 @@ mkdir -p "${record_dir}"
 # Audio Settings
 audio_device='alsa_output.usb-Focusrite_Scarlett_2i2_USB_Y86EP6H211E46C-00.analog-stereo.monitor'
 
-#-------------------------------------------------------------------------------
 # Xorg
 
 # Video Settings
 resolution='1920x1080'
 fps='30'
 
+# functions
+#-------------------------------------------------------------------------------
 xorg_capture() {
     ffmpeg \
         -video_size $resolution -framerate $fps \
@@ -966,8 +1112,8 @@ xorg_capture() {
         $record_dir/screenrecording-$(~/.local/bin/get-timestamp.sh).mkv
 }
 
+Setup
 #-------------------------------------------------------------------------------
-
 case $scope in
     monitor)
         message="Active monitor"
@@ -997,8 +1143,8 @@ accepted options:
         ;;
 esac
 
+# execution
 #===============================================================================
-
 ~/.local/bin/trigger-countdown.sh $record_delay
 
 if [[ $geometry ]]; then
@@ -1015,20 +1161,35 @@ notify-send --urgency=low "Recording saved!" "$message"
 type="$1" # image/png
 # screenshot.sh monitor | save-to-clipboard.sh image/png
 
+# execution
+#===============================================================================
 case "$XDG_SESSION_TYPE" in
-    'x11') xclip -selection clipboard -t "$type" ;;
-    'wayland') wl-copy -t "$type" ;;
+    wayland) wl-copy -t "$type" ;;
+
+    x11) xclip -selection clipboard -t "$type" ;;
+
     ,*) err "Unknown display server" ;;
 esac
 #+end_src
 
 * scan-playlists
 #+begin_src shell :tangle scan-playlists.sh
+# environment variables
+#-------------------------------------------------------------------------------
+[ ! "$XDG_MUSIC_DIR" ] && export XDG_MUSIC_DIR="$HOME/Music"
+[ ! "$XDG_CONFIG_HOME" ] && export XDG_CONFIG_HOME="$HOME/.config"
+
+# variables
+#-------------------------------------------------------------------------------
 music_dir="$XDG_MUSIC_DIR"
 playlists_dir="$XDG_CONFIG_HOME/mpd/playlists"
 
+# setup
+#-------------------------------------------------------------------------------
 cd "$music_dir" || exit 1
 
+# execution
+#===============================================================================
 echo "Broken song links:"
 echo "------------------"
 for playlist in "$playlists_dir"/*; do
@@ -1162,10 +1323,12 @@ notify-send --urgency low "Screenshot saved!" "$message" --icon "$screen_file"
 # - set-lang.sh jp
 # - set-lang.sh en
 
+# execution
+#===============================================================================
 setxkbmap -layout $1
 
-if [[ $(eww ping 2> /dev/null) == "pong" ]]
-then eww update kbd=$1
+if [ $(eww ping 2> /dev/null) == "pong" ]; then
+    eww update kbd=$1
 fi
 #+end_src
 
@@ -1180,23 +1343,27 @@ fi
 direction=$1
 step=$2
 
+# execution
+#===============================================================================
 amixer -q sset Master ${step}%${direction} unmute
 #+end_src
 
 * set-wallpaper
 #+begin_src shell :tangle set-wallpaper.sh
-#
-# Inputs
 wallpaper_category=$1
 
+# environment variables
+#-------------------------------------------------------------------------------
 [ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
 [ ! "$XDG_STATE_HOME" ] && export XDG_STATE_HOME="$HOME/.local/state"
 
+# variables
+#-------------------------------------------------------------------------------
 wallpaper_category_file="$XDG_STATE_HOME/wallpaper"
 wallpapers_dir="$XDG_PICTURES_DIR/wallpapers"
 
-#===============================================================================
-
+# functions
+#-------------------------------------------------------------------------------
 function getLastCategory {
     last_category="faded"
     if [ -f "$wallpaper_category_file" ]; then
@@ -1222,20 +1389,20 @@ function selectRandomWallpaper {
     wallpaper=$(find "$wallpapers_dir/$category" -type f | shuf -n 1)
 }
 
+# functions - x11
 #-------------------------------------------------------------------------------
-# Xorg
-
 function setNitrogen {
-    monitors=$(xrandr --query | grep -e '\sconnected' | awk '{print $1}')
+    monitors=$(xrandr --query |
+                   grep -e '\sconnected' |
+                   awk '{print $1}')
 
     for monitor in $monitors; do
         nitrogen --set-zoom-fill --random --head="$monitor" "$wallpapers_dir/$wallpaper_category"
     done
 }
 
+# functions - wayland
 #-------------------------------------------------------------------------------
-# Wayland
-
 function setHyprPaper {
     monitors=$(hyprctl -j monitors | jq -r '.[].name')
 
@@ -1259,26 +1426,24 @@ function setWPaperD {
     wpaperd
 }
 
+# execution
 #===============================================================================
-
 getLastCategory
 handleCategoryInput "$wallpaper_category"
 updateStateFile "$wallpaper_category"
 
-if [[ $XDG_SESSION_TYPE == "x11" ]]; then
-    export DISPLAY=":0"
-    setNitrogen
-fi
+case $XDG_SESSION_TYPE in
+    wayland)
+        setWPaperD
+        ;;
 
-if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-    setWPaperD
+    x11)
+        export DISPLAY=":0"
+        setNitrogen
+        ;;
 
-    # if [[ $XDG_DESKTOP_SESSION == "hyprland" ]]; then
-    # if [[ $XDG_CURRENT_DESKTOP == "Hyprland" ]]; then
-    # if [[ $XDG_SESSION_DESKTOP == "Hyprland" ]]; then
-    #     setHyprPaper
-    # fi
-fi
+    ,*) exit 1 ;;
+esac
 #+end_src
 
 * toggle-lang
@@ -1287,7 +1452,7 @@ fi
 #-------------------------------------------------------------------------------
 scripts_dir="$HOME/.local/bin"
 
-# x11 functions
+# functions - x11
 #-------------------------------------------------------------------------------
 toggle_x11 () {
     case $("$scripts_dir/get-lang.sh") in
@@ -1305,7 +1470,7 @@ toggle_x11 () {
     esac
 }
 
-# wayland functions
+# functions - wayland
 #-------------------------------------------------------------------------------
 toggle_wayland () {
     case $XDG_CURRENT_DESKTOP in
@@ -1325,8 +1490,8 @@ toggle_hyprland () {
 # execution
 #===============================================================================
 case $XDG_SESSION_TYPE in
-    'x11') toggle_x11 ;;
-    'wayland') toggle_wayland ;;
+    x11) toggle_x11 ;;
+    wayland) toggle_wayland ;;
 esac
 #+end_src
 
@@ -1338,12 +1503,19 @@ amixer -q sset Master toggle
 * trigger-confirmation
 #+begin_src shell :tangle trigger-confirmation.sh
 prompt="$1"
-echo -e "Yes\nNo" | rofi -dmenu -i -p "$prompt"
+
+# execution
+#===============================================================================
+echo -e "Yes\nNo" |
+    rofi -dmenu -i -p "$prompt"
 #+end_src
 
 * trigger-countdown
 #+begin_src shell :tangle trigger-countdown.sh
 duration=$1
+
+# execution
+#===============================================================================
 while (( $duration > 0 )); do
     notify-send "Starting recording in" "$duration"
 

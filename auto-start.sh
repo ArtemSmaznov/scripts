@@ -1,26 +1,36 @@
 #!/usr/bin/env bash
 debug=false
 
-if [[ $XDG_SESSION_TYPE == "x11" ]]; then
-    # screen locker
-    # xscreensaver -no-splash &
-    # xautolock -time 60 -locker "$HOME/.config/i3lock/i3lock.sh" &
-    xss-lock -- "$HOME/.config/i3lock/i3lock.sh" &
+# execution
+#===============================================================================
+case $XDG_SESSION_TYPE in
+    wayland)
+        case $XDG_SESSION_DESKTOP in
+            Hyprland)
+                # blue screen filter
+                $XDG_CONFIG_HOME/wlsunset/wlsunset.sh &
+                ;;
+            *) exit 1 ;;
+        esac ;;
 
-    # compositor
-    picom -b &
+    x11)
+        # screen locker
+        # xscreensaver -no-splash &
+        # xautolock -time 60 -locker "$HOME/.config/i3lock/i3lock.sh" &
+        xss-lock -- "$HOME/.config/i3lock/i3lock.sh" &
 
-    # hide cursor
-    unclutter -jitter 5 &
+        # compositor
+        picom -b &
 
-    # blue screen filter
-    redshift-gtk &
-fi
+        # hide cursor
+        unclutter -jitter 5 &
 
-if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-    # blue screen filter
-    $XDG_CONFIG_HOME/wlsunset/wlsunset.sh &
-fi
+        # blue screen filter
+        redshift-gtk &
+        ;;
+
+    *) exit 1 ;;
+esac
 
 # dunst &
 nm-applet &

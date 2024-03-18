@@ -2,4 +2,6 @@
 image="$1"
 [ $2 ] && colors=$2 || colors=1
 
+# execution
+#===============================================================================
 convert "$image" -scale $colorsx$colors\! -format %c -colors $colors histogram:info:- | awk '{print $3}'

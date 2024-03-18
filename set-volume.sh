@@ -8,4 +8,6 @@
 direction=$1
 step=$2
 
+# execution
+#===============================================================================
 amixer -q sset Master ${step}%${direction} unmute
