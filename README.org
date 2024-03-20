@@ -149,9 +149,9 @@ target_device="$1"
 # variables
 #-------------------------------------------------------------------------------
 controllers=(
-    "PS4 Magma"
-    "PS4 Onyx"
-    "Xbox One"
+    "ps4-magma"
+    "ps4-onyx"
+    "xbox-one"
 )
 
 # functions
