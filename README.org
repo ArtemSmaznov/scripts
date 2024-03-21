@@ -158,10 +158,9 @@ controllers=(
 # functions
 #-------------------------------------------------------------------------------
 get_device_mac () {
-    device="$1"
+    device_mac="$1"
     bluetoothctl devices |
-        grep "$device" |
-        awk '{print $2}' |
+        awk '$3 == "'"$device_mac"'" { print $2 }' |
         head -1
 }
 
@@ -195,8 +194,7 @@ device=$2
 #===============================================================================
 # upower -i "/org/freedesktop/UPower/devices/battery_ps_controller_battery_a0oabo51o62o65o1d"
 upower -i "/org/freedesktop/UPower/devices/$device" |
-    grep $metric |
-    awk '{print $2}' |
+    awk '$1 == "'"$metric"':" {print $2}' |
     sed 's/%//'
 #+end_src
 
@@ -571,9 +569,8 @@ esac
 * get-network-interface
 #+begin_src shell :tangle get-network-interface.sh
 route |
-    grep default |
-    head -1 |
-    awk '{print $8}'
+    awk '$1 == "default" {print $8}' |
+    head -1
 #+end_src
 
 * get-primary-color
@@ -1451,29 +1448,34 @@ esac
 #+begin_src shell :tangle toggle-headphones.sh
 # variables
 #-------------------------------------------------------------------------------
-headphones_device="momentum-4"
+headphones_name="momentum-4"
 
 # functions
 #-------------------------------------------------------------------------------
 get_device_mac () {
     device_mac="$1"
-    bluetoothctl devices | grep "$device_mac" | awk '{ print $2 }'
+    bluetoothctl devices |
+        awk '$3 == "'"$device_mac"'" { print $2 }'
 }
 
 is_device_blocked () {
     device_mac="$1"
-    bluetoothctl info "$device_mac" | grep Blocked | awk '{ print $2 }'
+    bluetoothctl info "$device_mac" |
+        awk '$1 == "Blocked:" { print $2 }'
 }
 
 toggle_action () {
     device_blocked="$1"
-    [ "$device_blocked" == "yes" ] && action="unblock" || action="block"
+    [ "$device_blocked" == "yes" ] &&
+        action="unblock" ||
+            action="block"
+
     echo "$action"
 }
 
 # setup
 #-------------------------------------------------------------------------------
-headphones_mac=$(get_device_mac "$headphones_device")
+headphones_mac=$(get_device_mac "$headphones_name")
 heaphones_blocked=$(is_device_blocked "$headphones_mac")
 action=$(toggle_action "$heaphones_blocked")
 

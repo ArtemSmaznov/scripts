@@ -13,10 +13,9 @@ controllers=(
 # functions
 #-------------------------------------------------------------------------------
 get_device_mac () {
-    device="$1"
+    device_mac="$1"
     bluetoothctl devices |
-        grep "$device" |
-        awk '{print $2}' |
+        awk '$3 == "'"$device_mac"'" { print $2 }' |
         head -1
 }
 

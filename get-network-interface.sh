@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
 route |
-    grep default |
-    head -1 |
-    awk '{print $8}'
+    awk '$1 == "default" {print $8}' |
+    head -1
