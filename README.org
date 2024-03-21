@@ -406,7 +406,7 @@ convert_mode () {
 }
 
 convert_crossfade () {
-    if [ $(mpc crossfade | awk '{print $2}') > 0 ]; then
+    if [[ $(mpc crossfade | awk '{print $2}') > 0 ]]; then
         echo "$1"
     else
         echo -
