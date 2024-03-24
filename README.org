@@ -104,7 +104,7 @@ System Utilities
 # dunst &
 nm-applet &
 blueman-applet &
-nextcloud &
+nextcloud --background &
 #+end_src
 
 Japanese Language Input

@@ -35,7 +35,7 @@ esac
 # dunst &
 nm-applet &
 blueman-applet &
-nextcloud &
+nextcloud --background &
 
 fcitx5 -d &
 
