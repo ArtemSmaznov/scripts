@@ -1476,12 +1476,19 @@ toggle_action () {
 # setup
 #-------------------------------------------------------------------------------
 headphones_mac=$(get_device_mac "$headphones_name")
-heaphones_blocked=$(is_device_blocked "$headphones_mac")
-action=$(toggle_action "$heaphones_blocked")
+headhones_blocked=$(is_device_blocked "$headphones_mac")
 
 # execution
 #===============================================================================
-bluetoothctl "$action" "$headphones_mac"
+case $headhones_blocked in
+    no)
+        bluetoothctl block "$headphones_mac"
+    ;;
+    yes)
+        bluetoothctl unblock "$headphones_mac"
+        bluetoothctl connect "$headphones_mac"
+    ;;
+esac
 #+end_src
 
 * toggle-lang
