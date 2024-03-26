@@ -8,10 +8,10 @@ case $XDG_SESSION_TYPE in
                 language=$(hyprctl -j devices |
                                jq -r '.keyboards[] | select(.name | contains("wlr")) .active_keymap')
                 case "$language" in
-                    'English (US)') echo us;;
-                    'Russian') echo ru;;
-                    'Japanese') echo jp;;
-                    *) echo err;;
+                    'English (US)') echo us ;;
+                    'Russian') echo ru ;;
+                    'Japanese') echo jp ;;
+                    *) exit 1 ;;
                 esac
                 ;;
             *) exit 1 ;;
