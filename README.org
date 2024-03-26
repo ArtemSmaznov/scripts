@@ -1110,26 +1110,62 @@ xorg_capture() {
         $record_dir/screenrecording-$(~/.local/bin/get-timestamp.sh).mkv
 }
 
-Setup
+# setup
 #-------------------------------------------------------------------------------
+
+# execution
+#===============================================================================
+
 case $scope in
     monitor)
         message="Active monitor"
-        geometry=$(~/.local/bin/get-geometry-monitor.sh) || exit 1
+        monitor=$(~/.local/bin/get-current-monitor.sh name) || exit 1
+
+        ~/.local/bin/trigger-countdown.sh $record_delay
+        wf-recorder \
+            --output "$monitor" \
+            --audio="$audio_device" \
+            --file="$record_file" ||
+            exit 1
         ;;
+
     area)
         message="Area selection"
         geometry=$(~/.local/bin/get-geometry-area.sh) || exit 1
+
+        ~/.local/bin/trigger-countdown.sh $record_delay
+        wf-recorder \
+            --geometry "$geometry" \
+            --audio="$audio_device" \
+            --file="$record_file" ||
+            exit 1
         ;;
+
     window)
         message="Active window"
         geometry=$(~/.local/bin/get-geometry-window.sh) || exit 1
+
+        ~/.local/bin/trigger-countdown.sh $record_delay
+        wf-recorder \
+            --geometry "$geometry" \
+            --audio="$audio_device" \
+            --file="$record_file" ||
+            exit 1
         ;;
-    desktop)
-        message="Full desktop"
-        geometry=$(~/.local/bin/get-geometry-desktop.sh) || exit 1
-        ;;
-    ,*)
+
+    # desktop)
+    #     message="Full desktop"
+    #     geometry=$(~/.local/bin/get-geometry-desktop.sh) || exit 1
+
+    #     ~/.local/bin/trigger-countdown.sh $record_delay
+    #     wf-recorder \
+    #         --geometry "$geometry" \
+    #         --audio="$audio_device" \
+    #         --file="$record_file" ||
+    #         exit 1
+    #     ;;
+
+    *)
         echo -e """error: invalid option '$scope'
 
 accepted options:
@@ -1140,16 +1176,6 @@ accepted options:
         exit 1
         ;;
 esac
-
-# execution
-#===============================================================================
-~/.local/bin/trigger-countdown.sh $record_delay
-
-if [[ $geometry ]]; then
-    wf-recorder --audio="$audio_device" --file="$record_file" -g "$geometry" || exit 1
-else
-    wf-recorder --audio="$audio_device" --file="$record_file" || exit 1
-fi
 
 notify-send --urgency=low "Recording saved!" "$message"
 #+end_src
