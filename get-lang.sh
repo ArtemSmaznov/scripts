@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# execution
-#===============================================================================
+# setup
+#-------------------------------------------------------------------------------
 case $XDG_SESSION_TYPE in
     wayland)
         case $XDG_SESSION_DESKTOP in
@@ -8,9 +8,9 @@ case $XDG_SESSION_TYPE in
                 language=$(hyprctl -j devices |
                                jq -r '.keyboards[] | select(.name | contains("wlr")) .active_keymap')
                 case "$language" in
-                    'English (US)') echo us ;;
-                    'Russian') echo ru ;;
-                    'Japanese') echo jp ;;
+                    'English (US)') lang=us ;;
+                    'Russian') lang=ru ;;
+                    'Japanese') lang=jp ;;
                     *) exit 1 ;;
                 esac
                 ;;
@@ -18,9 +18,12 @@ case $XDG_SESSION_TYPE in
         esac ;;
 
     x11)
-        setxkbmap -query |
-            awk '$1=="layout:" {print $2}'
+        lang=$(setxkbmap -query | awk '$1=="layout:" {print $2}')
         ;;
 
     *) exit 1 ;;
 esac
+
+# execution
+#===============================================================================
+echo "$lang"
