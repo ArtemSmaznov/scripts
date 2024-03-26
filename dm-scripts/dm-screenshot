@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
+# set with the flags "-e", "-u","-o pipefail" cause the script to fail if
+# certain things happen, which is a good thing. Otherwise, we can get hidden
+# bugs that are hard to discover.
 set -euo pipefail
 
+# variables
+#-------------------------------------------------------------------------------
 prompt="Screenshot"
 options=(
     "Monitor"
@@ -10,7 +15,9 @@ options=(
     "TV"
 )
 
-main() {
+# functions
+#-------------------------------------------------------------------------------
+main () {
     scope="$1"
     case "$scope" in
         "Monitor") ~/.local/bin/screenshot.sh monitor ;;
@@ -22,12 +29,16 @@ main() {
     esac
 }
 
+# setup
+#-------------------------------------------------------------------------------
 # execute script without presenting dmenu to the user if any arguments were
 # passed to the script
-[ ! $# -eq 0 ] && main $1 && exit
+[ ! $# -eq 0 ] && main "$1" && exit
 
 # if no arguments were passed, present dmenu to user
 choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
+# execution
+#===============================================================================
 # act on user selection
-[ $choice ] && main "$choice"
+[ "$choice" ] && main "$choice"

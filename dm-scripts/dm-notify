@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 declare -a options
 
+# variables
+#-------------------------------------------------------------------------------
 prompt="Notifications"
 options=(
     "Show recent"
@@ -15,13 +17,15 @@ notif_count_history=7
 notif_count_displayed=$(dunstctl count displayed)
 notif_count_wait=$(dunstctl count waiting)
 
+# functions
+#-------------------------------------------------------------------------------
 execute_choice() {
     case $1 in
         close) dunstctl close;;
         clear) dunstctl close-all;;
         recent) dunstctl history-pop;;
         recents)
-            for ((i = 1; i <= $notif_count_history; i++));
+            for ((i = 1; i <= notif_count_history; i++));
             do
                 dunstctl history-pop
             done
@@ -30,10 +34,17 @@ execute_choice() {
     esac
 }
 
-[ ! $# -eq 0 ] && execute_choice $1 && exit
+# setup
+#-------------------------------------------------------------------------------
+# execute script without presenting dmenu to the user if any argument was passed
+[ ! $# -eq 0 ] && execute_choice "$1" && exit
 
+# Present dmenu to user with options defined in the [[#dmenu][DMenu]] section
+# printf '%s\n' is used to format the array one item to a line to feed to dmenu
 choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
+# execution
+#===============================================================================
 case $choice in
     'Show recent') execute_choice recent ;;
     'Show few recents') execute_choice recents ;;

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Track process
-proc="/tmp/dm-record"
+
+# variables
+#-------------------------------------------------------------------------------
+proc="/tmp/dm-record" # track process
 
 prompt="Record"
 options=(
@@ -12,7 +14,9 @@ options=(
     "Audio"
 )
 
-start_recording() {
+# functions
+#-------------------------------------------------------------------------------
+start_recording () {
     scope="$1"
     case "$scope" in
         "Monitor") ~/.local/bin/record-screen.sh monitor & echo $! > "$proc" ;;
@@ -25,7 +29,7 @@ start_recording() {
     esac
 }
 
-stop_recording() {
+stop_recording () {
     pid="$(cat $proc)"
 
     # kill with SIGINT, allowing finishing touches.
@@ -38,17 +42,24 @@ stop_recording() {
     exit
 }
 
-audio_capture() {
+# Check audio sources with
+# pactl list sources | grep Name
+audio_capture () {
     ffmpeg \
-        -f pulse -ac 2 -i $audio_device \
+        -f pulse -ac 2 -i "$audio_device" \
         -codec:a copy \
-        $record_dir/dm-$(date $timestamp).wav &
+        "$record_dir/dm-$(date "$timestamp").wav" &
     echo $! > $proc
 }
 
+# setup
+#-------------------------------------------------------------------------------
+
+# execution
+#===============================================================================
 # check if there is an active recordings and prompt user to stop it
 if [ -f $proc ]; then
-    if [ $(~/.local/bin/trigger-confirmation.sh "Stop recording?") = "Yes" ]; then
+    if [ "$(~/.local/bin/trigger-confirmation.sh "Stop recording?")" = "Yes" ]; then
         stop_recording
     else
         exit
@@ -60,9 +71,9 @@ elif [ ! $# -eq 0 ]; then
     start_recording "$1"
 
 else
-    # if no arguments were passed, present dmenu to user
+    # prompt the user
     choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
     # act on user selection
-    [ $choice ] && start_recording $choice
+    [ "$choice" ] && start_recording "$choice"
 fi

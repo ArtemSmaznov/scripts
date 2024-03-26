@@ -1,13 +1,22 @@
 #!/usr/bin/env bash
 declare -a options
 
+# variables
+#-------------------------------------------------------------------------------
 dm_dir="$HOME/.local/bin/dm-scripts"
 
 prompt="dm-script"
 options=($(ls $dm_dir --hide="*.*" --hide="dm-master"))
 
-# Prompt the user
+# functions
+#-------------------------------------------------------------------------------
+
+# setup
+#-------------------------------------------------------------------------------
+# prompt the user
 choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
+# execution
+#===============================================================================
 # Act on user selection
-[ $choice ] && $choice
+[ "$choice" ] && $choice

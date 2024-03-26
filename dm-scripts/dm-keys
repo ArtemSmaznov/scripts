@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-position='bottom'
+
+# variables
+#-------------------------------------------------------------------------------
+position='bottom' # tracking process
 
 prompt="screenkey"
 options=(
@@ -7,6 +10,8 @@ options=(
     "swap-position"
 )
 
+# functions
+#-------------------------------------------------------------------------------
 key_grabber() {
     case "$1" in
         toggle) toggle_grabber;;
@@ -34,14 +39,22 @@ swap_position() {
     refresh
 }
 
-if [ ! $# -eq 0 ]
+# setup
+#-------------------------------------------------------------------------------
 
-then key_grabber $1
+# execution
+#===============================================================================
+# check if any arguments were passed to the script to avoid triggering dmenu
+if [ ! $# -eq 0 ]; then
+    # execute script without presenting dmenu to the user if an argument was
+    # passed
+    key_grabber "$1"
 
+# if no arguments were passed, present dmenu to user printf '%s\n' is used to
+# format the array one item to a line to feed to dmenu
 else
-    # Prompt the user
+    # prompt the user
     choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
-    # Act on user selection
-    [ $choice ] && key_grabber $choice
+    [ "$choice" ] && key_grabber "$choice"
 fi
