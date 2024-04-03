@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 player="$2"
 
-# variables
-#-------------------------------------------------------------------------------
+# environment variables ________________________________________________________
+[ ! "$XDG_MUSIC_DIR" ] && export XDG_MUSIC_DIR="$HOME/Music"
+
+# variables ====================================================================
 player_arg=""
 [ -n "$player" ] && player_arg="--player=$player"
 
-# functions
-#-------------------------------------------------------------------------------
+# functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 listen_metadata () {
     playerctl metadata \
         --follow \
@@ -38,7 +39,8 @@ listen_metadata_icon () {
 
 listen_album_color () {
     listen_metadata "$1" | while read -r cover_file; do
-        ~/.local/bin/get-primary-color.sh "$cover_file"
+        [ -z "$cover_file" ] && cover_file="$XDG_MUSIC_DIR/no-cover"
+        ~/.local/bin/get-primary-color.sh -f rgb "$cover_file"
     done
 }
 
@@ -53,8 +55,7 @@ listen_mpd_event () {
     done
 }
 
-# execution
-#===============================================================================
+# execution ********************************************************************
 case $1 in
     # player info
     state)       listen_metadata_lc   status     ;;
