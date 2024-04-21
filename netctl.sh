@@ -14,6 +14,12 @@ toggle_connection () {
 
 # execution ********************************************************************
 case $1 in
-    status) get_status        ;;
-    toggle) toggle_connection ;;
+    status) get_status ;;
+
+    toggle)
+        case $2 in
+            eth) toggle_connection ;;
+            wlan) exit 0 ;;
+        esac
+        ;;
 esac
