@@ -13,8 +13,8 @@ get_status () {
 
 toggle_connection () {
     case $(get_status) in
-        on) bluetoothctl power off ;;
-        off) bluetoothctl power on ;;
+        0) bluetoothctl power on  ;;
+        1) bluetoothctl power off ;;
     esac
 }
 
