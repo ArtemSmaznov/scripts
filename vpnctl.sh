@@ -35,7 +35,6 @@ monitor_status () {
                 Disconnected)  echo 0       ;;
                 Connecting)    echo 0.5     ;;
                 Connected)     echo 1       ;;
-                *)             echo "$line" ;;
             esac
         done
 }
