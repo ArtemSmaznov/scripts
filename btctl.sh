@@ -2,15 +2,13 @@
 
 # functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 get_status () {
-    bt_powered=$(bluetoothctl show |
+    status=$(bluetoothctl show |
                      awk '$1 == "Powered:" { print $2 }')
 
-    case $bt_powered in
-        yes) bt_status='on' ;;
-        no) bt_status='off' ;;
+    case $status in
+        no)  echo 0 ;;
+        yes) echo 1 ;;
     esac
-
-    echo "$bt_status"
 }
 
 toggle_connection () {
