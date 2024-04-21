@@ -37,6 +37,35 @@ get_connection () {
         grep -v dev
 }
 
+# monitor functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+monitor_status () {
+    con_type="$1"
+    device=$(get_device "$con_type")
+    nmcli device monitor "$device" |
+        while read -r line; do
+            case $(echo "$line" | awk '{ print $2 }') in
+                deactivating) echo -0.5    ;;
+                disconnected) echo 0       ;;
+                connecting)   echo 0.5     ;;
+                connected)    echo 1       ;;
+                *)            echo "$line" ;;
+            esac
+        done
+}
+
+monitor_connection () {
+    con_type="$1"
+    device=$(get_device "$con_type")
+    get_connection "$con_type"
+
+    nmcli device monitor "$device" |
+        while read -r line; do
+            [[ "$line" =~ "using connection" ]] &&
+                echo "${line/* \'/}" |
+                    tr -d "'"
+        done
+}
+
 # execution ********************************************************************
 case $1 in
     status) get_status "$2"        ;;
@@ -44,8 +73,13 @@ case $1 in
 
     get)
         case $2 in
-            device) get_device "$3" ;;
+            device)     get_device "$3"     ;;
             connection) get_connection "$3" ;;
-        esac
-        ;;
+        esac ;;
+
+    monitor)
+        case $2 in
+            status)     monitor_status "$3"     ;;
+            connection) monitor_connection "$3" ;;
+        esac ;;
 esac
