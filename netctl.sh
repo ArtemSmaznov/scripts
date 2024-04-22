@@ -8,6 +8,7 @@ get_status () {
                  grep -v dev)
 
     case $status in
+        unavailable)  echo 0 ;;
         disconnected) echo 0 ;;
         connected)    echo 1 ;;
     esac
@@ -15,11 +16,21 @@ get_status () {
 
 toggle_connection () {
     con_type="$1"
-    device=$(get_device "$con_type")
-    case $(get_status "$con_type") in
-        0) nmcli device connect "$device"    ;;
-        1) nmcli device disconnect "$device" ;;
-    esac >/dev/null
+
+    if [ "$con_type" == 'ethernet' ]; then
+        device=$(get_device "$con_type")
+        case $(get_status "$con_type") in
+            0) nmcli device connect "$device"    ;;
+            1) nmcli device disconnect "$device" ;;
+        esac >/dev/null
+    fi
+
+    if [ "$con_type" == 'wifi' ]; then
+        case $(get_status "$con_type") in
+            0) nmcli radio wifi on  ;;
+            1) nmcli radio wifi off ;;
+        esac >/dev/null
+    fi
 }
 
 # get functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -47,6 +58,7 @@ monitor_status () {
         while read -r line; do
             case $(echo "$line" | awk '{ print $2 }') in
                 deactivating) echo -0.5    ;;
+                unavailable)  echo 0       ;;
                 disconnected) echo 0       ;;
                 connecting)   echo 0.5     ;;
                 connected)    echo 1       ;;
