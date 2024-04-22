@@ -76,6 +76,12 @@ case $1 in
         case $2 in
             device)     get_device "$3"     ;;
             connection) get_connection "$3" ;;
+
+            wifi)
+                case $3 in
+                    pass) nmcli device wifi show-password ;;
+                esac ;;
+
         esac ;;
 
     monitor)
