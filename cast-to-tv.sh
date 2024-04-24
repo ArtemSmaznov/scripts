@@ -3,7 +3,7 @@ media_url="$1"
 
 # variables
 #-------------------------------------------------------------------------------
-remote_host=nvidia-shield
+remote_host=tate.arts.lan
 remote_port=5555
 adb_device="$(~/.local/bin/get-ip.sh $remote_host):$remote_port"
 

@@ -100,7 +100,7 @@ esac
 mkdir -p "${screen_dir}"
 
 case $scope in
-    tv) screenshot_android nvidia-shield 5555 ;;
+    tv) screenshot_android tate.arts.lan 5555 ;;
     *) case $XDG_SESSION_TYPE in
            wayland) screenshot_wayland ;;
            x11) screenshot_xorg ;;
