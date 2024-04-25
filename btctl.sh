@@ -11,10 +11,18 @@ get_status () {
     esac
 }
 
+turn_on_connection () {
+    bluetoothctl power on
+}
+
+turn_off_connection () {
+    bluetoothctl power off
+}
+
 toggle_connection () {
     case $(get_status) in
-        0) bluetoothctl power on  ;;
-        1) bluetoothctl power off ;;
+        0) turn_on_connection  ;;
+        1) turn_off_connection ;;
     esac
 }
 
@@ -142,8 +150,10 @@ toggle_device () {
 
 # execution ********************************************************************
 case $1 in
-    status) get_status        ;;
-    toggle) toggle_connection ;;
+    status) get_status          ;;
+    on)     turn_on_connection  ;;
+    off)    turn_off_connection ;;
+    toggle) toggle_connection   ;;
 
     get)
         case $2 in
