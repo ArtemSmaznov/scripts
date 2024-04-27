@@ -46,7 +46,8 @@ get_serial () {
 }
 
 get_devices () {
-    bluetoothctl devices Connected |
+    type="$1"
+    bluetoothctl devices "$type" |
         awk '{ print $3 }'
 }
 
@@ -151,14 +152,21 @@ toggle_device () {
 # execution ********************************************************************
 case $1 in
     status) get_status          ;;
-    on)     turn_on_connection  ;;
-    off)    turn_off_connection ;;
     toggle) toggle_connection   ;;
+    off)    turn_off_connection ;;
+    on)     turn_on_connection  ;;
 
     get)
         case $2 in
             serial) get_serial "$3" ;;
-            devices) get_devices    ;;
+            devices)
+                case $3 in
+                    connected) get_devices Connected ;;
+                    trusted)   get_devices Trusted   ;;
+                    bonded)    get_devices Bonded    ;;
+                    paired)    get_devices Paired    ;;
+                    *)         get_devices Paired    ;;
+                esac ;;
             charge)
                 case $3 in
                     state) get_charge_state "$4" ;;
@@ -169,8 +177,8 @@ case $1 in
 
     device)
         case $2 in
-            status) get_device_status "$3" ;;
+            status)  get_device_status "$3"  ;;
             blocked) get_blocked_status "$3" ;;
-            toggle) toggle_device "$3" ;;
+            toggle)  toggle_device "$3"      ;;
         esac ;;
 esac
