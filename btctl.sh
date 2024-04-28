@@ -121,9 +121,16 @@ get_device_info () {
                  awk '$1=="'"$field:"'" { print $2 }')
 
     case $info in
-        yes) echo 1       ;;
-        no)  echo 0       ;;
-        *)   echo "$info" ;;
+        # boolean
+        yes) echo 1 ;;
+        no)  echo 0 ;;
+
+        # icons
+        input-gaming)  echo gamepad ;;
+        audio-headset) echo headset ;;
+
+        # other
+        *) echo "$info" ;;
     esac
 }
 
