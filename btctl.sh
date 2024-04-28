@@ -112,29 +112,18 @@ get_charge_icon () {
 }
 
 # device functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-get_device_status () {
+get_device_info () {
     device_name="$1"
+    field="$2"
     set_serial_var "$device_name"
 
-    status=$(bluetoothctl info "$serial" |
-                 awk '$1=="Connected:" { print $2 }')
+    info=$(bluetoothctl info "$serial" |
+                 awk '$1=="'"$field:"'" { print $2 }')
 
-    case $status in
-        yes) echo 1 ;;
-        no)  echo 0 ;;
-    esac
-}
-
-get_blocked_status () {
-    device_name="$1"
-    set_serial_var "$device_name"
-
-    status=$(bluetoothctl info "$serial" |
-                 awk '$1=="Blocked:" { print $2 }')
-
-    case $status in
-        yes) echo 1 ;;
-        no)  echo 0 ;;
+    case $info in
+        yes) echo 1       ;;
+        no)  echo 0       ;;
+        *)   echo "$info" ;;
     esac
 }
 
@@ -142,7 +131,7 @@ toggle_device () {
     device_name="$1"
     set_serial_var "$device_name"
 
-    case $(get_device_status "$device_name") in
+    case $(get_device_info "$device_name" Connected) in
         0) bluetoothctl connect "$serial"    ;;
         1) bluetoothctl disconnect "$serial" ;;
     esac
@@ -177,8 +166,12 @@ case $1 in
 
     device)
         case $2 in
-            status)  get_device_status "$3"  ;;
-            blocked) get_blocked_status "$3" ;;
-            toggle)  toggle_device "$3"      ;;
+            status)  get_device_info "$3" Connected ;;
+            paired)  get_device_info "$3" Paired    ;;
+            bonded)  get_device_info "$3" Bonded    ;;
+            trusted) get_device_info "$3" Trusted   ;;
+            blocked) get_device_info "$3" Blocked   ;;
+            icon)    get_device_info "$3" Icon      ;;
+            toggle)  toggle_device "$3"             ;;
         esac ;;
 esac
