@@ -5,9 +5,10 @@ updates_file="/var/cache/pacman/updates"
 
 # setup
 #-------------------------------------------------------------------------------
-cat "$updates_file" | grep -q "wine"      && flag+=w
-cat "$updates_file" | grep -q "mesa"      && flag+=m
-cat "$updates_file" | grep -q "linux-zen" && flag+=k
+grep -q "wine"      "$updates_file" && flag+=wine-bottle
+grep -q "mesa"      "$updates_file" && flag+=display
+grep -q "linux-zen" "$updates_file" && flag+=
+grep -q "hyprland"  "$updates_file" && flag+=droplet
 
 # execution
 #===============================================================================
