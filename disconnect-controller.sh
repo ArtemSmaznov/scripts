@@ -5,6 +5,7 @@ target_device="$1"
 # variables
 #-------------------------------------------------------------------------------
 controllers=(
+    "kingkong3-max"
     "ps4-magma"
     "ps4-onyx"
     "xbox-one"
