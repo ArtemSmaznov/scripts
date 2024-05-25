@@ -6,12 +6,12 @@ case $XDG_SESSION_TYPE in
         case $XDG_SESSION_DESKTOP in
             Hyprland)
                 language=$(hyprctl -j devices |
-                               jq -r '.keyboards[] | select(.name | contains("wlr")) .active_keymap')
+                               jq -r '.keyboards[] | select(.main) .active_keymap')
                 case "$language" in
                     'English (US)') lang=us ;;
                     'Russian') lang=ru ;;
                     'Japanese') lang=jp ;;
-                    *) exit 1 ;;
+                    *) echo "error: could not identify active keymap" && exit 1 ;;
                 esac
                 ;;
             *) exit 1 ;;
