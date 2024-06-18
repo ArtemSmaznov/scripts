@@ -40,7 +40,7 @@ listen_metadata_icon () {
 listen_album_color () {
     listen_metadata "$1" | while read -r cover_file; do
         [ -z "$cover_file" ] && cover_file="$XDG_MUSIC_DIR/no-cover"
-        ~/.local/bin/get-primary-color.sh -f rgb "$cover_file"
+        ~/.local/bin/get-primary-color.sh -f hex "$cover_file"
     done
 }
 
