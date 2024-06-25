@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-# variables
-#-------------------------------------------------------------------------------
+# variables --------------------------------------------------------------------
 position='bottom' # tracking process
 
 prompt="screenkey"
@@ -10,8 +9,7 @@ options=(
     "swap-position"
 )
 
-# functions
-#-------------------------------------------------------------------------------
+# functions --------------------------------------------------------------------
 key_grabber() {
     case "$1" in
         toggle) toggle_grabber;;
@@ -39,11 +37,9 @@ swap_position() {
     refresh
 }
 
-# setup
-#-------------------------------------------------------------------------------
+# setup ------------------------------------------------------------------------
 
-# execution
-#===============================================================================
+# execution ====================================================================
 # check if any arguments were passed to the script to avoid triggering dmenu
 if [ ! $# -eq 0 ]; then
     # execute script without presenting dmenu to the user if an argument was

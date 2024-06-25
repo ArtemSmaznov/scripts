@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# variables
+# variables --------------------------------------------------------------------
 target_device="$1"
 
-# variables
-#-------------------------------------------------------------------------------
+# variables --------------------------------------------------------------------
 controllers=(
     "kingkong3-max"
     "ps4-magma"
@@ -11,8 +10,7 @@ controllers=(
     "xbox-one"
 )
 
-# functions
-#-------------------------------------------------------------------------------
+# functions --------------------------------------------------------------------
 get_device_mac () {
     device_mac="$1"
     bluetoothctl devices |
@@ -20,8 +18,7 @@ get_device_mac () {
         head -1
 }
 
-# execution
-#===============================================================================
+# execution ====================================================================
 for controller in "${controllers[@]}"; do
     mac_address=$(get_device_mac "$controller")
     bluetoothctl disconnect "$mac_address"

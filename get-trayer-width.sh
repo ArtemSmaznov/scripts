@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# execution
-#===============================================================================
+# execution ====================================================================
 if [ $(pidof trayer) ]; then
     xprop -name panel |
         grep 'program specified minimum size' |

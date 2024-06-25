@@ -1,18 +1,15 @@
 #!/usr/bin/env bash
 wallpaper_category=$1
 
-# environment variables
-#-------------------------------------------------------------------------------
+# environment variables --------------------------------------------------------
 [ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
 [ ! "$XDG_STATE_HOME" ] && export XDG_STATE_HOME="$HOME/.local/state"
 
-# variables
-#-------------------------------------------------------------------------------
+# variables --------------------------------------------------------------------
 wallpaper_category_file="$XDG_STATE_HOME/wallpaper"
 wallpapers_dir="$XDG_PICTURES_DIR/wallpapers"
 
-# functions
-#-------------------------------------------------------------------------------
+# functions --------------------------------------------------------------------
 function getLastCategory {
     last_category="faded"
     if [ -f "$wallpaper_category_file" ]; then
@@ -38,8 +35,7 @@ function selectRandomWallpaper {
     wallpaper=$(find "$wallpapers_dir/$category" -type f | shuf -n 1)
 }
 
-# functions - x11
-#-------------------------------------------------------------------------------
+# functions - x11 --------------------------------------------------------------
 function setNitrogen {
     monitors=$(xrandr --query |
                    grep -e '\sconnected' |
@@ -50,8 +46,7 @@ function setNitrogen {
     done
 }
 
-# functions - wayland
-#-------------------------------------------------------------------------------
+# functions - wayland ----------------------------------------------------------
 function setHyprPaper {
     monitors=$(hyprctl -j monitors | jq -r '.[].name')
 
@@ -75,8 +70,7 @@ function setWPaperD {
     wpaperd
 }
 
-# execution
-#===============================================================================
+# execution ====================================================================
 getLastCategory
 handleCategoryInput "$wallpaper_category"
 updateStateFile "$wallpaper_category"

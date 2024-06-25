@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 declare -a options
 
-# environment variables
-#-------------------------------------------------------------------------------
+# environment variables --------------------------------------------------------
 # define LOCKER in .xpwofile to set to different locker program
 case $XDG_SESSION_TYPE in
     x11) LOCKER="$HOME/.config/i3lock/i3lock.sh" ;;
@@ -16,16 +15,14 @@ case $XDG_SESSION_TYPE in
     *) exit 1 ;;
 esac
 
-# variables
-#-------------------------------------------------------------------------------
+# variables --------------------------------------------------------------------
 # use notify-send if run in dumb term
 output="echo"
 if [[ ${TERM} == 'dumb' ]]; then
     output="notify-send"
 fi
 
-# functions
-#-------------------------------------------------------------------------------
+# functions --------------------------------------------------------------------
 yesno () {
     # shellcheck disable=SC2005
     echo "$(echo -e "No\nYes" | wofi --dmenu -p "${1}")"
@@ -62,8 +59,7 @@ execute_choice () {
     fi
 }
 
-# setup
-#-------------------------------------------------------------------------------
+# setup ------------------------------------------------------------------------
 # execute script without presenting dmenu to the user if any argument was passed
 [ ! $# -eq 0 ] && execute_choice "$1" && exit 0
 
@@ -72,8 +68,7 @@ execute_choice () {
 # prompt the user
 choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
-# execution
-#===============================================================================
+# execution ====================================================================
 case $choice in
     'Logout')
         if [[ $(yesno "Logout?") == "Yes" ]]; then

@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 declare -a options
 
-# environment variables
-#-------------------------------------------------------------------------------
+# environment variables --------------------------------------------------------
 [ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
 
-# variables
-#-------------------------------------------------------------------------------
+# variables --------------------------------------------------------------------
 wallpapers_dir="$XDG_PICTURES_DIR/wallpapers"
 
 prompt="Wallpaper Category"
@@ -16,16 +14,13 @@ prompt="Wallpaper Category"
 # to dmenu
 options=("$(ls "$wallpapers_dir" --hide="*.*")")
 
-# functions
-#-------------------------------------------------------------------------------
+# functions --------------------------------------------------------------------
 
-# setup
-#-------------------------------------------------------------------------------
+# setup ------------------------------------------------------------------------
 # prompt the user
 choice=$(printf '%s\n' "-refresh" "${options[@]}" | wofi --dmenu -p "${prompt}")
 
-# execution
-#===============================================================================
+# execution ====================================================================
 case $choice in
     '') exit 1 ;;
     '-refresh') ~/.local/bin/set-wallpaper.sh ;;

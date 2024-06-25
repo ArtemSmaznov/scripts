@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # player="$2"
 
-# execution
-#===============================================================================
+# execution ====================================================================
 case $1 in
     toggle)    playerctl play-pause   ;;
     stop)      playerctl stop         ;;

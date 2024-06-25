@@ -2,8 +2,7 @@
 type="$1" # image/png
 # screenshot.sh monitor | save-to-clipboard.sh image/png
 
-# execution
-#===============================================================================
+# execution ====================================================================
 case "$XDG_SESSION_TYPE" in
     wayland) wl-copy -t "$type" ;;
 

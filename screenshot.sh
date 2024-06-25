@@ -1,20 +1,17 @@
 #!/usr/bin/env bash
 scope="$1"
 
-# environment variables
-#-------------------------------------------------------------------------------
+# environment variables --------------------------------------------------------
 [ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
 
-# variables
-#-------------------------------------------------------------------------------
+# variables --------------------------------------------------------------------
 screen_dir="$XDG_PICTURES_DIR/screenshots"
 screen_name="screenshot"
 screen_format="png"
 
 shutter="/usr/share/sounds/freedesktop/stereo/camera-shutter.oga"
 
-# functions
-#-------------------------------------------------------------------------------
+# functions --------------------------------------------------------------------
 set_screen_file() {
     timestamp=$(~/.local/bin/get-timestamp.sh)
     screen_file="$screen_dir/$screen_name-$timestamp.$screen_format"
@@ -60,8 +57,7 @@ screenshot_android() {
     adb -s "$adb_device" shell rm "$remote_file"
 }
 
-# setup
-#-------------------------------------------------------------------------------
+# setup ------------------------------------------------------------------------
 case $scope in
     monitor)
         message="Active monitor"
@@ -95,8 +91,7 @@ accepted options:
         ;;
 esac
 
-# execution
-#===============================================================================
+# execution ====================================================================
 mkdir -p "${screen_dir}"
 
 case $scope in

@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 scope="$1"
 
-# environment variables
-#-------------------------------------------------------------------------------
+# environment variables --------------------------------------------------------
 [ ! "$XDG_VIDEOS_DIR" ] && export XDG_VIDEOS_DIR="$HOME/Videos"
 
-# variables
-#-------------------------------------------------------------------------------
+# variables --------------------------------------------------------------------
 record_dir="$XDG_VIDEOS_DIR/recordings"
 record_name="recording"
 record_format="mp4"
@@ -24,8 +22,7 @@ audio_device='alsa_output.usb-Focusrite_Scarlett_2i2_USB_Y86EP6H211E46C-00.analo
 resolution='1920x1080'
 fps='30'
 
-# functions
-#-------------------------------------------------------------------------------
+# functions --------------------------------------------------------------------
 xorg_capture() {
     ffmpeg \
         -video_size $resolution -framerate $fps \
@@ -36,12 +33,9 @@ xorg_capture() {
         $record_dir/screenrecording-$(~/.local/bin/get-timestamp.sh).mkv
 }
 
-# setup
-#-------------------------------------------------------------------------------
+# setup ------------------------------------------------------------------------
 
-# execution
-#===============================================================================
-
+# execution ====================================================================
 case $scope in
     monitor)
         message="Active monitor"

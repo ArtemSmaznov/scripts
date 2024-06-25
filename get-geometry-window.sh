@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# execution
-#===============================================================================
+# execution ====================================================================
 case $XDG_SESSION_TYPE in
     wayland)
         case $XDG_SESSION_DESKTOP in

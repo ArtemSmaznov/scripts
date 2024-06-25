@@ -4,8 +4,7 @@
 # bugs that are hard to discover.
 set -euo pipefail
 
-# variables
-#-------------------------------------------------------------------------------
+# variables --------------------------------------------------------------------
 prompt="Screenshot"
 options=(
     "Monitor"
@@ -15,8 +14,7 @@ options=(
     "TV"
 )
 
-# functions
-#-------------------------------------------------------------------------------
+# functions --------------------------------------------------------------------
 main () {
     scope="$1"
     case "$scope" in
@@ -29,8 +27,7 @@ main () {
     esac
 }
 
-# setup
-#-------------------------------------------------------------------------------
+# setup ------------------------------------------------------------------------
 # execute script without presenting dmenu to the user if any arguments were
 # passed to the script
 [ ! $# -eq 0 ] && main "$1" && exit
@@ -38,7 +35,6 @@ main () {
 # if no arguments were passed, present dmenu to user
 choice=$(printf '%s\n' "${options[@]}" | wofi --dmenu -p "${prompt}")
 
-# execution
-#===============================================================================
+# execution ====================================================================
 # act on user selection
 [ "$choice" ] && main "$choice"

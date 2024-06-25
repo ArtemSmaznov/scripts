@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 duration=$1
 
-# execution
-#===============================================================================
+# execution ====================================================================
 while (( $duration > 0 )); do
     notify-send "Starting recording in" "$duration"
 
