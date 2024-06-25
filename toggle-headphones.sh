@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # variables
 #-------------------------------------------------------------------------------
-headphones_name="momentum-4"
+device_name="momentum-4"
 
 # functions
 #-------------------------------------------------------------------------------
@@ -28,17 +28,17 @@ toggle_action () {
 
 # setup
 #-------------------------------------------------------------------------------
-headphones_mac=$(get_device_mac "$headphones_name")
-headhones_blocked=$(is_device_blocked "$headphones_mac")
+device_mac=$(get_device_mac "$device_name")
+device_blocked=$(is_device_blocked "$device_mac")
 
 # execution
 #===============================================================================
-case $headhones_blocked in
+case $device_blocked in
     no)
-        bluetoothctl block "$headphones_mac"
+        bluetoothctl block "$device_mac"
     ;;
     yes)
-        bluetoothctl unblock "$headphones_mac"
-        bluetoothctl connect "$headphones_mac"
+        bluetoothctl unblock "$device_mac"
+        bluetoothctl connect "$device_mac"
     ;;
 esac
