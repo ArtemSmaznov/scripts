@@ -103,9 +103,10 @@ get_charge_icon () {
 
     # substitute for font awesome icons
     case "$icon" in
-        audio-headset) icon=headset ;;
-        input-gaming)  icon=gamepad ;;
-        *)             icon=question ;;
+        audio-headset) icon=headset     ;;
+        input-gaming)  icon=gamepad     ;;
+        audio-card)    icon=volume-high ;;
+        *)             icon=question    ;;
     esac
 
     echo "$icon"
@@ -126,8 +127,9 @@ get_device_info () {
         no)  echo 0 ;;
 
         # icons
-        input-gaming)  echo gamepad ;;
-        audio-headset) echo headset ;;
+        input-gaming)  echo gamepad     ;;
+        audio-headset) echo headset     ;;
+        audio-card)    echo volume-high ;;
 
         # other
         *) echo "$info" ;;
