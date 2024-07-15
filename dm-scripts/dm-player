@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# environment variables ________________________________________________________
+
+# variables ====================================================================
+prompt="Play/Pause"
+dmenu="wofi --dmenu -p ${prompt}"
+
+# options ----------------------------------------------------------------------
+target="$1"
+
+# functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+getAllPlayers () {
+    playerctl --list-all
+}
+
+togglePlayer () {
+    target="$1"
+    playerctl --player "$target" play-pause
+}
+
+# setup ________________________________________________________________________
+all_players=$(getAllPlayers)
+
+[[ ! $all_players =~ $target ]] && echo "[error]: no player '$target' found.
+available players:
+$all_players " && exit 1
+
+[ "$target" ] && togglePlayer "$target" && exit 0
+
+choice=$(printf '%s\n' "${all_players[@]}" | $dmenu) || exit 0
+
+# main *************************************************************************
+togglePlayer "$choice"
