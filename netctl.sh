@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-get_status () {
+function get_status () {
     con_type="$1"
     status=$(nmcli --fields 'type,state' device status |
                  awk '$1 == "'"$con_type"'" { print $2 }' |
@@ -14,7 +14,7 @@ get_status () {
     esac
 }
 
-toggle_connection () {
+function toggle_connection () {
     con_type="$1"
 
     if [ "$con_type" == 'ethernet' ]; then
@@ -34,14 +34,14 @@ toggle_connection () {
 }
 
 # get functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-get_device () {
+function get_device () {
     con_type="$1"
     nmcli --fields 'type,device' device status |
         awk '$1 == "'"$con_type"'" { print $2 }' |
         grep -v dev
 }
 
-get_connection () {
+function get_connection () {
     con_type="$1"
     nmcli --fields 'type,connection' device status |
         awk '$1 == "'"$con_type"'" { str=""; for (i=2; i<=NF; i++) str=str $i " "; print str }' |
@@ -49,7 +49,7 @@ get_connection () {
 }
 
 # monitor functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-monitor_status () {
+function monitor_status () {
     con_type="$1"
     device=$(get_device "$con_type")
     get_status "$con_type"
@@ -66,7 +66,7 @@ monitor_status () {
         done
 }
 
-monitor_connection () {
+function monitor_connection () {
     con_type="$1"
     device=$(get_device "$con_type")
     get_connection "$con_type"

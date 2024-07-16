@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-get_status () {
+function get_status () {
     status=$(bluetoothctl show |
                      awk '$1 == "Powered:" { print $2 }')
 
@@ -11,22 +11,22 @@ get_status () {
     esac
 }
 
-turn_on_connection () {
+function turn_on_connection () {
     bluetoothctl power on
 }
 
-turn_off_connection () {
+function turn_off_connection () {
     bluetoothctl power off
 }
 
-toggle_connection () {
+function toggle_connection () {
     case $(get_status) in
         0) turn_on_connection  ;;
         1) turn_off_connection ;;
     esac
 }
 
-set_serial_var () {
+function set_serial_var () {
     device_name="$1"
     serial=$(bluetoothctl devices |
         awk '$3 == "'"$device_name"'" { print $2 }')
@@ -39,19 +39,19 @@ set_serial_var () {
 }
 
 # get functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-get_serial () {
+function get_serial () {
     device_name="$1"
     set_serial_var "$device_name"
     echo "$serial"
 }
 
-get_devices () {
+function get_devices () {
     type="$1"
     bluetoothctl devices "$type" |
         awk '{ print $3 }'
 }
 
-get_charge_state () {
+function get_charge_state () {
     device_name="$1"
     set_serial_var "$device_name"
 
@@ -66,7 +66,7 @@ get_charge_state () {
     echo "$charge_state"
 }
 
-get_charge_level () {
+function get_charge_level () {
     device_name="$1"
     set_serial_var "$device_name"
 
@@ -88,7 +88,7 @@ get_charge_level () {
     echo "$charge_level"
 }
 
-get_charge_icon () {
+function get_charge_icon () {
     device_name="$1"
     set_serial_var "$device_name"
 
@@ -113,7 +113,7 @@ get_charge_icon () {
 }
 
 # device functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-get_device_info () {
+function get_device_info () {
     device_name="$1"
     field="$2"
     set_serial_var "$device_name"
@@ -136,7 +136,7 @@ get_device_info () {
     esac
 }
 
-toggle_device () {
+function toggle_device () {
     device_name="$1"
     set_serial_var "$device_name"
 

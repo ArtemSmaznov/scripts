@@ -15,7 +15,7 @@ options=(
 )
 
 # functions --------------------------------------------------------------------
-main () {
+function main () {
     scope="$1"
     case "$scope" in
         "Monitor") ~/.local/bin/screenshot.sh monitor ;;

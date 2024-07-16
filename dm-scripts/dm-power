@@ -23,7 +23,7 @@ if [[ ${TERM} == 'dumb' ]]; then
 fi
 
 # functions --------------------------------------------------------------------
-yesno () {
+function yesno () {
     # shellcheck disable=SC2005
     echo "$(echo -e "No\nYes" | wofi --dmenu -p "${1}")"
 }
@@ -48,7 +48,7 @@ declare -a options=(
     "Quit"
 )
 
-execute_choice () {
+function execute_choice () {
     if [[ $1 == 'lock' ]]; then ${LOCKER}
     elif [[ $1 == 'reboot' ]]; then systemctl reboot
     elif [[ $1 == 'poweroff' ]]; then systemctl poweroff

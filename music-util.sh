@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # variables ====================================================================
-usage () {
+function usage () {
     self=$(basename "$0")
     echo "Usage:
     $self fix-mp3        attempt to fix corrupted mp3 (make backup)

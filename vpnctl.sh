@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-get_status () {
+function get_status () {
     status=$(piactl get connectionstate)
 
     case $status in
@@ -13,21 +13,21 @@ get_status () {
     esac
 }
 
-toggle_connection () {
+function toggle_connection () {
     case $(get_status) in
         0) piactl connect    ;;
         1) piactl disconnect ;;
     esac
 }
 
-change_region () {
+function change_region () {
     region="$1"
     piactl set region "$region"
     piactl connect
 }
 
 # monitor functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-monitor_status () {
+function monitor_status () {
     piactl monitor connectionstate |
         while read -r line; do
             case "$line" in

@@ -9,42 +9,42 @@ player_arg=""
 [ -n "$player" ] && player_arg="--player=$player"
 
 # functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-listen_metadata () {
+function listen_metadata () {
     playerctl metadata \
         --follow \
         "$player_arg" \
         --format "{{$1}}"
 }
 
-listen_metadata_lc () {
+function listen_metadata_lc () {
     playerctl metadata \
         --follow \
         "$player_arg" \
         --format "{{lc($1)}}"
 }
 
-listen_metadata_path () {
+function listen_metadata_path () {
     playerctl metadata \
         --follow \
         "$player_arg" \
         --format "{{$1}}"
 }
 
-listen_metadata_icon () {
+function listen_metadata_icon () {
     playerctl metadata \
         --follow \
         "$player_arg" \
         --format "{{emoji($1)}}"
 }
 
-listen_album_color () {
+function listen_album_color () {
     listen_metadata "$1" | while read -r cover_file; do
         [ -z "$cover_file" ] && cover_file="$XDG_MUSIC_DIR/no-cover"
         ~/.local/bin/get-primary-color.sh -f hex "$cover_file"
     done
 }
 
-listen_mpd_event () {
+function listen_mpd_event () {
     event="$1"
     field="$2"
 

@@ -35,7 +35,7 @@ usage="""Usage:
     get-music.sh stats """
 
 # functions --------------------------------------------------------------------
-convert_mode () {
+function convert_mode () {
     if [ $(mpc status "%$1%") == "on" ]; then
         echo "$2"
     else
@@ -43,7 +43,7 @@ convert_mode () {
     fi
 }
 
-convert_crossfade () {
+function convert_crossfade () {
     if [[ $(mpc crossfade | awk '{print $2}') > 0 ]]; then
         echo "$1"
     else
@@ -51,7 +51,7 @@ convert_crossfade () {
     fi
 }
 
-convert_update () {
+function convert_update () {
     if mpc status | grep -q 'Updating DB'; then
         echo "$1"
     else
@@ -59,7 +59,7 @@ convert_update () {
     fi
 }
 
-get_track_file () {
+function get_track_file () {
     relative_file="$(mpc current -f %file%)"
 
     [ -z "$relative_file" ] && echo "" && return
@@ -68,7 +68,7 @@ get_track_file () {
     echo "$absolute_file"
 }
 
-get_album_cover_file () {
+function get_album_cover_file () {
     track_file="$(get_track_file)"
     [ -z "$track_file" ] && return
 
@@ -81,12 +81,12 @@ get_album_cover_file () {
     fi
 }
 
-get_album_cover_color () {
+function get_album_cover_color () {
     cover_file="$(get_album_cover_file)"
     ~/.local/bin/get-primary-color.sh "$cover_file"
 }
 
-get_flags () {
+function get_flags () {
     flags=(
         $(convert_mode repeat r)
         $(convert_mode random z)
@@ -103,12 +103,12 @@ get_flags () {
     echo "[$mpd_flags]"
 }
 
-get_progress () {
+function get_progress () {
     music_progress=$(mpc status "%percenttime%" | cut -c-3 | tr -d '[:space:]')
     echo "$music_progress"
 }
 
-get_track_metadata () {
+function get_track_metadata () {
     field=$1
 
     case $field in
@@ -132,7 +132,7 @@ get_track_metadata () {
     echo "$value"
 }
 
-get_stats () {
+function get_stats () {
     rating="$(get_track_metadata rating)"
     play_count="$(get_track_metadata play_count)"
     skip_count="$(get_track_metadata skip_count)"

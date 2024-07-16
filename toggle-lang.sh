@@ -3,7 +3,7 @@
 scripts_dir="$HOME/.local/bin"
 
 # functions - x11 --------------------------------------------------------------
-toggle_x11 () {
+function toggle_x11 () {
     case $("$scripts_dir/get-lang.sh") in
         'us') new_lang='ru' ;;
         'ru') new_lang='jp' ;;
@@ -20,13 +20,13 @@ toggle_x11 () {
 }
 
 # functions - wayland ----------------------------------------------------------
-toggle_wayland () {
+function toggle_wayland () {
     case $XDG_CURRENT_DESKTOP in
         'Hyprland') toggle_hyprland ;;
     esac
 }
 
-toggle_hyprland () {
+function toggle_hyprland () {
     keyboard_device="massdrop-inc.-ctrl-keyboard"
     hyprctl switchxkblayout "$keyboard_device" next
     case $("$scripts_dir/get-lang.sh") in

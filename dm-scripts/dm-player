@@ -9,11 +9,11 @@ dmenu="wofi --dmenu -p ${prompt}"
 target="$1"
 
 # functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-getAllPlayers () {
+function getAllPlayers () {
     playerctl --list-all
 }
 
-togglePlayer () {
+function togglePlayer () {
     target="$1"
     playerctl --player "$target" play-pause
 }

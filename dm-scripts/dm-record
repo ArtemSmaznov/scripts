@@ -13,7 +13,7 @@ options=(
 )
 
 # functions --------------------------------------------------------------------
-start_recording () {
+function start_recording () {
     scope="$1"
     case "$scope" in
         "Monitor") ~/.local/bin/record-screen.sh monitor & echo $! > "$proc" ;;
@@ -26,7 +26,7 @@ start_recording () {
     esac
 }
 
-stop_recording () {
+function stop_recording () {
     pid="$(cat $proc)"
 
     # kill with SIGINT, allowing finishing touches.
@@ -41,7 +41,7 @@ stop_recording () {
 
 # Check audio sources with
 # pactl list sources | grep Name
-audio_capture () {
+function audio_capture () {
     ffmpeg \
         -f pulse -ac 2 -i "$audio_device" \
         -codec:a copy \
