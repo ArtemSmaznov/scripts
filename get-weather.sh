@@ -28,6 +28,7 @@ function get_icon() {
     Atmosphere) echo 🌁 ;;
     Clear) echo ☀ ;;
     Clouds) echo ⛅ ;;
+    Mist) echo 🌫 ;;
     Overcast) echo ☁ ;;
     *) echo "❓$conditions" ;;
     esac
