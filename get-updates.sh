@@ -9,5 +9,4 @@ if [ ! -f "$updates_file" ]; then
 fi
 
 # execution ====================================================================
-cat "$updates_file" |
-    wc -l
+wc -l <"$updates_file"
