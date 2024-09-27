@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # variables --------------------------------------------------------------------
 [ ! "$XDG_DOCUMENTS_DIR" ] && export XDG_DOCUMENTS_DIR="$HOME/Documents"
-org_note_path="$XDG_DOCUMENTS_DIR/notes/housing.org"
+org_note_path="$XDG_DOCUMENTS_DIR/notes/todo.org"
 
 match_start="STRT"
 match_end=":END:"
