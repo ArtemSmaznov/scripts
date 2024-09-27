@@ -3,34 +3,36 @@ debug=false
 
 # execution ====================================================================
 case $XDG_SESSION_TYPE in
-    wayland)
-        case $XDG_SESSION_DESKTOP in
-            Hyprland)
-                # blue screen filter
-                $XDG_CONFIG_HOME/wlsunset/wlsunset.sh &
-                ;;
-            *) exit 1 ;;
-        esac ;;
-
-    x11)
-        # screen locker
-        # xscreensaver -no-splash &
-        # xautolock -time 60 -locker "$HOME/.config/i3lock/i3lock.sh" &
-        xss-lock -- "$HOME/.config/i3lock/i3lock.sh" &
-
-        # compositor
-        picom -b &
-
-        # hide cursor
-        unclutter -jitter 5 &
-
+wayland)
+    case $XDG_SESSION_DESKTOP in
+    Hyprland)
         # blue screen filter
-        redshift-gtk &
+        "$XDG_CONFIG_HOME"/wlsunset/wlsunset.sh &
         ;;
-
     *) exit 1 ;;
+    esac
+    ;;
+
+x11)
+    # screen locker
+    # xscreensaver -no-splash &
+    # xautolock -time 60 -locker "$HOME/.config/i3lock/i3lock.sh" &
+    xss-lock -- "$HOME/.config/i3lock/i3lock.sh" &
+
+    # compositor
+    picom -b &
+
+    # hide cursor
+    unclutter -jitter 5 &
+
+    # blue screen filter
+    redshift-gtk &
+    ;;
+
+*) exit 1 ;;
 esac
 
+# system apps
 # dunst &
 nm-applet &
 blueman-applet &
@@ -38,12 +40,14 @@ nextcloud --background &
 
 fcitx5 -d &
 
+# GUI apps
 if ! $debug; then
     paplay "$HOME/public/audio/windows95-startup.wav" &
 
     lutris &
     /usr/bin/steam-runtime %U &
     qutebrowser &
+    thunderbird &
     emacs &
     # emacsclient -ca '' &
 
