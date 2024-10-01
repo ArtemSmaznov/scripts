@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 scope="$1"
+remote_host="$2"
+[ -z "$3" ] && remote_port=5555 || remote_port=$3
 
 # environment variables --------------------------------------------------------
 [ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
@@ -31,7 +33,7 @@ screenshot_wayland() {
 screenshot_xorg() {
     exit 1
     maim -u --geometry "$geometry" | tee "$screen_file" | ~/.local/bin/save-to-clipboard.sh image/png || exit 1
-    maim -u --capturebackground -i $(xdotool getactivewindow) | tee "$screen_file" | ~/.local/bin/save-to-clipboard.sh image/png || exit 1
+    maim -u --capturebackground -i "$(xdotool getactivewindow)" | tee "$screen_file" | ~/.local/bin/save-to-clipboard.sh image/png || exit 1
     maim -u --capturebackground --select -n | tee "$screen_file" | ~/.local/bin/save-to-clipboard.sh image/png || exit 1
     maim -u | tee "$screen_file" | ~/.local/bin/save-to-clipboard.sh image/png || exit 1
 }
@@ -47,9 +49,12 @@ screenshot_android() {
     remote_dir="/sdcard/Pictures/Screenshots"
     remote_file="$remote_dir/$screen_name.$screen_format"
 
-    adb_device="$(~/.local/bin/get-ip.sh $remote_host):$remote_port"
+    adb_device="$(~/.local/bin/get-ip.sh "$remote_host"):$remote_port"
 
-    adb connect "$adb_device"
+    adb connect "$adb_device" |
+        grep -v connected &&
+        echo "no screenshot taken" &&
+        exit 1
     adb -s "$adb_device" shell mkdir -p "$remote_dir"
     adb -s "$adb_device" shell screencap -p "$remote_file"
     paplay "$shutter"
@@ -59,27 +64,27 @@ screenshot_android() {
 
 # setup ------------------------------------------------------------------------
 case $scope in
-    monitor)
-        message="Active monitor"
-        geometry=$(~/.local/bin/get-geometry-monitor.sh) || exit 1
-        ;;
-    area)
-        message="Area selection"
-        geometry=$(~/.local/bin/get-geometry-area.sh) || exit 1
-        ;;
-    window)
-        message="Active window"
-        geometry=$(~/.local/bin/get-geometry-window.sh) || exit 1
-        ;;
-    desktop)
-        message="Full desktop"
-        geometry=$(~/.local/bin/get-geometry-desktop.sh) || exit 1
-        ;;
-    tv)
-        message="TV"
-        ;;
-    *)
-        echo -e """error: invalid option '$scope'
+monitor)
+    message="Active monitor"
+    geometry=$(~/.local/bin/get-geometry-monitor.sh) || exit 1
+    ;;
+area)
+    message="Area selection"
+    geometry=$(~/.local/bin/get-geometry-area.sh) || exit 1
+    ;;
+window)
+    message="Active window"
+    geometry=$(~/.local/bin/get-geometry-window.sh) || exit 1
+    ;;
+desktop)
+    message="Full desktop"
+    geometry=$(~/.local/bin/get-geometry-desktop.sh) || exit 1
+    ;;
+tv)
+    message="TV"
+    ;;
+*)
+    echo -e """error: invalid option '$scope'
 
 accepted options:
   - monitor
@@ -87,20 +92,21 @@ accepted options:
   - window
   - desktop
   - tv"""
-        exit 1
-        ;;
+    exit 1
+    ;;
 esac
 
 # execution ====================================================================
 mkdir -p "${screen_dir}"
 
 case $scope in
-    tv) screenshot_android tate.arts.lan 5555 ;;
-    *) case $XDG_SESSION_TYPE in
-           wayland) screenshot_wayland ;;
-           x11) screenshot_xorg ;;
-       esac
-       ;;
+tv) screenshot_android "$remote_host" "$remote_port" ;;
+*)
+    case $XDG_SESSION_TYPE in
+    wayland) screenshot_wayland ;;
+    x11) screenshot_xorg ;;
+    esac
+    ;;
 esac
 
 notify-send --urgency low "Screenshot saved!" "$message" --icon "$screen_file"
