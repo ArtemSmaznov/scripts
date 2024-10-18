@@ -45,7 +45,7 @@ if ! $debug; then
     paplay "$HOME/public/audio/windows95-startup.wav" &
 
     lutris &
-    /usr/bin/steam-runtime %U &
+    # /usr/bin/steam-runtime %U &
     qutebrowser &
     thunderbird &
     emacs &
