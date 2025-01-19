@@ -1,19 +1,31 @@
 #!/usr/bin/env bash
-seek="$2"
+
+# functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function skipAndRemoveFromQueue() {
+    consume=$(mpc | grep -o "consume: on")
+
+    [ ! "$consume" ] && mpc --quiet consume on
+    mpc --quiet next
+    [ ! "$consume" ] && mpc --quiet consume on
+}
 
 # execution ====================================================================
 case $1 in
-    toggle)    mpc toggle       ;;
-    stop)      mpc stop         ;;
-    prev)      mpc prev         ;;
-    next)      mpc next         ;;
-    goto)      mpc seek "$seek" ;;
+toggle) mpc --quiet toggle ;;
+stop) mpc --quiet stop ;;
+prev) mpc --quiet prev ;;
+next) mpc --quiet next ;;
+skip) skipAndRemoveFromQueue ;;
+goto)
+    seek="$2"
+    mpc --quiet seek "$seek"
+    ;;
 
-    repeat)    mpc repeat       ;;
-    random)    mpc random       ;;
-    single)    mpc single       ;;
-    consume)   mpc consume      ;;
+repeat) mpc --quiet repeat ;;
+random) mpc --quiet random ;;
+single) mpc --quiet single ;;
+consume) mpc --quiet consume ;;
 
-    vol-up)    mpc volume +2    ;;
-    vol-down)  mpc volume -2    ;;
+vol-up) mpc --quiet volume +2 ;;
+vol-down) mpc --quiet volume -2 ;;
 esac
