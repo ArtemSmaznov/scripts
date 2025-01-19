@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
 # functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function playFromBeginning() {
+    mpc --quiet pause
+    mpc --quiet seek 0
+    mpc --quiet play
+}
+
 function skipAndRemoveFromQueue() {
     consume=$(mpc | grep -o "consume: on")
 
@@ -16,6 +22,7 @@ stop) mpc --quiet stop ;;
 prev) mpc --quiet prev ;;
 next) mpc --quiet next ;;
 skip) skipAndRemoveFromQueue ;;
+replay) playFromBeginning ;;
 goto)
     seek="$2"
     mpc --quiet seek "$seek"
