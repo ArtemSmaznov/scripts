@@ -59,7 +59,9 @@ screenshot_android() {
     adb -s "$adb_device" shell screencap -p "$remote_file"
     paplay "$shutter"
     adb -s "$adb_device" pull "$remote_file" "$screen_file"
-    adb -s "$adb_device" shell rm "$remote_file"
+    adb -s "$adb_device" shell rm "$remote_file" ||
+        echo "[WARNING] failed to remove remote file $remote_file" &&
+        exit 0
 }
 
 # setup ------------------------------------------------------------------------
