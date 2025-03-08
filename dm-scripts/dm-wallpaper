@@ -3,11 +3,14 @@ declare -a options
 
 # environment variables --------------------------------------------------------
 [ ! "$XDG_PICTURES_DIR" ] && export XDG_PICTURES_DIR="$HOME/Pictures"
+[ ! "$XDG_STATE_HOME" ] && export XDG_STATE_HOME="$HOME/.local/state"
 
 # variables --------------------------------------------------------------------
+wallpaper_category_file="$XDG_STATE_HOME/wallpaper"
 wallpapers_dir="$XDG_PICTURES_DIR/wallpapers"
 
-prompt="Wallpaper Category"
+current_category=$(cat "$wallpaper_category_file")
+prompt="$current_category"
 
 # present dmenu to user with options based on the available sub-directories in
 # $wall_dir printf '%s\n' is used to format the array one item to a line to feed
@@ -22,7 +25,7 @@ choice=$(printf '%s\n' "-refresh" "${options[@]}" | wofi --dmenu -p "${prompt}")
 
 # execution ====================================================================
 case $choice in
-    '') exit 1 ;;
-    '-refresh') ~/.local/bin/set-wallpaper.sh ;;
-    *) ~/.local/bin/set-wallpaper.sh "$choice" ;;
+'') exit 1 ;;
+'-refresh') ~/.local/bin/set-wallpaper.sh ;;
+*) ~/.local/bin/set-wallpaper.sh "$choice" ;;
 esac
