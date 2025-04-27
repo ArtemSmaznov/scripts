@@ -34,7 +34,8 @@ function get_default_output() {
         awk -F '[' '{ print $1 }' |
         awk -F '.' '{ print $2 }' |
         sed -e 's/^ //' \
-            -e 's/ \/.*$//'
+            -e 's/ \/.*$//' |
+        xargs
 }
 
 function get_output_id() {
