@@ -2,22 +2,23 @@
 # environment variables ________________________________________________________
 
 # variables ====================================================================
+scripts_dir="$HOME/.local/bin"
 
 # options ----------------------------------------------------------------------
 target="$1"
 
 # functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function get_default_output() {
-    "$HOME"/.local/bin/audioctl.sh get default
+    "$scripts_dir"/audioctl.sh get default
 }
 
 function list_outputs() {
-    "$HOME"/.local/bin/audioctl.sh list outputs
+    "$scripts_dir"/audioctl.sh list outputs
 }
 
 function switch_output() {
     output="$1"
-    "$HOME"/.local/bin/audioctl.sh switch "$output"
+    "$scripts_dir"/audioctl.sh switch "$output"
 }
 
 # prompt _______________________________________________________________________
