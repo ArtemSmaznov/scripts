@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
+# variables ====================================================================
 # player="$2"
+volume_step=0.01
 
 # execution ====================================================================
 case $1 in
@@ -8,6 +10,6 @@ stop) playerctl stop ;;
 prev) playerctl previous ;;
 next) playerctl next ;;
 
-vol-up) playerctl volume 0.05+ ;;
-vol-down) playerctl volume 0.05- ;;
+vol-up) playerctl volume ${volume_step}+ ;;
+vol-down) playerctl volume ${volume_step}- ;;
 esac
