@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# variables ====================================================================
+default_sink="Scarlett 2i2 3rd Gen Headphones"
+
 # functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function list_outputs() {
     unformatted=$(wpctl status |
@@ -17,7 +20,7 @@ function list_outputs() {
 }
 
 function switch_output() {
-    new_output="$1"
+    [ -n "$1" ] && new_output="$1" || new_output="$default_sink"
     wpctl set-default $(get_output_id "$new_output")
 }
 
