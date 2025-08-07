@@ -31,8 +31,8 @@ function get_icon() {
     Mist) echo 🌫 ;;
     Overcast) echo ☁ ;;
     Haze) echo 🌫 ;;
-    Fog) echo 🌫 ;;
-    Smoke) echo 🚬 ;;
+    Fog) echo 🌁 ;;
+    Smoke) echo 🌫 ;;
     *) echo "❓$conditions" ;;
     esac
 }
