@@ -38,8 +38,8 @@ function selectRandomWallpaper {
 # functions - x11 --------------------------------------------------------------
 function setNitrogen {
     monitors=$(xrandr --query |
-                   grep -e '\sconnected' |
-                   awk '{print $1}')
+        grep -e '\sconnected' |
+        awk '{print $1}')
 
     for monitor in $monitors; do
         nitrogen --set-zoom-fill --random --head="$monitor" "$wallpapers_dir/$wallpaper_category"
@@ -66,8 +66,7 @@ function setWPaperD {
     sed -i "s|path = .*$|path = \"$wallpapers_dir/$wallpaper_category\"|" "$config_file"
 
     # restart wpaperd
-    [ "$(pidof wpaperd)" ] && killall wpaperd
-    wpaperd
+    systemctl --user restart wpaperd.service
 }
 
 # execution ====================================================================
@@ -76,14 +75,14 @@ handleCategoryInput "$wallpaper_category"
 updateStateFile "$wallpaper_category"
 
 case $XDG_SESSION_TYPE in
-    wayland)
-        setWPaperD
-        ;;
+wayland)
+    setWPaperD
+    ;;
 
-    x11)
-        export DISPLAY=":0"
-        setNitrogen
-        ;;
+x11)
+    export DISPLAY=":0"
+    setNitrogen
+    ;;
 
-    *) exit 1 ;;
+*) exit 1 ;;
 esac
