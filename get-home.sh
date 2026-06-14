@@ -25,7 +25,7 @@ city=$(echo "$address" |
 
 zip=$(echo "$address" |
     awk -F', ' '{ print $(NF-1) }' |
-    awk '{ print $2,$3 }')
+    awk '{ print $2 $3 }')
 
 state=$(echo "$address" |
     awk -F', ' '{ print $(NF-1) }' |
